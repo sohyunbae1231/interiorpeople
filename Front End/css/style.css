@@ -1,0 +1,27 @@
+.nav {
+  margin: 18px;
+  border: none;
+  padding: 0;
+  background: none;
+}
+
+.home {
+  margin: 20px;
+  position: absolute;
+  left: 28%;
+  border: none;
+  padding: 0;
+  background: none;
+}
+
+.big-black-text {
+  color: #222222;
+  font-family: Roboto;
+  font-size: 20px;
+}
+
+.small-gray-text {
+  color: #94969B;
+  font-family: Roboto;
+  font-size: 14px;
+}
