@@ -1,4 +1,5 @@
-.nav {
+.sidebar {
+  position: relative;
   margin: 18px;
   border: none;
   padding: 0;
@@ -7,11 +8,37 @@
 
 .home {
   margin: 20px;
-  position: absolute;
-  left: 28%;
   border: none;
   padding: 0;
   background: none;
+  position: relative;
+  left: 50px;
+}
+
+.menu {
+  position: relative;
+  top: -15px;
+  margin: 1px;
+}
+
+.menu li {
+  float: left;
+  list-style: none;
+}
+
+.menu a {
+  font-family: Roboto;
+  font-style: normal;
+  font-weight: bold;
+  font-size: 14px;
+  line-height: 16px;
+  color: #94969B;
+  padding: 0 13px;
+  text-decoration: none;
+}
+
+.text-group {
+  vertical-align: middle;
 }
 
 .big-black-text {
@@ -24,4 +51,34 @@
   color: #94969B;
   font-family: Roboto;
   font-size: 14px;
+}
+
+.main-board {
+  display: flex;
+  vertical-align: middle;
+  position: relative;
+  left: 50px;
+}
+
+.icon-group{
+  margin-left: 10px;
+  text-align: left;
+}
+
+.icon-image {
+  border: none;
+  padding: 0;
+  background: none;
+  display:inline-block;
+  width: 80px;
+  height: 80px;
+}
+
+.icon-text {
+  margin-left: 10px;
+  text-align: left;
+  text-decoration: none;
+  color: #222222;
+  font-family: Roboto;
+  font-size: 13px;
 }
