@@ -4,6 +4,7 @@
   border: none;
   padding: 0;
   background: none;
+  top: 10px;
 }
 
 .home {
@@ -13,11 +14,12 @@
   background: none;
   position: relative;
   left: 50px;
+  top: 10px;
 }
 
 .menu {
   position: relative;
-  top: -15px;
+  top: 0px;
   margin: 1px;
 }
 
@@ -30,7 +32,7 @@
   font-family: Roboto;
   font-style: normal;
   font-weight: bold;
-  font-size: 14px;
+  font-size: 15px;
   line-height: 16px;
   color: #94969B;
   padding: 0 13px;
@@ -41,10 +43,23 @@
   vertical-align: middle;
 }
 
+.explanation-group {
+  text-align: center;
+}
+
 .big-black-text {
   color: #222222;
   font-family: Roboto;
+  font-style: normal;
+  font-weight: normal;
   font-size: 20px;
+  line-height: 40px;
+}
+
+.small-black-text {
+  color: #222222;
+  font-family: Roboto;
+  font-size: 15px;
 }
 
 .small-gray-text {
@@ -58,11 +73,18 @@
   vertical-align: middle;
   position: relative;
   left: 50px;
+  top: 30px;
+}
+
+.main-board-2 {
+  position: relative;
+  top: 30px;
+  text-align: center;
 }
 
 .icon-group{
   margin-left: 10px;
-  text-align: left;
+  text-align: center;
 }
 
 .icon-image {
@@ -70,15 +92,45 @@
   padding: 0;
   background: none;
   display:inline-block;
-  width: 80px;
+  width: 83px;
   height: 80px;
+  position: relative;
+  top: 10px;
 }
 
 .icon-text {
-  margin-left: 10px;
-  text-align: left;
+  margin-left: 1px;
+  text-align: center;
   text-decoration: none;
-  color: #222222;
+  color: #000000;
   font-family: Roboto;
   font-size: 13px;
+  position: relative;
+  top: 10px;
+}
+
+.rectangle {
+  position: relative;
+  display: flex;
+  width: 400px;
+  height: 250px;
+  top: 20px;
+  background: #E9E9E9;
+}
+
+.image-icon {
+  position: relative;
+  width: 86px;
+  height: 86px;
+  left: 145px;
+  top: 322px;
+}
+
+.upload {
+  position: relative;
+  margin: 18px;
+  border: none;
+  padding: 0;
+  background: none;
+  top: 30px;
 }
