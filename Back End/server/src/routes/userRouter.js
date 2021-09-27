@@ -15,7 +15,12 @@ const { Router } = require('express')
 const userRouter = Router()
 const { hash, compare } = require('bcryptjs') // 암호화 모듈
 // const mongoose = require('mongoose')
-const User = require('../schemas/user')
+const User = require('../schemas/User')
+
+/** 확인용 */
+userRouter.get('/', (req, res) => {
+  res.send('user route')
+})
 
 /** 회원가입 */
 userRouter.post('/register', async (req, res) => {

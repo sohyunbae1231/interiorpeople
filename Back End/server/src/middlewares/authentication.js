@@ -1,7 +1,7 @@
 // @ts-check
 
 const mongoose = require('mongoose')
-const User = require('../schemas/user')
+const User = require('../schemas/User')
 
 // @ts-ignore
 const authenticate = async (req, res, next) => {
