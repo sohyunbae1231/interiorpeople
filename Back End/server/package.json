@@ -1,5 +1,5 @@
 {
-  "name": "server",
+  "name": "interiorpeople",
   "version": "1.0.0",
   "description": "",
   "main": "./src/server.js",
@@ -24,10 +24,13 @@
   "dependencies": {
     "@types/mongoose": "^5.11.97",
     "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.5",
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
+    "express-session": "^1.17.2",
     "mime-types": "^2.1.32",
     "mongoose": "^6.0.7",
+    "morgan": "^1.10.0",
     "uuid": "^8.3.2"
   }
 }
