@@ -1,26 +1,20 @@
 // @ts-check
 
-const mongoose = require('mongoose')
-const User = require('../schemas/User')
-
 // @ts-ignore
-const authenticate = async (req, res, next) => {
-  const { sessionid } = req.headers // 세션 확인
-
-  // 세션이 없거나 올바른 형식이 아닌 경우
-  if (!sessionid || !mongoose.isValidObjectId(sessionid)) {
-    return next()
+exports.isLoggedIn = (req, res, next) => {
+  if (req.isAuthenticated()) {
+    next()
+  } else {
+    res.status(403).send('you must log in!')
   }
-
-  const user = await User.findOne({ 'session._id': sessionid })
-
-  // 세션이 없는 경우
-  if (!user) {
-    return next()
-  }
-
-  req.user = user
-  return next()
 }
 
-module.exports = { authenticate }
+// @ts-ignore
+exports.isNotLoggedIn = (req, res, next) => {
+  if (!req.isAuthenticated()) {
+    next()
+  } else {
+    const message = encodeURIComponent('already logged in')
+    res.send(`${message}`)
+  }
+}

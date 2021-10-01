@@ -4,3 +4,5 @@
 
 npx eslint --init
 
+    npm run dev
+    서버 오픈

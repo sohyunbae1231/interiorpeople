@@ -1,14 +1,23 @@
 const passport = require('passport')
+const local = require('./localStrategy')
+const User = require('../schemas/User')
 
-const User = require('../schemas/User.js')
-
-// const local = require('./localStrategy')
 module.exports = () => {
+  // 로그인 시 실행
   passport.serializeUser((user, done) => {
-    done(null, user.email)
+    done(null, user.id)
   })
 
-  passport.deserializeUser((email, done) => {
-    User.findOne({ email }).then
+  // 매 요청 시 실행
+  passport.deserializeUser((id, done) => {
+    User.findOne({ where: { id } })
+      .then((user) => {
+        done(null, user)
+      })
+      .catch((err) => {
+        done(err)
+      })
   })
+
+  local()
 }
