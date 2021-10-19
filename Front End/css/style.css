@@ -61,13 +61,14 @@ a {
   width : 100%;
 }
 
-.sidebar {
+.mypage-icon {
   position: relative;
   margin: 18px;
+  margin-left : 30px;
   border: none;
   padding: 0;
   background: none;
-  top: 10px;
+  top: 5px;
 }
 
 .home {
@@ -78,28 +79,6 @@ a {
   position: relative;
   left: 50px;
   top: 10px;
-}
-
-.menu {
-  position: relative;
-  top: 0px;
-  margin: 1px;
-}
-
-.menu li {
-  float: left;
-  list-style: none;
-}
-
-.menu a {
-  font-family: Roboto;
-  font-style: normal;
-  font-weight: bold;
-  font-size: 15px;
-  line-height: 16px;
-  color: #94969B;
-  padding: 0 13px;
-  text-decoration: none;
 }
 
 .text-group {
@@ -150,7 +129,7 @@ a {
 
 .main-board-2 {
   position: relative;
-  top: 30px;
+  top: 10px;
   text-align: center;
 }
 
@@ -221,3 +200,19 @@ a {
   text-align: right;
   transform: rotate(-180deg);
 }
+
+.select {
+  width: 200px;
+  padding: .8em .5em;
+  border: 1px solid #999;
+  font-family: inherit;
+  background: url('img/arrow.jpg') no-repeat 95% 50%;
+  border-radius: 0px;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  }
+  
+ .select::-ms-expand {
+      display: none;
+  }
