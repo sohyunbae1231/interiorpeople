@@ -25,28 +25,28 @@ function Login() {
     [])
  
     return(
-        <div>
+        <div class="login">
             <h2>로그인</h2>
-            <div>
+            <div class="login_id">
                 <input type='text' name='input_id' value={inputId} onChange={handleInputId} placeholder='아이디'/>
             </div>
-            <div>
+            <div class="login_pw">
                 <input type='password' name='input_pw' value={inputPw} onChange={handleInputPw} placeholder='비밀번호'/>
             </div>
-            <div>
+            <div class="submit">
                 <button type='button' onClick={onClickLogin}>로그인</button>
             </div>
-            <div>
-                <ul class="login">
-                    <li><a href="home.html">아이디/비밀번호 찾기</a></li>
-                    <li><a href="signup.html">회원가입</a></li>
-                </ul>
+            <div class="login_etc">
+                <li><a href="home.html">아이디/비밀번호 찾기</a></li>
+                <li><a href="signup.html">회원가입</a></li>
             </div>
-            <div>
-                <h4>SNS계정으로 간편 로그인/회원가입</h4>
-                <a href="facebook.html"><img src="img/facebook.png" width="48" height="48"></img></a>
-                <a href="kakao.html"><img src="img/kakao.png" width="48" height="48"></img></a>
-                <a href="naver.html"><img src="img/naver.png" width="48" height="48"></img></a>
+            <div class="sns_etc">
+                SNS계정으로 간편 로그인/회원가입
+            </div>
+            <div class="login_sns">
+            <li><a href=""><img src="img/facebook.png" width="67px" /><i class="fab fa-facebook-f"></i></a></li>
+            <li><a href=""><img src="img/kakao.png" width="63px" /><i class="fab fa-facebook-f"></i></a></li>
+            <li><a href=""><img src="img/naver.png" width="61px" /><i class="fab fa-twitter"></i></a></li>
             </div>
         </div>
     )
