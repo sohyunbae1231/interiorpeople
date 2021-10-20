@@ -1,66 +1,67 @@
 ul, li {
-  list-style:none;
-  margin:0;
-  padding:0;
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }
 
 a {
-  text-decoration:none;
-  color:inherit;
+  text-decoration: none;
+  color: inherit;
 }
 
+/* 상단바 */
 .top-bar {
-  display : block;
-  width:100vw;
-  height : 80px;
-  text-align : center;
-  z-index : 10;
-  margin-left : 15px;
-  top : 0;
-  margin-top : 15px;
+  display: block;
+  width: 100vw;
+  height: 80px;
+  text-align: center;
+  z-index: 10;
+  margin-left: 15px;
+  top: 0;
+  margin-top: 15px;
 }
 .top-bar > ul {
-  overflow : hidden;
-  font-size : 0;
-  top : 35px;
-  right : 0;
-  display : block;
-  width : 100%;
-  height : 34px;
+  overflow: hidden;
+  font-size: 0;
+  top: 35px;
+  right: 0;
+  display: block;
+  width: 100%;
+  height: 34px;
 }
 .top-bar > ul > li {
-  display : inline-block;
-  vertical-align : top;
-  margin-right : 30px;
-  line-height : 29px;
+  display: inline-block;
+  vertical-align: top;
+  margin-right: 30px;
+  line-height: 29px;
 }
 .top-bar > ul > li > a {
-  display : block;
-  font-size : 15px;
-  color : #222222;
-  opacity : 0.8;
-  letter-spacing : 1px;
-  position : relative;
+  display: block;
+  font-size: 15px;
+  color: #222222;
+  opacity: 0.8;
+  letter-spacing: 1px;
+  position: relative;
 }
-
 .top-bar > ul > li:hover > a {
- opacity : 1;
+ opacity: 1;
 }
 .top-bar > ul > li > .line::after {
-  content : "";
-  background-color : #222222;
-  height : 2px;
-  width : 0;
-  left : 50%;
-  bottom : 0;
-  transition : width 0.3s;
-  transform : translatex(-50%);
-  position : absolute;
+  content: "";
+  background-color: #222222;
+  height: 2px;
+  width: 0;
+  left: 50%;
+  bottom: 0;
+  transition: width 0.3s;
+  transform: translatex(-50%);
+  position: absolute;
 }
 .top-bar > ul > li:hover > a::after {
-  width : 100%;
+  width: 100%;
 }
 
+/* mypage의 아이콘 배치 */
 .mypage-icon {
   position: relative;
   margin: 18px;
@@ -98,13 +99,18 @@ a {
   top: 30px;
 }
 
+.image-add-group {
+  display: block;
+  font-size: 0;
+}
+
 .big-black-text {
   color: #222222;
   font-family: Roboto;
   font-style: normal;
   font-weight: normal;
   font-size: 20px;
-  line-height: 40px;
+  font-weight: bold;
 }
 
 .small-black-text {
@@ -129,7 +135,6 @@ a {
 
 .main-board-2 {
   position: relative;
-  top: 10px;
   text-align: center;
 }
 
@@ -165,6 +170,34 @@ a {
   top: 10px;
 }
 
+
+/* 분석 결과 페이지의 '클릭하여 쇼핑몰로 이동해보세요' 부분의 가로 스크롤 & 커스텀 */
+.box-wrap {
+  display: flex;
+  background: none;
+  margin-left: 20px;
+  flex-wrap: no-wrap;
+  overflow-x: scroll;
+  overflow-y: hidden;
+}
+
+.box-wrap::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+.box-wrap::-webkit-scrollbar-thumb {
+  background-color: #2f3542;
+  opacity: 0.3;
+  border-radius: 3px;
+}
+.box-wrap::-webkit-scrollbar-track {
+  background-color: grey;
+  opacity: 0.5;
+  border-radius: 3px;
+  box-shadow: inset 0px 0px 1px white;
+}
+
+/* 큰 회색 사각형 */
 .rectangle {
   position: relative;
   display: flex;
@@ -172,6 +205,30 @@ a {
   height: 250px;
   top: 20px;
   background: #E9E9E9;
+}
+
+.middle-rectangle {
+  position: relative;
+  display: block; 
+  margin: 0px auto;
+  width: 400px;
+  height: 200px;
+  margin-top: 20px;
+  margin-bottom: 30px;
+  background: #E9E9E9;
+}
+
+/* 분석 결과 페이지의 '클릭하여 쇼핑몰로 이동해보세요' 부분의 작은 회색 정사각형 */
+.small-rectangle {
+  position: relative;
+  display:inline-block;
+  width: 150px;
+  height: 150px;
+  top: 20px;
+  background: #E9E9E9;
+  margin-right: 20px;
+  margin-bottom: 30px;
+  flex: 0 0 auto;
 }
 
 .image-icon {
@@ -182,6 +239,7 @@ a {
   top: 322px;
 }
 
+/* 사진 업로드 버튼 */
 .upload {
   position: relative;
   margin: 18px;
@@ -191,6 +249,16 @@ a {
   top: 30px;
 }
 
+/* 뒤로가기 버튼 */
+.back-button {
+  border: none;
+  padding: 0;
+  background: none;
+  display:inline-block;
+  position: relative;
+}
+
+/* 다음으로 버튼 -> 뒤로가기 버튼을 180도 뒤집기만 함*/
 .next-button {
   border: none;
   padding: 0;
@@ -201,6 +269,7 @@ a {
   transform: rotate(-180deg);
 }
 
+/* 벽, 바닥, ... 선택 버튼 */
 .select {
   width: 200px;
   padding: .8em .5em;
@@ -216,3 +285,558 @@ a {
  .select::-ms-expand {
       display: none;
   }
+
+
+
+  /* 인스타그램 header */
+  header {
+  display: flex;
+  position: fixed;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 100%;
+  height: 54px;
+  top: 0;
+  padding: 0 20% 0 20%;
+  border-bottom: solid 1px #dbdbdb;
+  background-color: white;
+  z-index: 999;
+}
+
+.middle_box {
+  display: inline;
+  border: 1px solid red;
+}
+.right_box {
+  display: flex;
+  position: relative;
+  justify-content: space-around;
+  align-items: center;
+  right: 80px;
+  width: 222px;
+}
+
+.left_box {
+  display: flex;
+  position: relative;
+  justify-content: flex-start;
+  align-items: center;
+  top: 10px;
+  width: 280px;
+  height: 32px;
+}
+
+.insta-to-mypage-icon {
+  position: relative;
+  left: 0px;
+  border: none;
+  padding: 0;
+  background: none;
+  top: 5px;
+}
+
+.insta-to-home {
+  border: none;
+  padding: 0;
+  background: none;
+  position: relative;
+  top: 10px;
+}
+
+
+.seach_box {
+  display: flex;
+  align-items: center;
+}
+.search {
+  display: flex;
+  position: relative;
+  align-items: center;
+  left: -10px;
+  top: -2px;
+  height: 27px;
+  width: 215px;
+  background-color: #fafafa;
+  border: 1px solid #dbdbdb;
+}
+
+.magnifier {
+  position: absolute;
+  top: 35%;
+  left: 49.3%;
+  width: 12px;
+  height: 12px;
+}
+
+.search::placeholder {
+  text-align: center;
+}
+
+.navi_box {
+  display: inline;
+  height: 22px;
+  width: 22px;
+}
+
+.right_box img {
+  width: 22px;
+  height: 22px;
+}
+
+
+  /* 인스타그램 같은 community */
+  article {
+    position: relative;
+    right: 0px;
+    background-color: #fafafa;
+    border-radius: 3px;
+  }
+  .main_body {
+    display: flex;
+    position: relative;
+    text-align: center;
+    justify-content: center;
+    left: 20px;
+  }
+  .feed {
+    width: 600px;
+    height: auto;
+  }
+  
+  .story {
+    height: 117px;
+    border: 1px solid #dbdbdb;
+    border-radius: 3px;
+  }
+  
+  .my_profile{
+    border-radius: 50%;
+  }
+  
+  ul {
+    display: flex;
+    position: relative;
+    flex-direction: row;
+    justify-content: space-around;
+    left: -0px;
+    padding: 0px;
+    margin: 20px 0;
+  }
+  
+  ul li {
+    display: flex;
+    flex-direction: row;
+  }
+  
+  
+  .sub_story img {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: white;
+  }
+  .sub_story {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    width: 66px;
+    height: 66px;
+    background-image: url("rainbow.png");
+    background-size: contain;
+  }
+  .empty_box {
+    height: 26px;
+  }
+  
+  .text {
+    position: relative;
+    top: 11px;
+  }
+  
+  .feed {
+    border: 1px solid #dbdbdb;
+    border-radius: 3px;
+  }
+  
+  .feed_id {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    height: 60px;
+  }
+  .id_round {
+    display: flex;
+    position: absolute;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    top: 15px;
+    left: 10px;
+    width: 32px;
+    height: 32px;
+    background-size: contain;
+    border-radius: 50%;
+  }
+  
+  .id_box {
+    display: flex;
+    position: absolute;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: flex-start;
+    left: 0px;
+    top:0px;
+    width: 536px;
+    height: 41px;
+  }
+  .id_container{
+    display: flex;
+    position: relative;
+    flex-direction: column;
+    align-items: flex-start;
+    left: 10px;
+  }
+  
+  .id_img{
+    width:32px;
+    height: 32px;
+    border-radius: 50%;
+  }
+  
+  .id_name {
+    margin-bottom: 3px;
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .place {
+    font-size: 12px;
+  }
+  
+  .more_details {
+    position: relative;
+    right: -550px;
+  }
+  
+  .more_details img {
+    display: flex;
+    justify-content: flex-end;
+    width: 40px;
+    height: 40px;
+  }
+  .feed_picture {
+    width: 598px;
+    height: 598px;
+  }
+  
+  .feed_picture img {
+    width: 598px;
+    height: 598px;
+  }
+  
+  .emoticon_box {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    height: 40px;
+    margin: 0px;
+  }
+  
+  .emoticon_box2 {
+    display: flex;
+  }
+  .emoticon_box2 div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    margin: 0px;
+  }
+  
+  .emoticon_box2 img {
+    width: 24px;
+    height: 24px;
+  }
+  .bookmark_box {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 40px;
+    height: 40px;
+  
+  }
+  
+  .bookmark_box img {
+    width: 24px;
+    height: 24px;
+  }
+  
+  .feed_like_box {
+    display: flex;
+    position: relative;
+    flex-direction: row;
+    align-items: center;
+    height: 30px;
+    left: 8px;
+    padding: 0 16px 0 8px;
+  }
+  
+  .feed_like_box .feed_like {
+    display: flex;
+    position: relative;
+    left: 5px;
+    font-size: 14px;
+  }
+  
+  .feed_like_picture {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    top: 15px;
+    left: 10px;
+    border: 1px solid #dbdbdb;
+  }
+  
+  .feed_like_peolpe {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+  }
+  
+  .feed_article {
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+  }
+  
+  .feed_article_box {
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    flex-direction: column;
+    padding: 0 16px 0 16px;
+  }
+  .comments_container {
+    display: flex;
+  }
+  .comments {
+    font-size: 14px;
+    line-height: 18px;
+    padding: 2px;
+  }
+  .comments1 {
+    padding: 2px;
+    font-size: 14px;
+    line-height: 18px;
+    color: #8e8e8e;
+  }
+  .comments1_box {
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    flex-direction: column;
+    
+  }
+  .new_comments{
+    display: block;
+    text-align: start;
+  }
+  
+  .newCommentBox{
+    padding: 2px;
+    font-size: 14px;
+    line-height: 18px;
+  }
+  .newCommentBox1{
+    padding: 2px;
+    font-size: 14px;
+    line-height: 18px;
+  }
+  
+  
+  .comments2 {
+    font-size: 10px;
+    line-height: 18px;
+    color: #8e8e8e;
+    letter-spacing: 0.2px;
+  }
+  
+  .inputContainer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+    padding: 0 12px 0 12px;
+    margin: 0px;
+    border-top: 1px solid #efefef;
+  }
+  
+  .inputBox{
+    background-color: #FAFAFA;
+    font:14px;
+    color: black;
+    outline: none;
+    width:550px;
+    height: 50px;
+    border: solid 0px;
+  }
+  .buttonBox{
+    background-color: #FAFAFA;
+    color:#C0E0FD;
+    outline: none;
+    border: solid 0px;
+  }
+  
+  .type_comment {
+    display: flex;
+    justify-content: flex-start;
+    width: 530px;
+    font-size: 14px;
+    color: #8e8e8e;
+  }
+  
+  .submit {
+    font-size: 14px;
+    color: #bee1fd;
+  }
+  
+  .my_profile_box1 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 66px;
+    height: 66px;
+    border: 1px solid gray;
+    border-radius: 50%;
+    background-size: contain;
+    flex-direction: column;
+  }
+  
+  .my_profile_box1 img {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+  }
+  .my_profile_id{
+    margin-left: 14px;
+    font-weight: 400;
+    line-height: 18px;
+  }
+  .my_profile_id1{
+    /* border: 1px solid blue; */
+    margin-left: 10px;
+  }
+  .my_profile_id2{
+    /* border: 1px solid blue; */
+    margin-left: 10px;
+  }
+  
+  .profile_none {
+    display: flex;
+    /* border: 1px solid pink; */
+    align-items: center;
+    position: relative;
+    top: 7px;
+    left: 30px;
+  }
+  
+  .other_box{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    /* border:1px solid red; */
+    position: relative;
+    left:35px;
+    top:-20px;
+    margin-top:20px;
+  }
+  
+  
+  .span1 {
+    font-size:11px;
+    color:#c7c7c7
+  }
+  
+  
+  .recommendation_box {
+    margin: 10px 120px 10px 40px;
+  }
+  .comment{
+    font-size: 12px;
+    color:#262626;
+    font-weight: 600;
+  }
+  
+  .users {
+    display: flex;
+    /* border: 1px solid paleturquoise; */
+    height: 290px;
+    flex-direction: column;
+  }
+  
+  
+  .my_profile_main_box{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: row;
+    /* border:1px solid black; */
+    width:63%;
+  }
+  
+  .my_profile_id_box{
+    display: flex;
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .my_profile_id1{
+    font-size: 14px;
+    font-weight: 600;
+    color:#262626;
+  }
+  .my_profile_id2{
+    font-size: 12px;
+    color:#8e8e8e;
+  }
+  .my_profile_box2{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 55px;
+    height: 55px;
+    background-image: url("rainbow.png");
+    background-size: contain;
+    flex-direction: column;
+  }
+  .my_profile_box2 img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    justify-content: right;
+    align-items: right;
+  }
+  .user{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    height:48px;
+    margin:5px 0 0 40px;
+  
+  }
+  .user_box{
+    height: 50%;
+  }
+  .follow{
+    font-size: 12px;
+    font-weight: 600;
+    color:#0095F6;
+  }
+  
+  .recommendation {
+    font-size: 14px;
+    color: #8e8e8e;
+
+
+
