@@ -9,23 +9,25 @@ module.exports = () => {
     new LocalStrategy(
       {
         usernameField: 'id',
-        passwordField: 'password'
+        passwordField: 'password',
       },
       async (id, password, done) => {
         try {
-          const exUser = await User.findOne({ id })
-          if (exUser) {
-            const result = await bcrypt.compare(password, exUser.hashedPassword)
+          const doesIdAlreadyExist = await User.findOne({ id })
+          if (doesIdAlreadyExist) {
+            // 비밀번호 비교
+            const result = await bcrypt.compare(password, doesIdAlreadyExist.hashedPassword)
             if (result) {
-              done(null, exUser)
+              done(null, doesIdAlreadyExist)
             } else {
-              done(null, false, { message: 'cannot match information' })
+              done(null, false, { message: '입력된 정보가 올바르지 않습니다.' })
             }
           } else {
-            done(null, false, { message: 'cannot match information' })
+            done(null, false, { message: '입력된 정보가 올바르지 않습니다.' })
           }
         } catch (err) {
-          console.log(err)
+          // eslint-disable-next-line no-console
+          console.error(err)
           done(err)
         }
       }

@@ -1,6 +1,6 @@
 const mongoose = require('mongoose')
 
-const FAQSchema = new mongoose.Schema(
+const GuideSchema = new mongoose.Schema(
   {
     createdAt: { type: Date, required: true },
     title: { type: String, required: true },
@@ -9,4 +9,4 @@ const FAQSchema = new mongoose.Schema(
   { timestamps: true }
 )
 
-module.exports = mongoose.model('faq', FAQSchema)
+module.exports = mongoose.model('guide', GuideSchema)
