@@ -5,7 +5,6 @@
  * TODO : 커뮤니티 기능
  * TODO : 인테리어 사진 조작 기능
  * TODO : 마이페이지 기능
- * TODO :
  */
 
 /** 모듈 */
@@ -24,12 +23,11 @@ const passportConfig = require('./passport')
 
 /** 라우터 */
 const { authRouter } = require('./routes/authRouter') // 유저 정보 관련 라우터
-// const { communityRouter } = require('./routes/communityRouter') // 커뮤니티 기능 관련 라우터
+const { communityRouter } = require('./routes/communityRouter') // 커뮤니티 기능 관련 라우터
 const { indexRouter } = require('./routes/indexRouter') // 메인 페이지 라우터
 const { supportRouter } = require('./routes/supportRouter') // 지주 묻는 질문 라우터
-// const { noticeRouter } = require('./routes/noticeRouter') // 공지사항 라우터
-// const { imageRouter } = require('./routes/imageRouter') // 이미지 처리 라우터
 const { myPageRouter } = require('./routes/myPageRouter')
+// const { imageRouter } = require('./routes/imageRouter') // 이미지 처리 라우터
 
 const app = express()
 const { PORT, COOKIE_KEY } = process.env
@@ -68,14 +66,16 @@ app.use('/auth', authRouter)
 // * 고객센터 라우터
 app.use('/support', supportRouter)
 
-app.use('./')
+// * 마이 페이지 라우터
+app.use('/mypage', myPageRouter)
+
+// * 커뮤니티 라우터
+app.use('/community', communityRouter)
 
 /** 에러 핸들링 라우터 : 페이지가 없을 경우 */
 app.use((req, res, next) => {
-  const error = new Error('no router')
-  // @ts-ignore
-  error.status = 404
-  next(error)
+  console.error('해당 페이지가 없습니다.')
+  res.redirect('/')
 })
 
 /** 서버 실행 */

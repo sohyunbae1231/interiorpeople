@@ -42,9 +42,10 @@ authRouter.post('/register', isNotLoggedIn, async (req, res, next) => {
 
     // 이미 해당 아이디가 있는 경우
     const doesIdAlreadyExist = await User.findOne({ id })
-    // const doesIdAlreadyExist = await User.findOne({ where: { id } })
     if (doesIdAlreadyExist) {
-      return res.redirect('/register?error=exist') // 에러를 주소 뒤에 쿼리스트링으로 표기함
+      console.log('이미 아이디가 있습니다')
+      // return res.redirect('/register?error=exist') // 에러를 주소 뒤에 쿼리스트링으로 표기함
+      return res.send('존재하는 아이디입니다.')
     }
 
     // 비밀번호 암호화
@@ -56,6 +57,7 @@ authRouter.post('/register', isNotLoggedIn, async (req, res, next) => {
       hashedPassword,
     }).save()
 
+    console.log('회원가입되었습니다.')
     return res.redirect('/')
   } catch (err) {
     // @ts-ignore
@@ -86,6 +88,7 @@ authRouter.post('/login', isNotLoggedIn, (req, res, next) => {
         console.error(loginError)
         return next(loginError)
       }
+      console.log('로그인 되었습니다.')
       return res.send('로그인 성공')
     })
   })(req, res, next)
@@ -96,7 +99,13 @@ authRouter.get('/logout', isLoggedIn, (req, res) => {
   req.logout()
   // @ts-ignore
   req.session.destroy()
+  console.log('로그아웃 되었습니다.')
   res.redirect('/')
+})
+
+/** 비밀번호 찾기 */
+authRouter.get('/forget', isNotLoggedIn, (req, res) => {
+  // TODO : 어떻게 구현?
 })
 
 module.exports = { authRouter }
