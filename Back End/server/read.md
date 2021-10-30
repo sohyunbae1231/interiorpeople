@@ -23,3 +23,5 @@ npm i morgan cookie-parser express-session
 npm i passport passport-local 
 
 passport-kakao
+
+npm i multer
