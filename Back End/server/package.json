@@ -1,10 +1,10 @@
 {
   "name": "interiorpeople",
   "version": "1.0.0",
-  "description": "",
+  "description": "캡스톤 디자인",
   "main": "./src/server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "cross-env NODE_ENV=production PORT=80 pm2 start ./src/server.js -i 0",
     "dev": "nodemon server.js"
   },
   "keywords": [],
@@ -23,18 +23,29 @@
   },
   "dependencies": {
     "@types/mongoose": "^5.11.97",
+    "aws-sdk": "^2.1023.0",
     "bcrypt": "^5.0.1",
     "bcryptjs": "^2.4.3",
+    "connect-redis": "^6.0.0",
     "cookie-parser": "^1.4.5",
+    "cross-env": "^7.0.3",
+    "csurf": "^1.11.0",
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
     "express-session": "^1.17.2",
+    "helmet": "^4.6.0",
+    "hpp": "^0.2.3",
     "mime-types": "^2.1.32",
     "mongoose": "^6.0.7",
     "morgan": "^1.10.0",
     "multer": "^1.4.3",
+    "multer-s3": "^2.10.0",
     "passport": "^0.5.0",
     "passport-local": "^1.0.0",
-    "uuid": "^8.3.2"
+    "pm2": "^5.1.2",
+    "redis": "^3.1.2",
+    "sanitize-html": "^2.5.3",
+    "uuid": "^8.3.2",
+    "winston": "^3.3.3"
   }
 }

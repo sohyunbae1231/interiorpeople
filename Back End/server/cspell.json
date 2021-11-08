@@ -3,7 +3,7 @@
   "ignorePaths": [],
   "dictionaryDefinitions": [],
   "dictionaries": [],
-  "words": ["myphoto", "originalname", "mypage", "middlewares", "sessionid", "interiorpeople", "resave", "Parens"],
+  "words": ["myphoto", "multers3", "originalname", "mypage", "middlewares", "sessionid", "interiorpeople", "resave", "Parens"],
   "ignoreWords": [],
   "import": []
 }
