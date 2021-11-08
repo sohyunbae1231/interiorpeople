@@ -33,10 +33,18 @@ const upload = multer({
   limits: { fileSize: 5 * 1024 * 1024 },
 })
 
+// TODO : 메인홈
+// ! 무한 스크롤 방식?
+communityRouter.get('/', (req, res) => {})
+
+// TODO : 내 포스트
+
+// TODO : 포스트 리스트
+
 // TODO: 포스트 작성하기
 // 이미지 업로드, 태그하기, 본문 글 작성,
 // ! 여러개 업로드 조사
-communityRouter.post('/post', upload.array('images'), (req, res) => {
+communityRouter.post('/write', upload.array('images'), (req, res) => {
   console.log(req.files)
   console.log(req.body.content)
   // @ts-ignore

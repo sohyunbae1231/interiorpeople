@@ -74,7 +74,7 @@ app.use('/community', communityRouter)
 
 /** 에러 핸들링 라우터 : 페이지가 없을 경우 */
 app.use((req, res, next) => {
-  console.error('해당 페이지가 없습니다.')
+  console.error('해당 페이지가 없습니다. 메인페이지로 돌아갑니다')
   res.redirect('/')
 })
 

@@ -19,11 +19,11 @@ myPageRouter.get('/', isLoggedIn, async (req, res) => {
 
 /** 나의 사진 페이지 */
 // TODO : 나의 사진
-myPageRouter.get('/photo', isLoggedIn, async (req, res) => {})
+myPageRouter.get('/myphoto', isLoggedIn, async (req, res) => {})
 
 /** 스크랩 페이지 */
 // TODO : 스크랩
-myPageRouter.get('/ㄴ', isLoggedIn, async (req, res) => {})
+myPageRouter.get('/scrap', isLoggedIn, async (req, res) => {})
 
 /** 추천 기록 페이지 */
 // TODO : 추천 기록
