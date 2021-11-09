@@ -120,3 +120,413 @@ h2 {
   padding-top: 30px;
   font-size: 14px;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ul, li {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* 상단바 */
+.top-bar {
+  display: block;
+  width: 100vw;
+  height: 80px;
+  text-align: center;
+  z-index: 10;
+  margin-left: 15px;
+  top: 0;
+  margin-top: 15px;
+}
+.top-bar > ul {
+  overflow: hidden;
+  font-size: 0;
+  top: 35px;
+  right: 0;
+  display: block;
+  width: 100%;
+  height: 34px;
+}
+.top-bar > ul > li {
+  display: inline-block;
+  vertical-align: top;
+  margin-right: 30px;
+  line-height: 29px;
+}
+.top-bar > ul > li > a {
+  display: block;
+  font-size: 15px;
+  color: #222222;
+  opacity: 0.8;
+  letter-spacing: 1px;
+  position: relative;
+}
+.top-bar > ul > li:hover > a {
+ opacity: 1;
+}
+.top-bar > ul > li > .line::after {
+  content: "";
+  background-color: #222222;
+  height: 2px;
+  width: 0;
+  left: 50%;
+  bottom: 0;
+  transition: width 0.3s;
+  transform: translatex(-50%);
+  position: absolute;
+}
+.top-bar > ul > li:hover > a::after {
+  width: 100%;
+}
+
+/* mypage의 아이콘 배치 */
+.mypage-icon {
+  position: relative;
+  margin: 18px;
+  margin-left : 30px;
+  border: none;
+  padding: 0;
+  background: none;
+  top: 5px;
+}
+
+.home {
+  margin: 20px;
+  border: none;
+  padding: 0;
+  background: none;
+  position: relative;
+  left: 50px;
+  top: 10px;
+}
+
+.text-group {
+  vertical-align: middle;
+}
+
+.explanation-group {
+  text-align: center;
+}
+
+.post-group {
+  text-align: left;
+}
+
+.next-post-group {
+  text-align: left;
+  top: 30px;
+}
+
+.image-add-group {
+  display: block;
+  font-size: 0;
+}
+
+.big-black-text {
+  color: #222222;
+  font-family: Roboto;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.small-black-text {
+  color: #222222;
+  font-family: Roboto;
+  font-size: 15px;
+}
+
+.small-gray-text {
+  color: #94969B;
+  font-family: Roboto;
+  font-size: 14px;
+}
+
+.main-board {
+  display: flex;
+  vertical-align: middle;
+  position: relative;
+  left: 50px;
+  top: 30px;
+}
+
+.main-board-2 {
+  position: relative;
+  text-align: center;
+}
+
+.main-board-3 {
+  position: relative;
+  text-align: left;
+}
+
+.icon-group{
+  margin-left: 30px;
+  text-align: center;
+}
+
+.icon-image {
+  border: none;
+  padding: 0;
+  background: none;
+  display:inline-block;
+  width: 83px;
+  height: 80px;
+  position: relative;
+  top: 10px;
+}
+
+.icon-text {
+  margin-left: 1px;
+  text-align: center;
+  text-decoration: none;
+  color: #000000;
+  font-family: Roboto;
+  font-size: 13px;
+  position: relative;
+  top: 10px;
+}
+
+
+/* 분석 결과 페이지의 '클릭하여 쇼핑몰로 이동해보세요' 부분의 가로 스크롤 & 커스텀 */
+.box-wrap {
+  display: flex;
+  background: none;
+  margin-left: 20px;
+  flex-wrap: no-wrap;
+  overflow-x: scroll;
+  overflow-y: hidden;
+}
+
+.box-wrap::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+.box-wrap::-webkit-scrollbar-thumb {
+  background-color: #2f3542;
+  opacity: 0.3;
+  border-radius: 3px;
+}
+.box-wrap::-webkit-scrollbar-track {
+  background-color: grey;
+  opacity: 0.5;
+  border-radius: 3px;
+  box-shadow: inset 0px 0px 1px white;
+}
+
+/* 큰 회색 사각형 */
+.rectangle {
+  position: relative;
+  display: flex;
+  width: 400px;
+  height: 250px;
+  top: 20px;
+  background: #E9E9E9;
+}
+
+.middle-rectangle {
+  position: relative;
+  display: block; 
+  margin: 0px auto;
+  width: 400px;
+  height: 200px;
+  margin-top: 20px;
+  margin-bottom: 30px;
+  background: #E9E9E9;
+}
+
+/* 분석 결과 페이지의 '클릭하여 쇼핑몰로 이동해보세요' 부분의 작은 회색 정사각형 */
+.small-rectangle {
+  position: relative;
+  display:inline-block;
+  width: 150px;
+  height: 150px;
+  top: 20px;
+  background: #E9E9E9;
+  margin-right: 20px;
+  margin-bottom: 30px;
+  flex: 0 0 auto;
+}
+
+.image-icon {
+  position: relative;
+  width: 86px;
+  height: 86px;
+  left: 145px;
+  top: 322px;
+}
+
+/* 사진 업로드 버튼 */
+.upload {
+  position: relative;
+  margin: 18px;
+  border: none;
+  padding: 0;
+  background: none;
+  top: 30px;
+}
+
+/* 뒤로가기 버튼 */
+.back-button {
+  border: none;
+  padding: 0;
+  background: none;
+  display:inline-block;
+  position: relative;
+}
+
+/* 다음으로 버튼 -> 뒤로가기 버튼을 180도 뒤집기만 함*/
+.next-button {
+  border: none;
+  padding: 0;
+  background: none;
+  display:inline-block;
+  position: relative;
+  text-align: right;
+  transform: rotate(-180deg);
+}
+
+/* 벽, 바닥, ... 선택 버튼 */
+.select {
+  width: 200px;
+  padding: .8em .5em;
+  border: 1px solid #999;
+  font-family: inherit;
+  background: url('img/arrow.jpg') no-repeat 95% 50%;
+  border-radius: 0px;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  }
+  
+ .select::-ms-expand {
+      display: none;
+  }
+
+
+
+  /* 인스타그램 header */
+  header {
+  display: flex;
+  position: fixed;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 100%;
+  height: 54px;
+  top: 0;
+  padding: 0 20% 0 20%;
+  border-bottom: solid 1px #dbdbdb;
+  background-color: white;
+  z-index: 999;
+}
+
+.middle_box {
+  display: inline;
+  border: 1px solid red;
+}
+.right_box {
+  display: flex;
+  position: relative;
+  justify-content: space-around;
+  align-items: center;
+  right: 80px;
+  width: 222px;
+}
+
+.left_box {
+  display: flex;
+  position: relative;
+  justify-content: flex-start;
+  align-items: center;
+  top: 10px;
+  width: 280px;
+  height: 32px;
+}
+
+.insta-to-mypage-icon {
+  position: relative;
+  left: 0px;
+  border: none;
+  padding: 0;
+  background: none;
+  top: 5px;
+}
+
+.insta-to-home {
+  border: none;
+  padding: 0;
+  background: none;
+  position: relative;
+  top: 10px;
+}
+
+
+.seach_box {
+  display: flex;
+  align-items: center;
+}
+.search {
+  display: flex;
+  position: relative;
+  align-items: center;
+  left: -10px;
+  top: -2px;
+  height: 27px;
+  width: 215px;
+  background-color: #fafafa;
+  border: 1px solid #dbdbdb;
+}
+
+.magnifier {
+  position: absolute;
+  top: 35%;
+  left: 49.3%;
+  width: 12px;
+  height: 12px;
+}
+
+.search::placeholder {
+  text-align: center;
+}
+
+.navi_box {
+  display: inline;
+  height: 22px;
+  width: 22px;
+}
+
+.right_box img {
+  width: 22px;
+  height: 22px;
+}
