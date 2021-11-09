@@ -2,7 +2,6 @@ const passport = require('passport')
 const local = require('./localStrategy')
 const User = require('../schemas/User')
 
-
 module.exports = () => {
   // 로그인 시 실행
   passport.serializeUser((user, done) => {

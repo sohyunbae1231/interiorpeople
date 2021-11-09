@@ -22,13 +22,40 @@ AWS.config.update({
   region: 'ap-northeast-2', // s3에서는 리전을 설정할 필요는 없음
 })
 
-const upload = multer({
+/** 나의 사진 이미지 */
+const upload_myphoto = multer({
   storage: multers3({
     s3: new AWS.S3(),
     bucket: 'interiorpeople',
     key(req, file, cb) {
       // 저장할 파일 위치 설정
-      cb(null, `original/${Date.now()}${path.basename(file.originalname)}`)
+      cb(null, `myphoto_img/${Date.now()}${path.basename(file.originalname)}`)
+    },
+  }),
+  limits: { fileSize: 5 * 1024 * 1024 }, // 파일 크기를 5mb로 제한
+})
+
+/** 마이페이지 프로필 이미지 */
+const upload_profilePhoto = multer({
+  storage: multers3({
+    s3: new AWS.S3(),
+    bucket: 'interiorpeople',
+    key(req, file, cb) {
+      // 저장할 파일 위치 설정
+      cb(null, `profilePhoto_img/${Date.now()}${path.basename(file.originalname)}`)
+    },
+  }),
+  limits: { fileSize: 5 * 1024 * 1024 }, // 파일 크기를 5mb로 제한
+})
+
+/** 추천기록 이미지 */
+const upload_history = multer({
+  storage: multers3({
+    s3: new AWS.S3(),
+    bucket: 'interiorpeople',
+    key(req, file, cb) {
+      // 저장할 파일 위치 설정
+      cb(null, `history_img/${Date.now()}${path.basename(file.originalname)}`)
     },
   }),
   limits: { fileSize: 5 * 1024 * 1024 }, // 파일 크기를 5mb로 제한
@@ -56,7 +83,7 @@ myPageRouter.get('/photo', isLoggedIn, async (req, res) => {})
 
 /** 프로필 수정 페이지 */
 // TODO : 프로필 수정
-myPageRouter.get('/photo', isLoggedIn, async (req, res) => {
+myPageRouter.patch('/photo', isLoggedIn, async (req, res) => {
   // @ts-ignore
   const currentUser = await User.findOne({ id: req.user.id })
 })

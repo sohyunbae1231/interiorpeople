@@ -13,12 +13,13 @@ module.exports = () => {
       },
       async (id, password, done) => {
         try {
-          const doesIdAlreadyExist = await User.findOne({ id })
-          if (doesIdAlreadyExist) {
+          const userCheck = await User.findOne({ id })
+          if (userCheck) {
             // 비밀번호 비교
-            const result = await bcrypt.compare(password, doesIdAlreadyExist.hashedPassword)
+            const result = await bcrypt.compare(password, userCheck.hashedPassword)
             if (result) {
-              done(null, doesIdAlreadyExist)
+              // req.user에 넣을 정보를 정함
+              done(null, userCheck)
             } else {
               done(null, false, { message: '입력된 정보가 올바르지 않습니다.' })
             }
