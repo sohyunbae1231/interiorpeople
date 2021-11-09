@@ -3,7 +3,6 @@
 /** 모듈 */
 const { Router } = require('express')
 const path = require('path')
-const fs = require('fs')
 const multer = require('multer')
 const AWS = require('aws-sdk')
 const multers3 = require('multer-s3')
@@ -15,25 +14,6 @@ const multers3 = require('multer-s3')
 // TODO : const { isLoggedIn } = require('../middlewares/authentication')
 
 const communityRouter = Router()
-
-// try {
-//   fs.readdirSync('uploads')
-// } catch (err) {
-//   fs.mkdirSync('uploads')
-// }
-
-// const upload = multer({
-//   storage: multer.diskStorage({
-//     destination(req, file, cb) {
-//       cb(null, 'uploads/')
-//     },
-//     filename(req, file, cb) {
-//       const ext = path.extname(file.originalname)
-//       cb(null, path.basename(file.originalname, ext) + Date.now() + ext)
-//     },
-//   }),
-//   limits: { fileSize: 5 * 1024 * 1024 },
-// })
 
 /** AWS 설정 */
 AWS.config.update({

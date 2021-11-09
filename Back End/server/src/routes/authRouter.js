@@ -6,7 +6,7 @@
  * 2. 세션을 얼마나 유지할 것인가 -> redis로 변경 방법 알아보기
  * 3. 여러 기기에서 접속 가능하게 할 것인가
  * 4. 유저 정보 업데이트를 위한 라우터
- * 5. 비밀번호 찾기 구현
+ * //  5. 비밀번호 찾기 구현
  * 6. 다른 sns 아이디로 로그인 구현 (not mvp)
  */
 
@@ -23,7 +23,7 @@ const authRouter = Router()
  * ! 확인용
  */
 authRouter.get('/', (req, res) => {
-  res.send('auth route')
+  res.send('account route')
 })
 
 /** 회원가입 */
@@ -43,6 +43,7 @@ authRouter.post('/register', isNotLoggedIn, async (req, res, next) => {
     // 이미 해당 아이디가 있는 경우
     const doesIdAlreadyExist = await User.findOne({ id })
     if (doesIdAlreadyExist) {
+      // eslint-disable-next-line no-console
       console.log('이미 아이디가 있습니다')
       // return res.redirect('/register?error=exist') // 에러를 주소 뒤에 쿼리스트링으로 표기함
       return res.send('존재하는 아이디입니다.')
@@ -57,6 +58,7 @@ authRouter.post('/register', isNotLoggedIn, async (req, res, next) => {
       hashedPassword,
     }).save()
 
+    // eslint-disable-next-line no-console
     console.log('회원가입되었습니다.')
     return res.redirect('/')
   } catch (err) {
@@ -88,6 +90,7 @@ authRouter.post('/login', isNotLoggedIn, (req, res, next) => {
         console.error(loginError)
         return next(loginError)
       }
+      // eslint-disable-next-line no-console
       console.log('로그인 되었습니다.')
       return res.send('로그인 성공')
     })
@@ -99,13 +102,19 @@ authRouter.get('/logout', isLoggedIn, (req, res) => {
   req.logout()
   // @ts-ignore
   req.session.destroy()
+  // eslint-disable-next-line no-console
   console.log('로그아웃 되었습니다.')
   res.redirect('/')
 })
 
 /** 비밀번호 찾기 */
-authRouter.get('/forget', isNotLoggedIn, (req, res) => {
-  // TODO : 어떻게 구현?
+authRouter.post('/forget', isNotLoggedIn, async (req, res) => {
+  const { id } = req.body
+  // 임의의 비밀번호를 재발급
+  const newPassword = Math.random().toString(36).slice(2)
+  const hashedPassword = await bcrypt.hash(newPassword, 11)
+  await User.updateOne({ id }, { hashedPassword })
+  res.json({ password: newPassword })
 })
 
 module.exports = { authRouter }

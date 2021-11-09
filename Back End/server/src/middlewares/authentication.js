@@ -15,6 +15,7 @@ exports.isNotLoggedIn = (req, res, next) => {
     next()
   } else {
     const message = encodeURIComponent('이미 로그인되어 있습니다.')
+    // eslint-disable-next-line no-console
     console.error('이미 로그인되어 있습니다.')
     res.redirect(`/?error=${message}`)
   }

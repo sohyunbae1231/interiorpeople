@@ -7,8 +7,8 @@ const morgan = require('morgan') // morgan
 const cookieParser = require('cookie-parser') // cookieParser
 const session = require('express-session')
 const passport = require('passport')
-const helmet = require('helmet')
-const hpp = require('hpp')
+const helmet = require('helmet') // !
+const hpp = require('hpp') // !
 
 /** 데이터베이스 관련 */
 const connect = require('./schemas')
@@ -17,11 +17,11 @@ const connect = require('./schemas')
 const passportConfig = require('./passport')
 
 /** 라우터 */
+const { indexRouter } = require('./routes/indexRouter') // 메인 페이지 라우터
 const { authRouter } = require('./routes/authRouter') // 유저 정보 관련 라우터
 const { communityRouter } = require('./routes/communityRouter') // 커뮤니티 기능 관련 라우터
-const { indexRouter } = require('./routes/indexRouter') // 메인 페이지 라우터
-const { supportRouter } = require('./routes/supportRouter') // 지주 묻는 질문 라우터
-const { myPageRouter } = require('./routes/myPageRouter')
+const { supportRouter } = require('./routes/supportRouter') // 서포트 라우터
+const { myPageRouter } = require('./routes/myPageRouter') // 마이 페이지 라우터
 // const { imageRouter } = require('./routes/imageRouter') // 이미지 처리 라우터
 
 const app = express()
@@ -73,7 +73,7 @@ app.use(passport.session())
 app.use('/', indexRouter)
 
 // * 로그인, 로그아웃, 회원가입, 비밀번호 찾기 라우터
-app.use('/auth', authRouter)
+app.use('/account', authRouter)
 
 // * 고객센터 라우터
 app.use('/support', supportRouter)
@@ -84,8 +84,10 @@ app.use('/mypage', myPageRouter)
 // * 커뮤니티 라우터
 app.use('/community', communityRouter)
 
-/** 에러 핸들링 라우터 : 페이지가 없을 경우 */
+/** 에러 핸들링 라우터 : 페이지가 없을 경우 메인 페이지로 돌아간다. */
+// eslint-disable-next-line no-unused-vars
 app.use((req, res, next) => {
+  // eslint-disable-next-line no-console
   console.error('해당 페이지가 없습니다. 메인페이지로 돌아갑니다')
   res.redirect('/')
 })
