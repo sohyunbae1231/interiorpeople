@@ -37,28 +37,15 @@ const uploadPost = multer({
 
 // ! 메인 홈이랑 포스트 리스트는 무슨 차이?
 // TODO : 메인홈
-// ! 무한 스크롤 방식?
+communityRouter.get('/', isLoggedIn, async (req, res) => {})
 
 // TODO : 내 포스트
+// ! 무한 스크롤 방식으로 하기
 // ! 포스트 어케 할 것인지 물어보기
-communityRouter.get('/mypost', isLoggedIn, async (req, res) => {
-  // 객체 배열에서 특정 요소를 추출할 때는 filter가 아니라 map을 사용함.
-  // @ts-ignore
-  const imgURLs = req.files.map((element) => element.location)
+communityRouter.get('/mypost', isLoggedIn, async (req, res) => {})
 
-  // 포스트 생성
-  const result = await new Post({
-    // @ts-ignore
-    writer_id: req.user.id,
-    title: req.body.title,
-    content: req.body.content,
-    like_num: 0,
-    s3_photo_img_url: imgURLs,
-  }).save()
-  res.json(result)
-})
-
-// TODO : 포스트 리스트
+// TODO : 포스트 상세
+communityRouter.get('/post/:id', isLoggedIn, async (req, res) => {})
 
 /** 포스트 작성 */
 // TODO : 좋아요 갯수 세기
@@ -67,7 +54,7 @@ communityRouter.post('/write', isLoggedIn, uploadPost.array('images'), async (re
   // 객체 배열에서 특정 요소를 추출할 때는 filter가 아니라 map을 사용함.
   // @ts-ignore
   const imgURLs = req.files.map((element) => element.location)
-
+  console.log(req.user.id)
   // 포스트 생성
   const result = await new Post({
     // @ts-ignore

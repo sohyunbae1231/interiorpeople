@@ -7,8 +7,10 @@ const morgan = require('morgan') // morgan
 const cookieParser = require('cookie-parser') // cookieParser
 const session = require('express-session')
 const passport = require('passport')
-const helmet = require('helmet') // !
-const hpp = require('hpp') // !
+// const helmet = require('helmet') // !
+// const hpp = require('hpp') // !
+const redis = require('redis')
+const RedisStore = require('connect-redis')(session)
 
 /** 데이터베이스 관련 */
 const connect = require('./schemas')
@@ -31,22 +33,28 @@ passportConfig() // 패스포트 설정
 connect() // 몽고디비 연결
 
 /** 미들웨어 설정 */
-
 if (NODE_ENV === 'production') {
   // 베포 환경일 경우
   app.use(morgan('combined')) // 많은 사용자 정보를 로그로 남김
-  app.use(helmet())
+  // app.use(helmet())
   // @ts-ignore
-  app.use(hpp({ contentSecurityPolicy: false }))
+  // app.use(hpp({ contentSecurityPolicy: false }))
 } else {
   // 개발 환경일 경우
   app.use(morgan('dev'))
 }
 
-app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
-app.use(cookieParser(COOKIE_KEY))
+app.use(express.json())
 
+// 레디스 설정
+const redisClient = redis.createClient({
+  url: `redis://${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`,
+  password: process.env.REDIS_PASSWORD,
+})
+
+// 세션 및 쿠키 설정
+app.use(cookieParser(COOKIE_KEY))
 const sessionOption = {
   proxy: false,
   resave: false,
@@ -55,7 +63,9 @@ const sessionOption = {
   cookie: {
     httpOnly: true,
     secure: false,
+    maxAge: 1000 * 60 * 10,
   },
+  store: new RedisStore({ client: redisClient }),
 }
 if (NODE_ENV === 'production') {
   // https 적용을 위해 노드 서버 앞에 다른 서버를 두었을 경우 true로 적용

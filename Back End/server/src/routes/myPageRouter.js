@@ -6,6 +6,7 @@ const multer = require('multer')
 const AWS = require('aws-sdk')
 const multers3 = require('multer-s3')
 const path = require('path')
+const bcrypt = require('bcrypt')
 
 /** 데이터베이스 관련 */
 const User = require('../schemas/User')
@@ -36,6 +37,7 @@ const upload_myphoto = multer({
 })
 
 /** 마이페이지 프로필 이미지 */
+// eslint-disable-next-line camelcase
 const upload_profilePhoto = multer({
   storage: multers3({
     s3: new AWS.S3(),
@@ -82,10 +84,28 @@ myPageRouter.get('/scrap', isLoggedIn, async (req, res) => {})
 myPageRouter.get('/photo', isLoggedIn, async (req, res) => {})
 
 /** 프로필 수정 페이지 */
-// TODO : 프로필 수정
-myPageRouter.patch('/photo', isLoggedIn, async (req, res) => {
+myPageRouter.patch('/profile', isLoggedIn, upload_profilePhoto.single('img'), async (req, res) => {
   // @ts-ignore
   const currentUser = await User.findOne({ id: req.user.id })
+  // 비밀번호 변경
+  if (req.body.password) {
+    const hashedPassword = await bcrypt.hash(req.body.password, 11)
+    currentUser.hashedPassword = hashedPassword
+  }
+  // 이름 변경
+  if (req.body.name) {
+    currentUser.name = req.body.name
+  }
+  // 프로필 사진 변경
+  if (req.file) {
+    // @ts-ignore
+    currentUser.s3_profilephoto_img_url = req.file.location
+  }
+  await User.updateOne(
+    // @ts-ignore
+    { id: req.user.id },
+    currentUser
+  )
 })
 
 module.exports = { myPageRouter }

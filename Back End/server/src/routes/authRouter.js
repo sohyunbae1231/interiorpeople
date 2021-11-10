@@ -1,30 +1,13 @@
 // @ts-check
 
-/**
- * TODO
- * 1. 회원가입할 때 어떤 정보를 얼마나 어떻게 받을 것인가
- * 2. 세션을 얼마나 유지할 것인가 -> redis로 변경 방법 알아보기
- * 3. 여러 기기에서 접속 가능하게 할 것인가
- * 4. 유저 정보 업데이트를 위한 라우터
- * //  5. 비밀번호 찾기 구현
- * 6. 다른 sns 아이디로 로그인 구현 (not mvp)
- */
-
 const { Router } = require('express')
 const passport = require('passport')
-const bcrypt = require('bcrypt') // 암호화 모듈
+const bcrypt = require('bcrypt')
 const { isLoggedIn, isNotLoggedIn } = require('../middlewares/authentication')
 
 const User = require('../schemas/User')
 
 const authRouter = Router()
-
-/**
- * ! 확인용
- */
-authRouter.get('/', (req, res) => {
-  res.send('account route')
-})
 
 /** 회원가입 */
 // eslint-disable-next-line
