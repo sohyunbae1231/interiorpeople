@@ -2,8 +2,10 @@
 node_modules/
 
 # md
-server/read.md
+#server/read.md
 #client/read.md
 
 #dotenv
 .env
+
+uploads/
