@@ -144,7 +144,7 @@ a {
 }
 
 .icon-group{
-  margin-left: 10px;
+  margin-left: 30px;
   text-align: center;
 }
 
@@ -442,7 +442,7 @@ a {
     flex-direction: column;
     width: 66px;
     height: 66px;
-    background-image: url("rainbow.png");
+    /*background-image: url("rainbow.png");*/
     background-size: contain;
   }
   .empty_box {
@@ -806,7 +806,7 @@ a {
     align-items: center;
     width: 55px;
     height: 55px;
-    background-image: url("rainbow.png");
+    /*background-image: url("rainbow.png");*/
     background-size: contain;
     flex-direction: column;
   }
