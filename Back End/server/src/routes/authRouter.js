@@ -43,7 +43,7 @@ authRouter.post('/register', isNotLoggedIn, async (req, res, next) => {
 
     // eslint-disable-next-line no-console
     console.log('회원가입되었습니다.')
-    return res.redirect('/')
+    return res.status(200).json({ message: 'success' })
   } catch (err) {
     // @ts-ignore
     res.status(400).json({ message: err.message })

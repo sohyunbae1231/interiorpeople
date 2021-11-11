@@ -12,7 +12,7 @@ const multers3 = require('multer-s3')
 const Post = require('../schemas/Post')
 
 /** 로그인 관련 */
-const { isLoggedIn } = require('../middlewares/authentication')
+const { isLoggedIn, ifIsLoggedIn } = require('../middlewares/authentication')
 
 const communityRouter = Router()
 
@@ -35,17 +35,27 @@ const uploadPost = multer({
   limits: { fileSize: 5 * 1024 * 1024 }, // 파일 크기를 5mb로 제한
 })
 
-// ! 메인 홈이랑 포스트 리스트는 무슨 차이?
 // TODO : 메인홈
-communityRouter.get('/', isLoggedIn, async (req, res) => {})
+// TODO : 포스트 클릭 어떻게 구현
+// TODO : 인기글, 나의 글 구현
+communityRouter.get('/', ifIsLoggedIn, async (req, res) => {
+  res.send(123)
+})
 
 // TODO : 내 포스트
-// ! 무한 스크롤 방식으로 하기
-// ! 포스트 어케 할 것인지 물어보기
-communityRouter.get('/mypost', isLoggedIn, async (req, res) => {})
+// TODO : 무한 스크롤 방식으로 하기
+communityRouter.get('/mypost', isLoggedIn, async (req, res) => {
+  console.log(req.user)
+  res.json({ 123: 123 })
+})
 
-// TODO : 포스트 상세
-communityRouter.get('/post/:id', isLoggedIn, async (req, res) => {})
+/** 포스트 상세 */
+// TODO : 좋아요, 스크랩, 댓글
+communityRouter.get('/post/:id', ifIsLoggedIn, async (req, res) => {
+  const postId = req.params.id
+  const postResult = await Post.findById(postId)
+  res.json(postResult)
+})
 
 /** 포스트 작성 */
 // TODO : 좋아요 갯수 세기
@@ -54,7 +64,7 @@ communityRouter.post('/write', isLoggedIn, uploadPost.array('images'), async (re
   // 객체 배열에서 특정 요소를 추출할 때는 filter가 아니라 map을 사용함.
   // @ts-ignore
   const imgURLs = req.files.map((element) => element.location)
-  console.log(req.user.id)
+
   // 포스트 생성
   const result = await new Post({
     // @ts-ignore

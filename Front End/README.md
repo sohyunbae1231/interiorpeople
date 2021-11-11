@@ -1,3 +1,0 @@
-# InteriorPeople Front End
-
-

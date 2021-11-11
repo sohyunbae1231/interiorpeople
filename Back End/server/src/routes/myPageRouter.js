@@ -24,17 +24,30 @@ AWS.config.update({
 })
 
 /** 나의 사진 이미지 */
-const upload_myphoto = multer({
-  storage: multers3({
-    s3: new AWS.S3(),
-    bucket: 'interiorpeople',
-    key(req, file, cb) {
-      // 저장할 파일 위치 설정
-      cb(null, `myphoto_img/${Date.now()}${path.basename(file.originalname)}`)
-    },
-  }),
-  limits: { fileSize: 5 * 1024 * 1024 }, // 파일 크기를 5mb로 제한
-})
+// const upload_myphoto = multer({
+//   storage: multers3({
+//     s3: new AWS.S3(),
+//     bucket: 'interiorpeople',
+//     key(req, file, cb) {
+//       // 저장할 파일 위치 설정
+//       cb(null, `myphoto_img/${Date.now()}${path.basename(file.originalname)}`)
+//     },
+//   }),
+//   limits: { fileSize: 5 * 1024 * 1024 }, // 파일 크기를 5mb로 제한
+// })
+
+/** 추천기록 이미지 */
+// const upload_history = multer({
+//   storage: multers3({
+//     s3: new AWS.S3(),
+//     bucket: 'interiorpeople',
+//     key(req, file, cb) {
+//       // 저장할 파일 위치 설정
+//       cb(null, `history_img/${Date.now()}${path.basename(file.originalname)}`)
+//     },
+//   }),
+//   limits: { fileSize: 5 * 1024 * 1024 }, // 파일 크기를 5mb로 제한
+// })
 
 /** 마이페이지 프로필 이미지 */
 // eslint-disable-next-line camelcase
@@ -45,19 +58,6 @@ const upload_profilePhoto = multer({
     key(req, file, cb) {
       // 저장할 파일 위치 설정
       cb(null, `profilePhoto_img/${Date.now()}${path.basename(file.originalname)}`)
-    },
-  }),
-  limits: { fileSize: 5 * 1024 * 1024 }, // 파일 크기를 5mb로 제한
-})
-
-/** 추천기록 이미지 */
-const upload_history = multer({
-  storage: multers3({
-    s3: new AWS.S3(),
-    bucket: 'interiorpeople',
-    key(req, file, cb) {
-      // 저장할 파일 위치 설정
-      cb(null, `history_img/${Date.now()}${path.basename(file.originalname)}`)
     },
   }),
   limits: { fileSize: 5 * 1024 * 1024 }, // 파일 크기를 5mb로 제한
@@ -101,11 +101,17 @@ myPageRouter.patch('/profile', isLoggedIn, upload_profilePhoto.single('img'), as
     // @ts-ignore
     currentUser.s3_profilephoto_img_url = req.file.location
   }
-  await User.updateOne(
+  try {
+    await User.updateOne(
+      // @ts-ignore
+      { id: req.user.id },
+      currentUser
+    )
+    res.status(200).json({ succuss: true })
+  } catch (err) {
     // @ts-ignore
-    { id: req.user.id },
-    currentUser
-  )
+    res.status(200).json({ message: err.message })
+  }
 })
 
 module.exports = { myPageRouter }

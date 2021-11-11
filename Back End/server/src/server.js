@@ -65,12 +65,13 @@ const sessionOption = {
     secure: false,
     maxAge: 1000 * 60 * 10,
   },
-  store: new RedisStore({ client: redisClient }),
 }
 if (NODE_ENV === 'production') {
   // https 적용을 위해 노드 서버 앞에 다른 서버를 두었을 경우 true로 적용
   sessionOption.proxy = true
   sessionOption.cookie.secure = true
+  // @ts-ignore
+  sessionOption.store = new RedisStore({ client: redisClient }) // ! redis 관련 수정
 }
 
 // @ts-ignore

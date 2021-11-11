@@ -1,6 +1,3 @@
-// @ts-check
-
-// @ts-ignore
 exports.isLoggedIn = (req, res, next) => {
   if (req.isAuthenticated()) {
     next()
@@ -9,7 +6,6 @@ exports.isLoggedIn = (req, res, next) => {
   }
 }
 
-// @ts-ignore
 exports.isNotLoggedIn = (req, res, next) => {
   if (!req.isAuthenticated()) {
     next()
@@ -18,5 +14,13 @@ exports.isNotLoggedIn = (req, res, next) => {
     // eslint-disable-next-line no-console
     console.error('이미 로그인되어 있습니다.')
     res.redirect(`/?error=${message}`)
+  }
+}
+
+exports.ifIsLoggedIn = (req, res, next) => {
+  if (req.isAuthenticated()) {
+    next()
+  } else {
+    next()
   }
 }
