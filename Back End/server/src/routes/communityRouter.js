@@ -1,12 +1,14 @@
 // @ts-check
 
 // TODO : 사진 저장할 때 고유 id 부여해서 넣기 안그러면 중복 사진 생길 수 있음
+// TODO : 댓글
 /** 모듈 */
 const { Router } = require('express')
 const path = require('path')
 const multer = require('multer')
 const AWS = require('aws-sdk')
 const multers3 = require('multer-s3')
+const requestip = require('request-ip')
 
 /** 데이터베이스 관련 */
 const Post = require('../schemas/Post')
@@ -44,7 +46,7 @@ communityRouter.get('/', ifIsLoggedIn, async (req, res) => {
 })
 
 // TODO : 내 포스트
-// TODO : 무한 스크롤 방식으로 하기
+// TODO : infinite scroll 방식으로 하기
 communityRouter.get('/mypost', isLoggedIn, async (req, res) => {
   // eslint-disable-next-line no-console
   console.log(req.user)
@@ -52,15 +54,23 @@ communityRouter.get('/mypost', isLoggedIn, async (req, res) => {
 })
 
 /** 포스트 상세 */
-// TODO :  스크랩, 댓글
 communityRouter.get('/post/:postId', ifIsLoggedIn, async (req, res) => {
   const { postId } = req.params
   const postResult = await Post.findById(postId)
+  // @ts-ignore
+  const userId = req.user.id
+  // 조회수 기록을 위함
+  if (userId && !req.cookies[postId]) {
+    const clientIP = requestip.getClientIp(req)
+    res.cookie(postId, clientIP, { maxAge: 1000 * 10 * 60 })
+  }
   res.json(postResult)
 })
 
-/** 스크랩 */
-communityRouter.get('/:postId/scrape', isLoggedIn, async (req, res) => {})
+/** 스크랩을 눌렀을 시 */
+communityRouter.get('/:postId/scrape', isLoggedIn, async (req, res) => {
+  res.json(req)
+})
 
 /** 좋아요를 눌렀을 시 */
 communityRouter.get('/:postId/like', isLoggedIn, async (req, res) => {

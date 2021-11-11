@@ -42,6 +42,7 @@ myPageRouter.get('/', isLoggedIn, async (req, res) => {
   // @ts-ignore
   const currentUser = await User.findOne({ id: req.user.id })
   // TODO : 무엇을 보내야 할까
+  // ! 프론트 
   res.json(currentUser)
 })
 
