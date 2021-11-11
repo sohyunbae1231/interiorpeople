@@ -10,6 +10,7 @@ const multers3 = require('multer-s3')
 
 /** 데이터베이스 관련 */
 const Post = require('../schemas/Post')
+const Like = require('../schemas/Like')
 
 /** 로그인 관련 */
 const { isLoggedIn, ifIsLoggedIn } = require('../middlewares/authentication')
@@ -45,20 +46,70 @@ communityRouter.get('/', ifIsLoggedIn, async (req, res) => {
 // TODO : 내 포스트
 // TODO : 무한 스크롤 방식으로 하기
 communityRouter.get('/mypost', isLoggedIn, async (req, res) => {
+  // eslint-disable-next-line no-console
   console.log(req.user)
   res.json({ 123: 123 })
 })
 
 /** 포스트 상세 */
-// TODO : 좋아요, 스크랩, 댓글
-communityRouter.get('/post/:id', ifIsLoggedIn, async (req, res) => {
-  const postId = req.params.id
+// TODO :  스크랩, 댓글
+communityRouter.get('/post/:postId', ifIsLoggedIn, async (req, res) => {
+  const { postId } = req.params
   const postResult = await Post.findById(postId)
   res.json(postResult)
 })
 
+/** 스크랩 */
+communityRouter.get('/:postId/scrape', isLoggedIn, async (req, res) => {})
+
+/** 좋아요를 눌렀을 시 */
+communityRouter.get('/:postId/like', isLoggedIn, async (req, res) => {
+  const currentPostId = req.params.postId
+  // @ts-ignore
+  const currentUserId = req.user.id
+  // 먼저 like 컬렉션에 유저 아이디가 있는지 확인
+  try {
+    const userLikeList = await Like.findOne({ id: currentUserId })
+    const currentPost = await Post.findById(currentPostId)
+    // 있는 경우
+    if (userLikeList) {
+      // 이미 좋아요가 되어 있어 좋아요를 취소할 시
+      // @ts-ignore
+      const postIdIndex = userLikeList.post_id.findIndex((element) => element === currentPostId)
+      if (postIdIndex !== -1) {
+        userLikeList.post_id.splice(postIdIndex, 1)
+        currentPost.like_num -= 1
+        await userLikeList.save()
+        await currentPost.save()
+        res.status(200).json({ message: 'unlike' })
+      }
+      // 좋아요를 할 시
+      else {
+        userLikeList.post_id = [...userLikeList.post_id, currentPostId]
+        currentPost.like_num += 1
+        await userLikeList.save()
+        await currentPost.save()
+        res.status(200).json({ message: 'like' })
+      }
+    }
+    // 없는 경우
+    else {
+      // 좋아요를 누름
+      currentPost.like_num += 1
+      await currentPost.save()
+      await new Like({
+        user_id: currentUserId,
+        post_id: req.params.postId,
+      }).save()
+      res.status(200).json({ message: 'like' })
+    }
+  } catch (err) {
+    // @ts-ignore
+    res.status(400).json({ message: err.message })
+  }
+})
+
 /** 포스트 작성 */
-// TODO : 좋아요 갯수 세기
 // upload.array('키', 최대파일개수)
 communityRouter.post('/write', isLoggedIn, uploadPost.array('images'), async (req, res) => {
   // 객체 배열에서 특정 요소를 추출할 때는 filter가 아니라 map을 사용함.
