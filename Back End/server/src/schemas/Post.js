@@ -6,7 +6,7 @@ const PostSchema = new mongoose.Schema(
     title: { type: String, required: true, default: '' },
     content: { type: String, required: true, default: '' },
     like_num: { type: Number, required: true, default: 0 }, // 좋아요 수
-    count_num : { type: Number, required: true, default: 0 }, // 조회수
+    view_count: { type: Number, required: true, default: 0 }, // 조회수
     s3_photo_img_url: [{ type: String }],
   },
   { timestamps: true }

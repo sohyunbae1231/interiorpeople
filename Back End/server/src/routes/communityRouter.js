@@ -1,7 +1,7 @@
 // @ts-check
 
-// TODO : 사진 저장할 때 고유 id 부여해서 넣기 안그러면 중복 사진 생길 수 있음
-// TODO : 댓글
+// TODO : 댓글 + 삭제 기능
+// TODO : 삭제 기능
 /** 모듈 */
 const { Router } = require('express')
 const path = require('path')
@@ -13,6 +13,7 @@ const requestip = require('request-ip')
 /** 데이터베이스 관련 */
 const Post = require('../schemas/Post')
 const Like = require('../schemas/Like')
+const Scrape = require('../schemas/Scrape')
 
 /** 로그인 관련 */
 const { isLoggedIn, ifIsLoggedIn } = require('../middlewares/authentication')
@@ -31,6 +32,7 @@ const uploadPost = multer({
     s3: new AWS.S3(),
     bucket: 'interiorpeople',
     key(req, file, cb) {
+      // TODO : 사진 저장할 때 고유 id 부여해서 넣기 안그러면 중복 사진 생길 수 있음
       // 저장할 파일 위치 설정
       cb(null, `post_img/${path.basename(file.originalname)}`)
     },
@@ -56,36 +58,72 @@ communityRouter.get('/mypost', isLoggedIn, async (req, res) => {
 /** 포스트 상세 */
 communityRouter.get('/post/:postId', ifIsLoggedIn, async (req, res) => {
   const { postId } = req.params
-  const postResult = await Post.findById(postId)
+  const currentPost = await Post.findById(postId)
   // @ts-ignore
   const userId = req.user.id
   // 조회수 기록을 위함
   if (userId && !req.cookies[postId]) {
-    const clientIP = requestip.getClientIp(req)
+    // 조회수 증가
+    const clientIP = requestip.getClientIp(req) // 사용자 ip
     res.cookie(postId, clientIP, { maxAge: 1000 * 10 * 60 })
+    currentPost.view_count += 1
+    await currentPost.save()
   }
-  res.json(postResult)
+  res.json(currentPost)
 })
 
 /** 스크랩을 눌렀을 시 */
-communityRouter.get('/:postId/scrape', isLoggedIn, async (req, res) => {
-  res.json(req)
+communityRouter.patch('/post/:postId/scrape', isLoggedIn, async (req, res) => {
+  const { postId } = req.params
+  // @ts-ignore
+  const userId = req.user.id
+
+  try {
+    // 먼저 scrape 컬렉션에 유저 아이디가 있는지 확인
+    const userScrapeList = await Like.findOne({ id: userId })
+    if (userScrapeList) {
+      // 이미 스크랩이 되어 있어 스크랩을 취소할 시
+      // @ts-ignore
+      const postIdIndex = userScrapeList.post_id.findIndex((element) => element === postId)
+      if (postIdIndex !== -1) {
+        userScrapeList.post_id.splice(postIdIndex, 1)
+        await userScrapeList.save()
+        res.status(200).json({ message: 'unScrape' })
+      }
+      // 스크랩을 할 시
+      else {
+        userScrapeList.post_id = [...userScrapeList.post_id, postId]
+        await userScrapeList.save()
+        res.status(200).json({ message: 'scrape' })
+      }
+    } else {
+      // 컬렉션에 데이터 생성
+      await new Scrape({
+        user_id: userId,
+        post_id: [postId],
+      }).save()
+      res.status(200).json({ message: 'scrape' })
+    }
+  } catch (err) {
+    // @ts-ignore
+    res.status(400).json({ message: err.message })
+  }
 })
 
 /** 좋아요를 눌렀을 시 */
-communityRouter.get('/:postId/like', isLoggedIn, async (req, res) => {
-  const currentPostId = req.params.postId
+communityRouter.patch('/post/:postId/like', isLoggedIn, async (req, res) => {
+  const { postId } = req.params
   // @ts-ignore
-  const currentUserId = req.user.id
+  const userId = req.user.id
   // 먼저 like 컬렉션에 유저 아이디가 있는지 확인
   try {
-    const userLikeList = await Like.findOne({ id: currentUserId })
-    const currentPost = await Post.findById(currentPostId)
+    const userLikeList = await Like.findOne({ id: userId })
+    const currentPost = await Post.findById(postId)
     // 있는 경우
     if (userLikeList) {
       // 이미 좋아요가 되어 있어 좋아요를 취소할 시
       // @ts-ignore
-      const postIdIndex = userLikeList.post_id.findIndex((element) => element === currentPostId)
+      const postIdIndex = userLikeList.post_id.findIndex((element) => element === postId)
       if (postIdIndex !== -1) {
         userLikeList.post_id.splice(postIdIndex, 1)
         currentPost.like_num -= 1
@@ -95,7 +133,7 @@ communityRouter.get('/:postId/like', isLoggedIn, async (req, res) => {
       }
       // 좋아요를 할 시
       else {
-        userLikeList.post_id = [...userLikeList.post_id, currentPostId]
+        userLikeList.post_id = [...userLikeList.post_id, postId]
         currentPost.like_num += 1
         await userLikeList.save()
         await currentPost.save()
@@ -108,8 +146,8 @@ communityRouter.get('/:postId/like', isLoggedIn, async (req, res) => {
       currentPost.like_num += 1
       await currentPost.save()
       await new Like({
-        user_id: currentUserId,
-        post_id: req.params.postId,
+        user_id: userId,
+        post_id: [postId],
       }).save()
       res.status(200).json({ message: 'like' })
     }
@@ -118,6 +156,8 @@ communityRouter.get('/:postId/like', isLoggedIn, async (req, res) => {
     res.status(400).json({ message: err.message })
   }
 })
+
+/** 댓글 기능 */
 
 /** 포스트 작성 */
 // upload.array('키', 최대파일개수)

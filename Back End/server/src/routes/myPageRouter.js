@@ -10,6 +10,7 @@ const bcrypt = require('bcrypt')
 
 /** 데이터베이스 관련 */
 const User = require('../schemas/User')
+const Scrape = require('../schemas/Scrape')
 
 /** 로그인 관련 */
 const { isLoggedIn } = require('../middlewares/authentication')
@@ -51,15 +52,17 @@ myPageRouter.get('/', isLoggedIn, async (req, res) => {
 // eslint-disable-next-line no-unused-vars
 myPageRouter.get('/myphoto', isLoggedIn, async (req, res) => {})
 
-/** 스크랩 페이지 */
-// TODO : 스크랩
-// eslint-disable-next-line no-unused-vars
-myPageRouter.get('/scrap', isLoggedIn, async (req, res) => {})
-
 /** 추천 기록 페이지 */
 // TODO : 추천 기록
 // eslint-disable-next-line no-unused-vars
 myPageRouter.get('/photo', isLoggedIn, async (req, res) => {})
+
+/** 스크랩 페이지 */
+myPageRouter.get('/scrap', isLoggedIn, async (req, res) => {
+  // @ts-ignore
+  const userScrapeList = await Scrape.findOne({ user_id: req.user.id })
+  res.status(200).json({ scrapeList: userScrapeList.post_id })
+})
 
 /** 프로필 수정 페이지 */
 myPageRouter.patch('/profile', isLoggedIn, upload_profilePhoto.single('img'), async (req, res) => {
