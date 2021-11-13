@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const Commmunity = () => {
+const Support = () => {
     return (
         <div>
             <h2>
-                커뮤니티
+                고객센터
             </h2>
         </div>
     );
 };
 
-export default Commmunity;
+export default Support;
