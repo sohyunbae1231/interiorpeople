@@ -42,20 +42,23 @@ myPageRouter.get('/', isLoggedIn, async (req, res) => {
   // @ts-ignore
   const currentUser = await User.findOne({ id: req.user.id })
   // TODO : 무엇을 보내야 할까
-  // ! 프론트 
+  // ! 프론트
   res.json(currentUser)
 })
 
 /** 나의 사진 페이지 */
 // TODO : 나의 사진
+// eslint-disable-next-line no-unused-vars
 myPageRouter.get('/myphoto', isLoggedIn, async (req, res) => {})
 
 /** 스크랩 페이지 */
 // TODO : 스크랩
+// eslint-disable-next-line no-unused-vars
 myPageRouter.get('/scrap', isLoggedIn, async (req, res) => {})
 
 /** 추천 기록 페이지 */
 // TODO : 추천 기록
+// eslint-disable-next-line no-unused-vars
 myPageRouter.get('/photo', isLoggedIn, async (req, res) => {})
 
 /** 프로필 수정 페이지 */
