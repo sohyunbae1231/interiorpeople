@@ -7,6 +7,7 @@ const AWS = require('aws-sdk')
 const multers3 = require('multer-s3')
 const path = require('path')
 const bcrypt = require('bcrypt')
+const { v1: uuid } = require('uuid')
 
 /** 데이터베이스 관련 */
 const User = require('../schemas/User')
@@ -21,21 +22,19 @@ const myPageRouter = Router()
 AWS.config.update({
   accessKeyId: process.env.S3_ACCESS_KEY_ID,
   secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
-  region: 'ap-northeast-2', // s3에서는 리전을 설정할 필요는 없음
+  region: 'ap-northeast-2',
 })
 
 /** 마이페이지 프로필 이미지 */
-// eslint-disable-next-line camelcase
-const upload_profilePhoto = multer({
+const uploadProfilePhoto = multer({
   storage: multers3({
     s3: new AWS.S3(),
     bucket: 'interiorpeople',
     key(req, file, cb) {
-      // 저장할 파일 위치 설정
-      cb(null, `profilePhoto_img/${Date.now()}${path.basename(file.originalname)}`)
+      cb(null, `profilePhoto_img/${uuid()}${path.extname(file.originalname)}`)
     },
   }),
-  limits: { fileSize: 5 * 1024 * 1024 }, // 파일 크기를 5mb로 제한
+  limits: { fileSize: 5 * 1024 * 1024 },
 })
 
 /** 메인 페이지 */
@@ -65,7 +64,7 @@ myPageRouter.get('/scrap', isLoggedIn, async (req, res) => {
 })
 
 /** 프로필 수정 페이지 */
-myPageRouter.patch('/profile', isLoggedIn, upload_profilePhoto.single('img'), async (req, res) => {
+myPageRouter.patch('/profile', isLoggedIn, uploadProfilePhoto.single('img'), async (req, res) => {
   // @ts-ignore
   const currentUser = await User.findOne({ id: req.user.id })
   // 비밀번호 변경

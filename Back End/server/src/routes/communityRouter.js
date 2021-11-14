@@ -1,7 +1,7 @@
 // @ts-check
 
 // TODO : 댓글 + 삭제 기능
-// TODO : 삭제 기능
+// TODO : 파일 이미지인지 확인 후 거르기
 /** 모듈 */
 const { Router } = require('express')
 const path = require('path')
@@ -9,11 +9,13 @@ const multer = require('multer')
 const AWS = require('aws-sdk')
 const multers3 = require('multer-s3')
 const requestip = require('request-ip')
+const { v1: uuid } = require('uuid')
 
 /** 데이터베이스 관련 */
 const Post = require('../schemas/Post')
 const Like = require('../schemas/Like')
 const Scrape = require('../schemas/Scrape')
+const Follow = require('../schemas/Follow')
 
 /** 로그인 관련 */
 const { isLoggedIn, ifIsLoggedIn } = require('../middlewares/authentication')
@@ -21,20 +23,19 @@ const { isLoggedIn, ifIsLoggedIn } = require('../middlewares/authentication')
 const communityRouter = Router()
 
 /** AWS 설정 */
-AWS.config.update({
+const s3 = new AWS.S3({
   accessKeyId: process.env.S3_ACCESS_KEY_ID,
   secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
-  region: 'ap-northeast-2', // s3에서는 리전을 설정할 필요는 없음
+  region: 'ap-northeast-2',
 })
-
+// !  var ext = file.mimetype.split('/')[1];
 const uploadPost = multer({
   storage: multers3({
-    s3: new AWS.S3(),
+    s3,
     bucket: 'interiorpeople',
     key(req, file, cb) {
-      // TODO : 사진 저장할 때 고유 id 부여해서 넣기 안그러면 중복 사진 생길 수 있음
       // 저장할 파일 위치 설정
-      cb(null, `post_img/${path.basename(file.originalname)}`)
+      cb(null, `post_img/${uuid()}${path.extname(file.originalname)}`)
     },
   }),
   limits: { fileSize: 5 * 1024 * 1024 }, // 파일 크기를 5mb로 제한
@@ -59,8 +60,12 @@ communityRouter.get('/mypost', isLoggedIn, async (req, res) => {
 communityRouter.get('/post/:postId', ifIsLoggedIn, async (req, res) => {
   const { postId } = req.params
   const currentPost = await Post.findById(postId)
-  // @ts-ignore
-  const userId = req.user.id
+  let userId
+  if (req.user) {
+    // @ts-ignore
+    userId = req.user.id
+  }
+
   // 조회수 기록을 위함
   if (userId && !req.cookies[postId]) {
     // 조회수 증가
@@ -73,7 +78,7 @@ communityRouter.get('/post/:postId', ifIsLoggedIn, async (req, res) => {
 })
 
 /** 스크랩을 눌렀을 시 */
-communityRouter.patch('/post/:postId/scrape', isLoggedIn, async (req, res) => {
+communityRouter.post('/post/:postId/scrape', isLoggedIn, async (req, res) => {
   const { postId } = req.params
   // @ts-ignore
   const userId = req.user.id
@@ -110,8 +115,39 @@ communityRouter.patch('/post/:postId/scrape', isLoggedIn, async (req, res) => {
   }
 })
 
+/** 팔로우을 눌렀을 시 */
+communityRouter.post('/post/:postId/follow', isLoggedIn, async (req, res) => {
+  const { postId } = req.params
+  // @ts-ignore
+  const userId = req.user.id
+
+  try {
+    // 먼저 like 컬렉션에 유저 아이디가 있는지 확인
+    const currentPost = await Post.findById(postId)
+    const writerIdOfPost = currentPost.writer_id
+    // 이미 팔로우 되어 있다면 팔로우를 찾는 동시에 삭제함으로써 팔로우 해제시킴
+    const isFollowing = await Follow.findOneAndDelete({ follower_id: userId, followed_id: writerIdOfPost })
+    /**
+     * ? findOneAndDelete 리턴값
+     * ? isFollowing === null : 애초에 데이터가 없음
+     * ? isFollowing === 어떤 객체 : 삭제한 데이터를 반환함
+     */
+    if (isFollowing) {
+      // 이미 팔로우가 되어 있어 팔로우를 취소한 경우
+      res.status(200).json({ message: 'unFollow' })
+    } else {
+      // 팔로우를 하는 경우
+      await new Follow({ follower_id: userId, followed_id: writerIdOfPost }).save()
+      res.status(200).json({ message: 'follow' })
+    }
+  } catch (err) {
+    // @ts-ignore
+    res.status(400).json({ message: err.message })
+  }
+})
+
 /** 좋아요를 눌렀을 시 */
-communityRouter.patch('/post/:postId/like', isLoggedIn, async (req, res) => {
+communityRouter.post('/post/:postId/like', isLoggedIn, async (req, res) => {
   const { postId } = req.params
   // @ts-ignore
   const userId = req.user.id
@@ -129,7 +165,7 @@ communityRouter.patch('/post/:postId/like', isLoggedIn, async (req, res) => {
         currentPost.like_num -= 1
         await userLikeList.save()
         await currentPost.save()
-        res.status(200).json({ message: 'unlike' })
+        res.status(200).json({ message: 'unLike' })
       }
       // 좋아요를 할 시
       else {
@@ -158,13 +194,16 @@ communityRouter.patch('/post/:postId/like', isLoggedIn, async (req, res) => {
 })
 
 /** 댓글 기능 */
+// TODO : 댓글 기능
 
 /** 포스트 작성 */
 // upload.array('키', 최대파일개수)
-communityRouter.post('/write', isLoggedIn, uploadPost.array('images'), async (req, res) => {
+communityRouter.post('/mypost/write', isLoggedIn, uploadPost.array('images'), async (req, res) => {
   // 객체 배열에서 특정 요소를 추출할 때는 filter가 아니라 map을 사용함.
   // @ts-ignore
   const imgURLs = req.files.map((element) => element.location)
+
+  console.log(req.files)
 
   // 포스트 생성
   const result = await new Post({
@@ -175,7 +214,36 @@ communityRouter.post('/write', isLoggedIn, uploadPost.array('images'), async (re
     like_num: 0,
     s3_photo_img_url: imgURLs,
   }).save()
-  res.json(result)
+  res.status(200).json(result)
 })
 
+/** 포스트 삭제 */
+// TODO : req.body에 포스트 아이디 아니면 와일드 카드 쓰던가
+communityRouter.delete('/mypost/delete', isLoggedIn, async (req, res) => {
+  // @ts-ignore
+  const userId = req.user.id
+  try {
+    const post = await Post.findOneAndDelete({ _id: req.body.postId, writer_id: userId })
+    const imgUrls = post.s3_photo_img_url
+    // ? 유사배열이라고 한다.
+    Array.from(imgUrls).forEach(async (element) => {
+      const key = `${element.split('/').slice(3, 4)}/${element.split('/').slice(4)}`
+      s3.deleteObject(
+        {
+          Bucket: 'interiorpeople',
+          Key: key,
+        },
+        (err) => {
+          if (err) {
+            throw new Error('s3 파일 삭제 실패')
+          }
+        }
+      )
+    })
+    res.status(200).json({ message: 'successfully delete' })
+  } catch (err) {
+    // @ts-ignore
+    res.status(400).json({ message: err.message })
+  }
+})
 module.exports = { communityRouter }

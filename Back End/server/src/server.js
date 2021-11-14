@@ -96,10 +96,16 @@ app.use('/mypage', myPageRouter)
 app.use('/community', communityRouter)
 
 /** 에러 핸들링 라우터 : 페이지가 없을 경우 메인 페이지로 돌아간다. */
-// eslint-disable-next-line no-unused-vars
-app.use((req, res, next) => {
-  // eslint-disable-next-line no-console
-  console.error('해당 페이지가 없습니다. 메인페이지로 돌아갑니다')
+app.use((err, req, res) => {
+  // @ts-ignore
+  const errorMessage = err.message
+  // @ts-ignore
+  const wrongUrl = req.url
+  // eslint-disable-next-line
+  console.error(`${errorMessage} : 오류가 발생했습니다.`)
+  // eslint-disable-next-line
+  console.error(`${wrongUrl} : 해당 페이지가 없습니다. 메인페이지로 돌아갑니다`)
+  // @ts-ignore
   res.redirect('/')
 })
 
