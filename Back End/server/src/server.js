@@ -11,6 +11,7 @@ const passport = require('passport')
 // const hpp = require('hpp') // !
 const redis = require('redis')
 const RedisStore = require('connect-redis')(session)
+const cors = require('cors')
 
 /** 데이터베이스 관련 */
 const connect = require('./schemas')
@@ -33,6 +34,7 @@ passportConfig() // 패스포트 설정
 connect() // 몽고디비 연결
 
 /** 미들웨어 설정 */
+app.use(cors())
 if (NODE_ENV === 'production') {
   // 베포 환경일 경우
   app.use(morgan('combined')) // 많은 사용자 정보를 로그로 남김
@@ -106,7 +108,7 @@ app.use((err, req, res) => {
   // eslint-disable-next-line
   console.error(`${wrongUrl} : 해당 페이지가 없습니다. 메인페이지로 돌아갑니다`)
   // @ts-ignore
-  res.redirect('/')
+  // res.redirect('/')
 })
 
 /** 서버 실행 */

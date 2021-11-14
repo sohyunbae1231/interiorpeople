@@ -38,6 +38,12 @@ const uploadProfilePhoto = multer({
 })
 
 /** 메인 페이지 */
+/**
+ * TODO : 보내야 할 것들
+ * TODO : 이름
+ * TODO : 이메일
+ * TODO : 프로필 사진
+ */
 myPageRouter.get('/', isLoggedIn, async (req, res) => {
   // @ts-ignore
   const currentUser = await User.findOne({ id: req.user.id })
