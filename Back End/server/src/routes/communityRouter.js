@@ -202,9 +202,6 @@ communityRouter.post('/mypost/write', isLoggedIn, uploadPost.array('images'), as
   // 객체 배열에서 특정 요소를 추출할 때는 filter가 아니라 map을 사용함.
   // @ts-ignore
   const imgURLs = req.files.map((element) => element.location)
-
-  console.log(req.files)
-
   // 포스트 생성
   const result = await new Post({
     // @ts-ignore
