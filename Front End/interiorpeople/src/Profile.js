@@ -1,52 +1,39 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
- 
-function Login() {
-    const [inputId, setInputId] = useState('')
-    const [inputPw, setInputPw] = useState('')
- 
-    const handleInputId = (e) => {
-        setInputId(e.target.value)
-    }
- 
-    const handleInputPw = (e) => {
-        setInputPw(e.target.value)
-    }
- 
-    const onClickLogin = () => {
-        console.log('click login')
-    }
- 
-    useEffect(() => {
-        axios.get('/user_inform/login')
-        .then(res => console.log(res))
-        .catch()
-    },
-    [])
- 
-    return(
-        <div>
-            <h2>회원가입</h2>
-            <div>
-                <input type='text' name='input_id' value={inputId} onChange={handleInputId} placeholder='아이디'/>
-            </div>
-            <div>
-                <input type='password' name='input_pw' value={inputPw} onChange={handleInputPw} placeholder='비밀번호'/>
-            </div>
-            <div>
-            <input type='password' name='input_pw' value={inputPw} onChange={handleInputPw} placeholder='비밀번호 확인'/>
-            </div>
-            <div>
-                <button type='button' onClick={onClickLogin}>회원가입하기</button>
-            </div>
-            <div>
-                <h4>SNS계정으로 간편 회원가입</h4>
-                <a href="signup.html"><img src="img/facebook.png" width="48" height="48"></img></a>
-                <a href="signup.html"><img src="img/kakao.png" width="48" height="48"></img></a>
-                <a href="signup.html"><img src="img/naver.png" width="48" height="48"></img></a>
-            </div>
-        </div>
-    )
+
+// 회원 이름 추가/변경(미완료), 프로필 사진 추가/변경(미완료), 비밀번호 변경(완료)
+
+function Profile() {
+    const [password, setPassword] = useState("");
+    const [disabled, setDisabled] = useState(false);
+  
+    const handleChange = ({ target: { value } }) => setPassword(value);
+  
+    const handleSubmit = async (event) => {
+      setDisabled(true);
+      event.preventDefault();
+      await new Promise((r) => setTimeout(r, 1000));
+      if (password.length < 8) {
+        alert("8자의 이상의 비밀번호를 사용해야 합니다.");
+      } else {
+        alert(`변경된 패스워드: ${password}`);
+      }
+      setDisabled(false);
+    };
+  
+    return (
+      <form onSubmit={handleSubmit}>
+        <input
+          type="password"
+          name="password"
+          value={password}
+          onChange={handleChange}
+        />
+        <button type="submit" disabled={disabled}>
+          비밀번호 변경
+        </button>
+      </form>
+    );
 }
- 
-export default Login;
+
+ export default Profile;
