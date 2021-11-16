@@ -1,16 +1,15 @@
 import React, { useEffect, useState } from "react";
 import Faq from "react-faq-component";
-import Qna from "./Qna";
 
 const data = {
-    title: "Guide",
+    title: "FAQ",
     rows: [
         {
-            title: "first guide",
+            title: "faq first",
             content: "안녕하세요",
         },
         {
-            title: "second guide",
+            title: "faq second",
             content:
                 "안녕하세요",
         },
@@ -32,7 +31,7 @@ const config = {
     // tabFocus: true
 };
 
-function Support() {
+function Qna() {
 
     return (
         <div>
@@ -41,9 +40,8 @@ function Support() {
                 styles={styles}
                 config={config}
             />
-            <Qna></Qna>
         </div>
     );
 }
 
-export default Support;
+export default Qna;

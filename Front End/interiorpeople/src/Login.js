@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { withRouter, BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
 
 function Login() {
   const [id, setId] = useState("");
@@ -53,12 +54,8 @@ function Login() {
         </div>
       </form>
       <div class="login_etc">
-        <li>
-          <a href="home.html">아이디/비밀번호 찾기</a>
-        </li>
-        <li>
-          <a href="signup.html">회원가입</a>
-        </li>
+        <Link to="/login">아이디/비밀번호 찾기</Link>
+        <Link to="/signup">회원가입</Link>
       </div>
       <div class="sns_etc">SNS계정으로 간편 로그인/회원가입</div>
       <div class="login_sns">

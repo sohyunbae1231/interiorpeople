@@ -20,7 +20,7 @@ import History from "./History";
 import Upload from "./Upload";
 import Selectarea from "./Selectarea";
 import Selectstyle from "./Selectstyle";
-import Editstyle from "./Editstyle";
+//import Editstyle from "./Editstyle"; // 팝업으로 구현하기
 import Themeupload from "./Themeupload";
 import Result from "./Result";
 // 커뮤니티 메인, 나의 글 상세, 포스트 상세화면, 글 작성 
@@ -29,12 +29,19 @@ import Mypost from "./Mypost";
 import Postlist from "./Postlist";
 import Postwrite from "./Postwrite";
 
+import Like from "./Like";
+
+//import MenuList from './MenuList';
+
 function App() {
   return (
     <div className="app">
       <Router>
         <Nav />
         <Routes>
+
+        <Route path="/like" element={<Like />} />
+
           <Route path="/" element={<Home />} />
 
           <Route path="/login" element={<Login />} />
@@ -51,7 +58,6 @@ function App() {
           <Route path="/interior/upload" element={<Upload />} />
           <Route path="/interior/selectarea" element={<Selectarea />} />
           <Route path="/interior/selectstyle" element={<Selectstyle />} />
-          <Route path="/interior/editstyle" element={<Editstyle />} />
           <Route path="/interior/themeupload" element={<Themeupload />} />
           <Route path="/interior/result" element={<Result />} />
 

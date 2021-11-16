@@ -124,15 +124,15 @@ h2 {
 
 
 
+.image-preview {
+  margin-top: 40px;;
+  width: 75%;
+}
 
-
-
-
-
-
-
-
-
+.image-preview-show {
+  width: 75%;
+  transition: 0.5s;
+}
 
 
 
