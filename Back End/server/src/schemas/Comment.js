@@ -2,9 +2,10 @@ const mongoose = require('mongoose')
 
 const CommentSchema = new mongoose.Schema(
   {
-    user_id: { type: String, required: true, default: '' },
-    post_id: { type: String, required: true, default: '' },
-    content: { type: String, default: '' },
+    user_id: { type: String, ref: 'User', required: true },
+    post_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Post', require: true },
+    parentComment: { type: mongoose.Schema.Types.ObjectId, ref: 'Comment', required: false },
+    content: { type: String, required: true, default: '' },
   },
   { timestamps: true }
 )
