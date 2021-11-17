@@ -1,55 +1,106 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
- 
-function Login() {
-    const [inputId, setInputId] = useState('')
-    const [inputPw, setInputPw] = useState('')
- 
-    const handleInputId = (e) => {
-        setInputId(e.target.value)
+import React, { Component } from 'react';
+import { withRouter, BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
+import TodoListTemplate from './components/TodoListTemplate';
+import TodoItemList from './components/TodoItemList';
+import Popup from './components/Popup'
+import Form from './components/Form';
+
+import Alert from 'react-s-alert';
+class Selectstyle extends Component {
+
+  // _id = 3;
+  priority = 0;
+  state = {
+    title: '',
+    content: '',
+    todos: [
+    ],
+    popup: {
+      flag: false,
+      state: '',
+      updateID: -1
     }
- 
-    const handleInputPw = (e) => {
-        setInputPw(e.target.value)
+  }
+
+  handleOpen = (_id) =>{
+    const nextPopup = {...this.state.popup}
+    if (typeof(_id) === "object") {
+      nextPopup.flag = true
+      nextPopup.state = 'create'
+      this.setState({
+        popup: nextPopup
+      })
     }
- 
-    const onClickLogin = () => {
-        console.log('click login')
+    else {
+      const todo = this.state.todos.find(item => item._id === _id)
+      nextPopup.flag = true
+      nextPopup.state = 'update'
+      nextPopup.updateID = _id
+      this.setState({
+        title: todo.title,
+        content: todo.content,
+        deadline: todo.deadline,
+        popup: nextPopup
+      })
     }
- 
-    useEffect(() => {
-        axios.get('/user_inform/login')
-        .then(res => console.log(res))
-        .catch()
-    },
-    [])
- 
-    return(
-        <div class="login">
-            <h2>로그인</h2>
-            <div class="login_id">
-                <input type='text' name='input_id' value={inputId} onChange={handleInputId} placeholder='아이디'/>
-            </div>
-            <div class="login_pw">
-                <input type='password' name='input_pw' value={inputPw} onChange={handleInputPw} placeholder='비밀번호'/>
-            </div>
-            <div class="submit">
-                <button type='button' onClick={onClickLogin}>로그인</button>
-            </div>
-            <div class="login_etc">
-                <li><a href="home.html">아이디/비밀번호 찾기</a></li>
-                <li><a href="signup.html">회원가입</a></li>
-            </div>
-            <div class="sns_etc">
-                SNS계정으로 간편 로그인/회원가입
-            </div>
-            <div class="login_sns">
-            <li><a href=""><img src="img/facebook.png" width="67px" /><i class="fab fa-facebook-f"></i></a></li>
-            <li><a href=""><img src="img/kakao.png" width="63px" /><i class="fab fa-facebook-f"></i></a></li>
-            <li><a href=""><img src="img/naver.png" width="61px" /><i class="fab fa-twitter"></i></a></li>
-            </div>
-        </div>
-    )
+  }
+  handleClose = () => {
+    const { popup } = this.state
+    const nextPopup = {...popup}
+    nextPopup.flag = false
+    nextPopup.state = ''
+    nextPopup.updateID = -1
+    this.setState({
+      title: '',
+      content: '',
+      deadline: '',
+      popup: nextPopup
+    })
+  }
+  render() {
+    const { title, content, todos, popup } = this.state;
+    const {
+      handleChange,
+      handleCreate,
+      handleKeyPress,
+      handleToggle,
+      handleRemove,
+      handlePriority,
+      handleUpdate,
+      handleOpen,
+    } = this;
+
+    return (
+      <div>
+        <TodoListTemplate form={
+        <Form
+          onOpen={handleOpen}
+        />}>
+          <TodoItemList
+            todos={todos}
+            onToggle={handleToggle}
+            onRemove={handleRemove}
+            onOpen={handleOpen}
+            onPriority={handlePriority}
+          />
+        </TodoListTemplate>
+        <Alert stack={true} timeout={3000} />
+        {
+          popup.flag &&
+          <Popup
+            popup={popup}
+            title={title}
+            content={content}
+            onKeyPress={handleKeyPress}
+            onChange={handleChange}
+            onCreate={handleCreate}
+            onUpdate={handleUpdate}
+          />
+        }
+        <button style={{ background: "#203864", color: "white", marginLeft:"5%", marginTop:"20px", width:"90%", height: "45px", borderRadius: "10px"}}><Link to="/interior/themeupload">다음으로</Link></button>
+      </div>
+    );
+  }
 }
- 
-export default Login;
+
+export default Selectstyle;

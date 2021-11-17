@@ -1,66 +1,61 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { withRouter, BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
 
 function Login() {
-  const [inputId, setInputId] = useState("");
-  const [inputPw, setInputPw] = useState("");
+  const [id, setId] = useState("");
+  const [password, setPassword] = useState("");
 
   const handleInputId = (e) => {
-    setInputId(e.target.value);
+    setId(e.target.value);
   };
 
   const handleInputPw = (e) => {
-    setInputPw(e.target.value);
+    setPassword(e.target.value);
   };
 
-  const onClickLogin = async () => {
-    await axios.post("acount/login", {
-      id: inputId,
-      password: inputPw,
-    });
+  const OnClickLogin = async (e) => {
+    e.preventDefault();
+
     console.log("click login");
-  };
 
-  useEffect(() => {
-    axios
-      .get("/user_inform/login")
+    await axios
+      .post("/account/register", { id, password })
       .then((res) => console.log(res))
       .catch();
-  }, []);
+  };
 
   return (
     <div class="login">
       <h2>로그인</h2>
-      <div class="login_id">
-        <input
-          type="text"
-          name="input_id"
-          value={inputId}
-          onChange={handleInputId}
-          placeholder="아이디"
-        />
-      </div>
-      <div class="login_pw">
-        <input
-          type="password"
-          name="input_pw"
-          value={inputPw}
-          onChange={handleInputPw}
-          placeholder="비밀번호"
-        />
-      </div>
-      <div class="submit">
-        <button type="button" onClick={onClickLogin}>
-          로그인
-        </button>
-      </div>
+      <form onSubmit={OnClickLogin}>
+        <div class="login_id">
+          <input
+            type="text"
+            name="input_id"
+            value={id}
+            setValue={setId}
+            onChange={handleInputId}
+            placeholder="아이디"
+          />
+        </div>
+        <div class="login_pw">
+          <input
+            type="password"
+            name="input_pw"
+            value={password}
+            setValue={setPassword}
+            onChange={handleInputPw}
+            placeholder="비밀번호"
+          />
+        </div>
+        <div class="submit">
+          <button type="submit">로그인</button>
+        </div>
+      </form>
       <div class="login_etc">
-        <li>
-          <a href="home.html">아이디/비밀번호 찾기</a>
-        </li>
-        <li>
-          <a href="signup.html">회원가입</a>
-        </li>
+        <Link to="/login">아이디/비밀번호 찾기</Link>
+        <Link to="/signup">회원가입</Link>
       </div>
       <div class="sns_etc">SNS계정으로 간편 로그인/회원가입</div>
       <div class="login_sns">

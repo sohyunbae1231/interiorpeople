@@ -62,7 +62,7 @@ a {
 }
 
 /* mypage의 아이콘 배치 */
-.mypage-icon {
+/*.mypage-icon {
   position: relative;
   margin: 18px;
   margin-left : 30px;
@@ -70,15 +70,14 @@ a {
   padding: 0;
   background: none;
   top: 5px;
-}
+}*/
 
 .home {
-  margin: 20px;
   border: none;
   padding: 0;
   background: none;
   position: relative;
-  left: 50px;
+  left: 70%;
   top: 10px;
 }
 

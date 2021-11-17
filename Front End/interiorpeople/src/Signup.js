@@ -24,9 +24,12 @@ function Signup() {
     // TODO: 아이디가 한글이라던가
 
     // TODO: 비밀번호 비밀번호가 너무 긴 경우 또는 짧은
-
+    if (password.length < 8) {
+      alert("8자의 이상의 비밀번호를 사용해야 합니다.");
+    }
     // 비밀번호랑 비밀번호 확인이 다를 경우
     if (password !== passwordCheck) {
+      return alert('비밀번호와 비밀번호 확인이 일치하지 않습니다.')
     }
 
     console.log("click login");
