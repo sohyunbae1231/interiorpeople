@@ -104,11 +104,12 @@ app.use((err, req, res) => {
   // @ts-ignore
   const wrongUrl = req.url
   // eslint-disable-next-line
-  console.error(`${errorMessage} : 오류가 발생했습니다.`)
+  console.error(` 오류가 발생했습니다. : ${errorMessage}\n\n`)
   // eslint-disable-next-line
   console.error(`${wrongUrl} : 해당 페이지가 없습니다. 메인페이지로 돌아갑니다`)
   // @ts-ignore
   // res.redirect('/')
+  res.status(400).json({ message: 'ERROR!' })
 })
 
 /** 서버 실행 */
