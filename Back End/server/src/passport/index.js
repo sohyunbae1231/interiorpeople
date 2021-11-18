@@ -5,6 +5,7 @@ const User = require('../schemas/User')
 module.exports = () => {
   // 로그인 시 실행
   passport.serializeUser((user, done) => {
+    console.log('user', user)
     done(null, user.id)
   })
 

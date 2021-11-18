@@ -29,7 +29,7 @@ authRouter.post('/register', isNotLoggedIn, async (req, res) => {
     const doesIdAlreadyExist = await User.findOne({ id })
     if (doesIdAlreadyExist) {
       // return res.redirect('/register?error=exist') // 에러를 주소 뒤에 쿼리스트링으로 표기함
-      return res.status(400).json({ message: '이미 존재하는 아이디입니다.' })
+      throw new Error('이미 존재하는 아이디입니다.')
     }
 
     // 비밀번호 암호화
@@ -41,10 +41,10 @@ authRouter.post('/register', isNotLoggedIn, async (req, res) => {
       hashedPassword,
     }).save()
 
-    return res.status(200).json({ message: '회원가입되었습니다.' })
+    res.status(200).json({ message: '회원가입되었습니다.' })
   } catch (err) {
     // @ts-ignore
-    return res.status(400).json({ message: err.message })
+    res.status(400).json({ message: err.message })
   }
 })
 

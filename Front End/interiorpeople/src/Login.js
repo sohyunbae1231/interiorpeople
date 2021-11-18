@@ -1,75 +1,72 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useContext } from "react";
 import axios from "axios";
-import {
-  withRouter,
-  BrowserRouter as Router,
-  Route,
-  Routes,
-  Link,
-} from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import Cookies from "universal-cookie";
 
+/** 유저 인증 관련 컨텍스트 */
 import { AuthContext } from "./context/AuthContext";
 
 function Login() {
+  const cookies = new Cookies();
   const [id, setId] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate();
+  const [, setUser] = useContext(AuthContext);
 
   // 현재 유저가 어떤 유저인지 판별
-  // TODO : 필요한가?
-  const [user, setUser] = useContext(AuthContext);
-
-  const handleInputId = (e) => {
-    setId(e.target.value);
-  };
-
-  const handleInputPw = (e) => {
-    setPassword(e.target.value);
-  };
-
-  const OnClickLogin = async (e) => {
+  const loginHandler = async (e) => {
     e.preventDefault();
-
-    await axios
-      .post("/account/login", {
-        id: "abc123",
-        password: "abc123",
-      })
-      .then()
-      .catch((err) => {
-        console.log(err.message);
+    try {
+      // ! 수정 필요
+      console.log(id, password);
+      const result = await axios.post("/account/login", {
+        id: id,
+        password: password,
       });
+      console.log(result);
+
+      // 홈으로 이동
+      setUser(cookies.get("connect.sid"));
+      alert("로그인되었습니다.");
+      navigate("/");
+    } catch (err) {
+      console.log(err.message);
+    }
   };
 
   return (
     <div class="login">
       <h2>로그인</h2>
       <form onSubmit={loginHandler}>
+        {/* 아이디 입력 */}
         <div class="id">
           <input
             type="text"
-            name="input_id"
             value={id}
-            setValue={setId}
-            onChange={handleInputId}
+            onChange={(e) => {
+              setId(e.target.value);
+            }}
             placeholder="아이디"
           />
         </div>
-        <div class="pw">
+        {/* 비밀번호 입력 */}
+        <div class="password">
           <input
-            type="password"
-            name="input_pw"
+            type="current-password"
             value={password}
-            setValue={setPassword}
-            onChange={handleInputPw}
+            onChange={(e) => {
+              setPassword(e.target.value);
+            }}
             placeholder="비밀번호"
           />
         </div>
+        {/* !!!!!! 이 밑으로 수정 필요 !!!!!! */}
         <div class="submit">
           <button type="submit">로그인</button>
         </div>
       </form>
       <div class="login_etc">
-        <Link to="/login">아이디/비밀번호 찾기</Link>
+        <Link to="/forgot">아이디/비밀번호 찾기</Link>
         <Link to="/signup">회원가입</Link>
       </div>
       <div class="sns_etc">SNS계정으로 간편 로그인/회원가입</div>

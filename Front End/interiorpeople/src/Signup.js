@@ -1,56 +1,59 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 function Signup() {
   const [id, setId] = useState("");
   const [password, setPassword] = useState("");
   const [passwordCheck, setPasswordCheck] = useState("");
+  const navigate = useNavigate();
 
-  const handleInputId = (e) => {
-    setId(e.target.value);
-  };
-
-  const handleInputPw = (e) => {
-    setPassword(e.target.value);
-  };
-
-  const handleInputPwCheck = (e) => {
-    setPasswordCheck(e.target.value);
-  };
-
-  const OnClickSignup = async (e) => {
-    e.preventDefault();
-
-    // TODO: 아이디가 한글이라던가
-
-    // TODO: 비밀번호 비밀번호가 너무 긴 경우 또는 짧은
-    if (password.length < 8) {
-      alert("8자의 이상의 비밀번호를 사용해야 합니다.");
+  const signUpHandler = async (e) => {
+    const regEngAndNum = /^[a-zA-Z0-9]*$/;
+    try {
+      e.preventDefault();
+      // TODO: 추후에 로그인 관련
+      if (!regEngAndNum.test(id)) {
+        setId("");
+        alert("id를 다시 입력해 주세요");
+        throw new Error();
+      }
+      if (!regEngAndNum.test(password)) {
+        setId("");
+        alert("id를 다시 입력해 주세요");
+        throw new Error();
+      }
+      // if (password.length < 8) {
+      //   alert("8자의 이상의 비밀번호를 사용해야 합니다.");
+      //   throw new Error();
+      // }
+      // 비밀번호랑 비밀번호 확인이 다를 경우
+      if (password !== passwordCheck) {
+        alert("비밀번호와 비밀번호 확인이 일치하지 않습니다.");
+        throw new Error();
+      }
+      // TODO: 추후에 로그인 관련 여기까지
+      await axios.post("/account/register", { id: id, password: password });
+      navigate("/");
+      alert("회원가입이 완료되었습니다.");
+    } catch (err) {
+      console.log(err);
+      alert(err.message);
     }
-    // 비밀번호랑 비밀번호 확인이 다를 경우
-    if (password !== passwordCheck) {
-      return alert('비밀번호와 비밀번호 확인이 일치하지 않습니다.')
-    }
-
-    console.log("click login");
-
-    await axios
-      .post("/account/register", { id, password })
-      .then((res) => console.log(res))
-      .catch();
   };
 
   return (
     <div>
       <h2>회원가입</h2>
-      <form onSubmit={OnClickSignup}>
+      <form onSubmit={signUpHandler}>
         <div>
           <input
             type="text"
             name="input_id"
             value={id}
-            setValue={setId}
-            onChange={handleInputId}
+            onChange={(e) => {
+              setId(e.target.value);
+            }}
             placeholder="아이디"
           />
         </div>
@@ -59,8 +62,9 @@ function Signup() {
             type="password"
             name="input_pw"
             value={password}
-            setValue={setPassword}
-            onChange={handleInputPw}
+            onChange={(e) => {
+              setPassword(e.target.value);
+            }}
             placeholder="비밀번호"
           />
         </div>
@@ -69,25 +73,26 @@ function Signup() {
             type="password"
             name="input_pw_check"
             value={passwordCheck}
-            setValue={setPasswordCheck}
-            onChange={handleInputPwCheck}
+            onChange={(e) => {
+              setPasswordCheck(e.target.value);
+            }}
             placeholder="비밀번호 확인"
           />
         </div>
         <div>
-          <button type="submit">회원가입하기</button>
+          <button type="submit">회원가입</button>
         </div>
       </form>
       <div>
         <h4>SNS계정으로 간편 회원가입</h4>
         <a href="signup.html">
-          <img src="img/facebook.png" width="48" height="48"></img>
+          <img alt="" src="img/facebook.png" width="48" height="48"></img>
         </a>
         <a href="signup.html">
-          <img src="img/kakao.png" width="48" height="48"></img>
+          <img alt="" src="img/kakao.png" width="48" height="48"></img>
         </a>
         <a href="signup.html">
-          <img src="img/naver.png" width="48" height="48"></img>
+          <img alt="" src="img/naver.png" width="48" height="48"></img>
         </a>
       </div>
     </div>
