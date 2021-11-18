@@ -9,9 +9,9 @@ const UserSchema = new mongoose.Schema(
     s3_history_img_url: [{ type: String }],
     s3_myphoto_img_url: [{ type: String }],
     // 미구현 사항
-    email: { type: String, required: false, unique: true, trim: true },
-    googleId: { type: String, required: false, unique: true },
-    naverId: { type: String, required: false, unique: true },
+    email: { type: String, required: false, trim: true, default: '' }, // , unique: true
+    googleId: { type: String, required: false, default: '' }, // , unique: true
+    naverId: { type: String, required: false, default: '' }, // , unique: true
     age: { type: Number, required: false },
   },
   { timestamps: true }

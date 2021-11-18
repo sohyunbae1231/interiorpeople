@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React from "react";
 import "./App.css";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Nav from "./Nav";
@@ -23,8 +23,15 @@ import Selectstyle from "./Selectstyle";
 //import Editstyle from "./Editstyle"; // 팝업으로 구현하기
 import Themeupload from "./Themeupload";
 import Result from "./Result";
+
 // 커뮤니티 메인, 나의 글 상세, 포스트 상세화면, 글 작성
-// import Community from "./community/App";
+import CommunityPage from "./community/pages/CommunityPage";
+import CommunityMain from "./community/pages/Main";
+import CommunityDetailPost from "./community/pages/DetailPost";
+import CommunityMyPost from "./community/pages/MyPost";
+import CommunityPostList from "./community/pages/PostList";
+import CommunityWritePost from "./community/pages/WritePost";
+
 import Mypost from "./Mypost";
 import Postlist from "./Postlist";
 import Postwrite from "./Postwrite";
@@ -60,7 +67,14 @@ function App() {
           <Route path="/interior/themeupload" element={<Themeupload />} />
           <Route path="/interior/result" element={<Result />} />
 
-          {/* <Route path="/community" element={<Community />} /> */}
+          {/* 커뮤니티 관련 */}
+          <Route path="/community/*" element={<CommunityPage />}>
+            <Route path="" element={<CommunityMain />} />
+            <Route path="mypost" element={<CommunityMyPost />} />
+            <Route path="post/:postId" element={<CommunityDetailPost />} />
+            <Route path="postlist" element={<CommunityPostList />} />
+            <Route path="mypost/write" element={<CommunityWritePost />} />
+          </Route>
         </Routes>
       </Router>
     </div>

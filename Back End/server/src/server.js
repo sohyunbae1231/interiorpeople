@@ -11,7 +11,7 @@ const passport = require('passport')
 // const hpp = require('hpp') // !
 const redis = require('redis')
 const RedisStore = require('connect-redis')(session)
-const cors = require('cors')
+// const cors = require('cors')
 
 /** 데이터베이스 관련 */
 const connect = require('./schemas')
@@ -34,7 +34,6 @@ passportConfig() // 패스포트 설정
 connect() // 몽고디비 연결
 
 /** 미들웨어 설정 */
-// app.use(cors())
 if (NODE_ENV === 'production') {
   // 베포 환경일 경우
   app.use(morgan('combined')) // 많은 사용자 정보를 로그로 남김
@@ -55,15 +54,20 @@ const redisClient = redis.createClient({
   password: process.env.REDIS_PASSWORD,
 })
 
+// app.use(
+//   cors({
+//     origin: true,
+//     Credentials: true,
+//   })
+// )
 // 세션 및 쿠키 설정
 app.use(cookieParser(COOKIE_KEY))
 const sessionOption = {
-  proxy: false,
+  proxy: true,
   resave: false,
   saveUninitialized: false,
   secret: COOKIE_KEY,
   cookie: {
-    httpOnly: true,
     secure: false,
     maxAge: 1000 * 60 * 10,
   },
@@ -80,8 +84,15 @@ if (NODE_ENV === 'production') {
 app.use(session(sessionOption))
 app.use(passport.initialize())
 app.use(passport.session())
+app.use('/uploads', express.static('uploads'))
 
 /** 라우터 연결 */
+
+// ! 삭제 필요
+// * 불필요한 요청 방지
+app.get('/favicon.ico', (req, res) => res.status(204).end())
+app.get('/logo192.png', (req, res) => res.status(204).end())
+
 // *  메인 페이지 라우터
 app.use('/', indexRouter)
 
@@ -95,23 +106,22 @@ app.use('/support', supportRouter)
 app.use('/mypage', myPageRouter)
 
 // * 커뮤니티 라우터
-app.use('/community', communityRouter)
+app.use('/server/community', communityRouter)
 
 /** 에러 핸들링 라우터 : 페이지가 없을 경우 메인 페이지로 돌아간다. */
-// app.use((err, req, res) => {
-//   // @ts-ignore
-//   const errorMessage = err.message
-//   // @ts-ignore
-//   const wrongUrl = req.url
-//   // eslint-disable-next-line
-
-//   console.error(` 오류가 발생했습니다. : ${errorMessage}\n\n`)
-//   // eslint-disable-next-line
-//   console.error(`${wrongUrl} : 해당 페이지가 없습니다. 메인페이지로 돌아갑니다`)
-//   // @ts-ignore
-//   // res.redirect('/')
-//   res.status(400).json({ message: 'ERROR!' })
-// })
+app.use((err, req, res) => {
+  // @ts-ignore
+  const errorMessage = err.message
+  // @ts-ignore
+  const wrongUrl = req.url
+  // eslint-disable-next-line
+  console.error(` 오류가 발생했습니다. : ${errorMessage}\n\n`)
+  // eslint-disable-next-line
+  console.error(`${wrongUrl} : 해당 페이지가 없습니다. 메인페이지로 돌아갑니다`)
+  // @ts-ignore
+  // res.redirect('/')
+  res.status(400).json({ message: 'ERROR!' })
+})
 
 /** 서버 실행 */
 app.listen(PORT, () => {

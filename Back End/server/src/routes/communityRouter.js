@@ -92,17 +92,42 @@ if (process.env.NODE_ENV === 'dev') {
 // TODO : 메인홈
 // TODO : 포스트 클릭 어떻게 구현
 // TODO : 인기글, 나의 글 구현
-communityRouter.get('/', ifIsLoggedIn, async (req, res) => {
-  const allPosts = await Post.find()
-  res.status(200).json(allPosts)
+
+/** 공개된 모든 포스트 불러오기  */
+communityRouter.get('/post-list', ifIsLoggedIn, async (req, res) => {
+  const { lastPostId } = req.query
+  try {
+    // @ts-ignore
+    // const userId = req.user.id
+    // 유효하지 않은 포스트의 id인 경우
+    if (lastPostId && !mongoose.isValidObjectId(lastPostId)) {
+      throw new Error('잘못된 접근입니다.')
+    }
+    // @ts-ignore
+    // if (!userId) {
+    //   throw new Error('권한이 없습니다.')
+    // }
+    // @ts-ignore
+    const posts = await Post.find(lastPostId ? { _id: { $lt: lastPostId } } : {})
+      .sort({ _id: -1 })
+      .limit(20)
+
+    res.status(200).json(posts)
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.log(err)
+    // @ts-ignore
+    res.status(400).json({ message: err.message })
+  }
 })
 
 /** 나의 포스트 불러오기 */
 communityRouter.get('/mypost', isLoggedIn, async (req, res) => {
+  const { lastPostId } = req.query
   try {
-    const { lastPostId } = req.body
     // @ts-ignore
     const userId = req.user.id
+
     // 유효하지 않은 포스트의 id인 경우
     if (lastPostId && !mongoose.isValidObjectId(lastPostId)) {
       throw new Error('잘못된 접근입니다.')
@@ -115,6 +140,9 @@ communityRouter.get('/mypost', isLoggedIn, async (req, res) => {
     const myPosts = await Post.find(lastPostId ? { writer_id: userId, _id: { $lt: lastPostId } } : { writer_id: userId })
       .sort({ _id: -1 })
       .limit(20)
+
+    console.log(req.user)
+    console.log(myPosts)
     res.status(200).json(myPosts)
   } catch (err) {
     // eslint-disable-next-line no-console
@@ -211,6 +239,7 @@ communityRouter.post('/post/:postId/follow', isLoggedIn, async (req, res) => {
   }
 })
 
+// TODO : 자신의 포스트는 좋아요 불가
 /** 좋아요를 눌렀을 시 */
 communityRouter.post('/post/:postId/like', isLoggedIn, async (req, res) => {
   const { postId } = req.params
@@ -267,28 +296,32 @@ communityRouter.post('/post/:postId/like', isLoggedIn, async (req, res) => {
 /** 포스트 작성 */
 // upload.array('키', 최대파일개수)
 communityRouter.post('/mypost/write', isLoggedIn, uploadPost.array('images', 10), async (req, res) => {
-  // 객체 배열에서 특정 요소를 추출할 때는 filter가 아니라 map을 사용함.
+  try {
+    // 객체 배열에서 특정 요소를 추출할 때는 filter가 아니라 map을 사용함.
+    if (process.env.NODE_ENV === 'dev') {
+      // @ts-ignore
+      req.files.forEach((element) => {
+        // eslint-disable-next-line no-param-reassign
+        element.location = element.filename
+      })
+    }
 
-  if (process.env.NODE_ENV === 'dev') {
     // @ts-ignore
-    req.files.forEach((element) => {
-      // eslint-disable-next-line no-param-reassign
-      element.location = element.filename
-    })
+    const imgURLs = req.files.map((element) => element.location)
+    // 포스트 생성
+    const createdPost = await new Post({
+      // @ts-ignore
+      writer_id: req.user.id,
+      title: req.body.title,
+      content: req.body.content,
+      like_num: 0,
+      s3_photo_img_url: imgURLs,
+    }).save()
+    res.status(200).json(createdPost)
+  } catch (err) {
+    // @ts-ignore
+    res.status(400).json({ message: err.message })
   }
-
-  // @ts-ignore
-  const imgURLs = req.files.map((element) => element.location)
-  // 포스트 생성
-  const createdPost = await new Post({
-    // @ts-ignore
-    writer_id: req.user.id,
-    title: req.body.title,
-    content: req.body.content,
-    like_num: 0,
-    s3_photo_img_url: imgURLs,
-  }).save()
-  res.status(200).json(createdPost)
 })
 
 /** 포스트 삭제 */
