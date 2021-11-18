@@ -1,10 +1,22 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
-import { withRouter, BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
+import {
+  withRouter,
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  Link,
+} from "react-router-dom";
+
+import { AuthContext } from "./context/AuthContext";
 
 function Login() {
   const [id, setId] = useState("");
   const [password, setPassword] = useState("");
+
+  // 현재 유저가 어떤 유저인지 판별
+  // TODO : 필요한가?
+  const [user, setUser] = useContext(AuthContext);
 
   const handleInputId = (e) => {
     setId(e.target.value);
@@ -17,19 +29,22 @@ function Login() {
   const OnClickLogin = async (e) => {
     e.preventDefault();
 
-    console.log("click login");
-
     await axios
-      .post("/account/register", { id, password })
-      .then((res) => console.log(res))
-      .catch();
+      .post("/account/login", {
+        id: "abc123",
+        password: "abc123",
+      })
+      .then()
+      .catch((err) => {
+        console.log(err.message);
+      });
   };
 
   return (
     <div class="login">
       <h2>로그인</h2>
-      <form onSubmit={OnClickLogin}>
-        <div class="login_id">
+      <form onSubmit={loginHandler}>
+        <div class="id">
           <input
             type="text"
             name="input_id"
@@ -39,7 +54,7 @@ function Login() {
             placeholder="아이디"
           />
         </div>
-        <div class="login_pw">
+        <div class="pw">
           <input
             type="password"
             name="input_pw"

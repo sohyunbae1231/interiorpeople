@@ -60,7 +60,7 @@ authRouter.post('/login', isNotLoggedIn, (req, res, next) => {
     }
 
     if (!user) {
-      return res.redirect(`/?loginError=${info.message}`) // TODO : 수정
+      return next(new Error(info)) // TODO : 수정
     }
 
     return req.login(user, (loginError) => {
@@ -69,7 +69,7 @@ authRouter.post('/login', isNotLoggedIn, (req, res, next) => {
         console.error(loginError)
         return next(loginError)
       }
-      return res.send('로그인 성공')
+      return res.status(200).json({ message: '로그인 성공' })
     })
   })(req, res, next)
 })

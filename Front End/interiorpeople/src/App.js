@@ -1,6 +1,6 @@
-import React, { Component } from 'react';
-import './App.css';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import React, { Component } from "react";
+import "./App.css";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Nav from "./Nav";
 // 홈
 import Home from "./Home";
@@ -23,13 +23,13 @@ import Selectstyle from "./Selectstyle";
 //import Editstyle from "./Editstyle"; // 팝업으로 구현하기
 import Themeupload from "./Themeupload";
 import Result from "./Result";
-// 커뮤니티 메인, 나의 글 상세, 포스트 상세화면, 글 작성 
-import Community from "./Community";
+// 커뮤니티 메인, 나의 글 상세, 포스트 상세화면, 글 작성
+// import Community from "./community/App";
 import Mypost from "./Mypost";
 import Postlist from "./Postlist";
 import Postwrite from "./Postwrite";
 
-import Like from "./Like";
+// import Like from "./Like";
 
 //import MenuList from './MenuList';
 
@@ -39,8 +39,7 @@ function App() {
       <Router>
         <Nav />
         <Routes>
-
-        <Route path="/like" element={<Like />} />
+          {/* <Route path="/like" element={<Like />} /> */}
 
           <Route path="/" element={<Home />} />
 
@@ -61,10 +60,7 @@ function App() {
           <Route path="/interior/themeupload" element={<Themeupload />} />
           <Route path="/interior/result" element={<Result />} />
 
-          <Route path="/community" element={<Community />} />
-          <Route path="/community/mypost" element={<Mypost />} />
-          <Route path="/community/postlist" element={<Postlist />} />
-          <Route path="/community/write" element={<Postwrite />} />
+          {/* <Route path="/community" element={<Community />} /> */}
         </Routes>
       </Router>
     </div>
