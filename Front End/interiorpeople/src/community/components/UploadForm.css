@@ -1,0 +1,46 @@
+/* css는 무조건 ; 붙어야 한다 */
+
+/* 클래스를 꾸밀 때 .을 붙인다. */
+.file-dropper {
+  border: 1px dashed black;
+  height: 200px;
+  background-color: skyblue;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  display: flex;
+  position: relative;
+  justify-content: center;
+  align-items: center;
+}
+
+/* .file-dropper 클래스 안에 있는 input 태그를 꾸민다. */
+.file-dropper input {
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  cursor: pointer;
+}
+
+/* 마우스를 올렸을 시 반응을 꾸민다 */
+.file-dropper:hover {
+  background-color: rgb(165, 241, 51);
+  transition: 0.5s;
+  color: white;
+}
+
+/*이미지 미리보기를 꾸민다*/
+.image-preview {
+  width: 0%;
+  opacity: 0;
+  display: block;
+  margin: 0 auto 20px auto;
+  border-radius: 10px;
+  border: 5px solid grey;
+}
+
+.image-preview-show {
+  width: 75%;
+  transition: 0.5s;
+  opacity: 100%;
+}

@@ -1,6 +1,12 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { withRouter, BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
+import {
+  withRouter,
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  Link,
+} from "react-router-dom";
 
 function Login() {
   const [id, setId] = useState("");
@@ -20,7 +26,10 @@ function Login() {
     console.log("click login");
 
     await axios
-      .post("/account/register", { id, password })
+      .post("http://localhost:5000/account/login", {
+        id: "abc123",
+        password: "abc123",
+      })
       .then((res) => console.log(res))
       .catch();
   };

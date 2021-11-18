@@ -15,6 +15,7 @@ const mime = require('mime-types') // 파일의 타입을 처리
 const mongoose = require('mongoose')
 const fs = require('fs')
 const { promisify } = require('util')
+
 const fileUnlink = promisify(fs.unlink)
 
 /** 데이터베이스 관련 */
@@ -92,26 +93,29 @@ if (process.env.NODE_ENV === 'dev') {
 // TODO : 포스트 클릭 어떻게 구현
 // TODO : 인기글, 나의 글 구현
 communityRouter.get('/', ifIsLoggedIn, async (req, res) => {
-  res.send(123)
+  const allPosts = await Post.find()
+  res.status(200).json(allPosts)
 })
 
-// TODO : 내 포스트
-// TODO : infinite scroll 방식으로 하기
+/** 나의 포스트 불러오기 */
 communityRouter.get('/mypost', isLoggedIn, async (req, res) => {
   try {
-    const { lastid } = req.query
-    if (lastid && !mongoose.isValidObjectId(lastid)) {
-      throw new Error('invalid lastid')
+    const { lastPostId } = req.body
+    // @ts-ignore
+    const userId = req.user.id
+    // 유효하지 않은 포스트의 id인 경우
+    if (lastPostId && !mongoose.isValidObjectId(lastPostId)) {
+      throw new Error('잘못된 접근입니다.')
     }
     // @ts-ignore
-    if (!req.user) {
+    if (!userId) {
       throw new Error('권한이 없습니다.')
     }
     // @ts-ignore
-    const images = await Image.find(lastid ? { 'user._id': req.user.id, _id: { $lt: lastid } } : { 'user._id': req.user.id })
+    const myPosts = await Post.find(lastPostId ? { writer_id: userId, _id: { $lt: lastPostId } } : { writer_id: userId })
       .sort({ _id: -1 })
       .limit(20)
-    res.json(images)
+    res.status(200).json(myPosts)
   } catch (err) {
     // eslint-disable-next-line no-console
     console.log(err)
@@ -124,11 +128,8 @@ communityRouter.get('/mypost', isLoggedIn, async (req, res) => {
 communityRouter.get('/post/:postId', ifIsLoggedIn, async (req, res) => {
   const { postId } = req.params
   const currentPost = await Post.findById(postId)
-  let userId
-  if (req.user) {
-    // @ts-ignore
-    userId = req.user.id
-  }
+  // @ts-ignore
+  const userId = req.user.id
 
   // 조회수 기록
   if (userId && !req.cookies[postId]) {
@@ -219,6 +220,9 @@ communityRouter.post('/post/:postId/like', isLoggedIn, async (req, res) => {
   try {
     const userLikeList = await Like.findOne({ id: userId })
     const currentPost = await Post.findById(postId)
+    if (!req.params.postId) {
+      throw new Error('존재하지 않는 포스트입니다.')
+    }
     // 있는 경우
     if (userLikeList) {
       // 이미 좋아요가 되어 있어 좋아요를 취소할 시
@@ -258,7 +262,7 @@ communityRouter.post('/post/:postId/like', isLoggedIn, async (req, res) => {
 })
 
 /** 댓글 기능 */
-// TODO : 댓글 기능
+// TODO : 댓글 작성 및 삭제 기능
 
 /** 포스트 작성 */
 // upload.array('키', 최대파일개수)
@@ -276,7 +280,7 @@ communityRouter.post('/mypost/write', isLoggedIn, uploadPost.array('images', 10)
   // @ts-ignore
   const imgURLs = req.files.map((element) => element.location)
   // 포스트 생성
-  const result = await new Post({
+  const createdPost = await new Post({
     // @ts-ignore
     writer_id: req.user.id,
     title: req.body.title,
@@ -284,24 +288,21 @@ communityRouter.post('/mypost/write', isLoggedIn, uploadPost.array('images', 10)
     like_num: 0,
     s3_photo_img_url: imgURLs,
   }).save()
-  res.status(200).json(result)
+  res.status(200).json(createdPost)
 })
 
 /** 포스트 삭제 */
-communityRouter.delete('/mypost/delete', isLoggedIn, async (req, res) => {
+communityRouter.delete('/post/:postId/delete', isLoggedIn, async (req, res) => {
   // @ts-ignore
   const userId = req.user.id
   try {
-    if (!userId) {
-      throw new Error('권한이 없습니다.')
-    }
     // ObjectId 인지 확인
-    if (!mongoose.isValidObjectId(req.body.postId)) {
+    if (!mongoose.isValidObjectId(req.params.postId)) {
       throw new Error(`올바르지 않은 포스트입니다.`)
     }
-    const post = await Post.findOneAndDelete({ _id: req.body.postId })
+    const post = await Post.findOneAndDelete({ _id: req.params.postId, writer_id: userId })
     if (!post) {
-      throw new Error(`존재하지 않는 포스트입니다.`)
+      return res.status(400).json({ message: '존재하지 않는 포스트입니다.' })
     }
     const imgUrls = post.s3_photo_img_url
     if (process.env.NODE_ENV === 'dev') {
@@ -325,10 +326,11 @@ communityRouter.delete('/mypost/delete', isLoggedIn, async (req, res) => {
         )
       })
     }
-    res.status(200).json({ message: '성공적으로 삭제되었습니다.' })
+    return res.status(200).json({ message: '성공적으로 삭제되었습니다.' })
   } catch (err) {
     // @ts-ignore
-    res.status(400).json({ message: err.message })
+    return res.status(400).json({ message: err.message })
   }
 })
+
 module.exports = { communityRouter }
