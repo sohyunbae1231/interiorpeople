@@ -2,6 +2,7 @@
 
 // TODO : 댓글 + 삭제 기능
 // TODO : 파일 이미지인지 확인 후 거르기
+
 /** 모듈 */
 const { Router } = require('express')
 const path = require('path')
@@ -10,6 +11,11 @@ const AWS = require('aws-sdk')
 const multers3 = require('multer-s3')
 const requestip = require('request-ip')
 const { v1: uuid } = require('uuid')
+const mime = require('mime-types') // 파일의 타입을 처리
+const mongoose = require('mongoose')
+const fs = require('fs')
+const { promisify } = require('util')
+const fileUnlink = promisify(fs.unlink)
 
 /** 데이터베이스 관련 */
 const Post = require('../schemas/Post')
@@ -20,26 +26,67 @@ const Follow = require('../schemas/Follow')
 /** 로그인 관련 */
 const { isLoggedIn, ifIsLoggedIn } = require('../middlewares/authentication')
 
+/** 라우터 */
 const communityRouter = Router()
 
+/** 이미지 업로드 관련 */
 /** AWS 설정 */
 const s3 = new AWS.S3({
   accessKeyId: process.env.S3_ACCESS_KEY_ID,
   secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
   region: 'ap-northeast-2',
 })
-// !  var ext = file.mimetype.split('/')[1];
-const uploadPost = multer({
-  storage: multers3({
-    s3,
-    bucket: 'interiorpeople',
-    key(req, file, cb) {
-      // 저장할 파일 위치 설정
-      cb(null, `post_img/${uuid()}${path.extname(file.originalname)}`)
+
+let uploadPost = multer()
+if (process.env.NODE_ENV === 'dev') {
+  /** dev 환경일 경우 local storage에서 이미지 관리 */
+  const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+      cb(null, './uploads')
     },
-  }),
-  limits: { fileSize: 5 * 1024 * 1024 }, // 파일 크기를 5mb로 제한
-})
+    filename: (req, file, cb) => {
+      const temporaryFileName = `post_img/${uuid()}.${mime.extension(file.mimetype)}`
+      cb(null, temporaryFileName)
+    },
+  })
+
+  uploadPost = multer({
+    storage,
+    fileFilter: (req, file, cb) => {
+      if (['image/png', 'image/jpeg', 'image/jpg'].includes(file.mimetype)) {
+        cb(null, true)
+      } else {
+        // @ts-ignore
+        cb(new Error(`파일 타입이 이미지가 아닙니다! : ${file.mimetype}`), false)
+      }
+    },
+    limits: {
+      fileSize: 1024 * 1024 * 5, // 파일 크기를 5mb로 제한
+    },
+  })
+} else if (process.env.NODE_ENV === 'production') {
+  /** production 환경일 경우 AWS S3에서 이미지 관리 */
+
+  uploadPost = multer({
+    storage: multers3({
+      s3,
+      bucket: 'interiorpeople',
+      key(req, file, cb) {
+        // 저장할 파일 위치 설정
+        cb(null, `post_img/${uuid()}${path.extname(file.originalname)}`)
+      },
+    }),
+    fileFilter: (req, file, cb) => {
+      if (['image/png', 'image/jpeg', 'image/jpg'].includes(file.mimetype)) {
+        cb(null, true)
+      } else {
+        // @ts-ignore
+        cb(new Error(`파일 타입이 이미지가 아닙니다! : ${file.mimetype}`), false)
+      }
+    },
+    limits: { fileSize: 5 * 1024 * 1024 }, // 파일 크기를 5mb로 제한
+  })
+}
 
 // TODO : 메인홈
 // TODO : 포스트 클릭 어떻게 구현
@@ -51,9 +98,26 @@ communityRouter.get('/', ifIsLoggedIn, async (req, res) => {
 // TODO : 내 포스트
 // TODO : infinite scroll 방식으로 하기
 communityRouter.get('/mypost', isLoggedIn, async (req, res) => {
-  // eslint-disable-next-line no-console
-  console.log(req.user)
-  res.json({ 123: 123 })
+  try {
+    const { lastid } = req.query
+    if (lastid && !mongoose.isValidObjectId(lastid)) {
+      throw new Error('invalid lastid')
+    }
+    // @ts-ignore
+    if (!req.user) {
+      throw new Error('권한이 없습니다.')
+    }
+    // @ts-ignore
+    const images = await Image.find(lastid ? { 'user._id': req.user.id, _id: { $lt: lastid } } : { 'user._id': req.user.id })
+      .sort({ _id: -1 })
+      .limit(20)
+    res.json(images)
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.log(err)
+    // @ts-ignore
+    res.status(400).json({ message: err.message })
+  }
 })
 
 /** 포스트 상세 */
@@ -66,7 +130,7 @@ communityRouter.get('/post/:postId', ifIsLoggedIn, async (req, res) => {
     userId = req.user.id
   }
 
-  // 조회수 기록을 위함
+  // 조회수 기록
   if (userId && !req.cookies[postId]) {
     // 조회수 증가
     const clientIP = requestip.getClientIp(req) // 사용자 ip
@@ -198,8 +262,17 @@ communityRouter.post('/post/:postId/like', isLoggedIn, async (req, res) => {
 
 /** 포스트 작성 */
 // upload.array('키', 최대파일개수)
-communityRouter.post('/mypost/write', isLoggedIn, uploadPost.array('images'), async (req, res) => {
+communityRouter.post('/mypost/write', isLoggedIn, uploadPost.array('images', 10), async (req, res) => {
   // 객체 배열에서 특정 요소를 추출할 때는 filter가 아니라 map을 사용함.
+
+  if (process.env.NODE_ENV === 'dev') {
+    // @ts-ignore
+    req.files.forEach((element) => {
+      // eslint-disable-next-line no-param-reassign
+      element.location = element.filename
+    })
+  }
+
   // @ts-ignore
   const imgURLs = req.files.map((element) => element.location)
   // 포스트 생성
@@ -215,29 +288,44 @@ communityRouter.post('/mypost/write', isLoggedIn, uploadPost.array('images'), as
 })
 
 /** 포스트 삭제 */
-// TODO : req.body에 포스트 아이디 아니면 와일드 카드 쓰던가
 communityRouter.delete('/mypost/delete', isLoggedIn, async (req, res) => {
   // @ts-ignore
   const userId = req.user.id
   try {
-    const post = await Post.findOneAndDelete({ _id: req.body.postId, writer_id: userId })
+    if (!userId) {
+      throw new Error('권한이 없습니다.')
+    }
+    // ObjectId 인지 확인
+    if (!mongoose.isValidObjectId(req.body.postId)) {
+      throw new Error(`올바르지 않은 포스트입니다.`)
+    }
+    const post = await Post.findOneAndDelete({ _id: req.body.postId })
+    if (!post) {
+      throw new Error(`존재하지 않는 포스트입니다.`)
+    }
     const imgUrls = post.s3_photo_img_url
-    // ? 유사배열이라고 한다.
-    Array.from(imgUrls).forEach(async (element) => {
-      const key = `${element.split('/').slice(3, 4)}/${element.split('/').slice(4)}`
-      s3.deleteObject(
-        {
-          Bucket: 'interiorpeople',
-          Key: key,
-        },
-        (err) => {
-          if (err) {
-            throw new Error('s3 파일 삭제 실패')
+    if (process.env.NODE_ENV === 'dev') {
+      Array.from(imgUrls).forEach(async (element) => {
+        await fileUnlink(`./uploads/${element}`)
+      })
+    } else if (process.env.NODE_NEV === 'production') {
+      // ? 유사배열이라고 한다.
+      Array.from(imgUrls).forEach(async (element) => {
+        const key = `${element.split('/').slice(3, 4)}/${element.split('/').slice(4)}`
+        s3.deleteObject(
+          {
+            Bucket: 'interiorpeople',
+            Key: key,
+          },
+          (err) => {
+            if (err) {
+              throw new Error('s3 파일 삭제 실패')
+            }
           }
-        }
-      )
-    })
-    res.status(200).json({ message: 'successfully delete' })
+        )
+      })
+    }
+    res.status(200).json({ message: '성공적으로 삭제되었습니다.' })
   } catch (err) {
     // @ts-ignore
     res.status(400).json({ message: err.message })

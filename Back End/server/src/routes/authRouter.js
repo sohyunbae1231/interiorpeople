@@ -1,35 +1,35 @@
 // @ts-check
 
+/** 모듈 */
 const { Router } = require('express')
 const passport = require('passport')
 const bcrypt = require('bcrypt')
 const { isLoggedIn, isNotLoggedIn } = require('../middlewares/authentication')
 
+/** 데이터베이스 관련 */
 const User = require('../schemas/User')
 
 const authRouter = Router()
 
 /** 회원가입 */
-// eslint-disable-next-line
-authRouter.post('/register', isNotLoggedIn, async (req, res, next) => {
+authRouter.post('/register', isNotLoggedIn, async (req, res) => {
   const { id, password } = req.body
   try {
-    // 비밀번호가 너무 긴 경우
-    if (password.length > 12) {
-      throw new Error('비밀번호가 너무 깁니다.')
-    }
-    // 비밀번호가 너무 짧은 경우
-    if (password.length < 3) {
-      throw new Error('비밀번호가 너무 짧습니다.')
-    }
+    // TODO : 프론트에서 확인
+    // // 비밀번호가 너무 긴 경우
+    // if (password.length > 12) {
+    //   throw new Error('비밀번호가 너무 깁니다.')
+    // }
+    // // 비밀번호가 너무 짧은 경우
+    // if (password.length < 3) {
+    //   throw new Error('비밀번호가 너무 짧습니다.')
+    // }
 
     // 이미 해당 아이디가 있는 경우
     const doesIdAlreadyExist = await User.findOne({ id })
     if (doesIdAlreadyExist) {
-      // eslint-disable-next-line no-console
-      console.log('이미 아이디가 있습니다')
       // return res.redirect('/register?error=exist') // 에러를 주소 뒤에 쿼리스트링으로 표기함
-      return res.send('존재하는 아이디입니다.')
+      return res.status(400).json({ message: '이미 존재하는 아이디입니다.' })
     }
 
     // 비밀번호 암호화
@@ -41,12 +41,10 @@ authRouter.post('/register', isNotLoggedIn, async (req, res, next) => {
       hashedPassword,
     }).save()
 
-    // eslint-disable-next-line no-console
-    console.log('회원가입되었습니다.')
-    return res.status(200).json({ message: 'success' })
+    return res.status(200).json({ message: '회원가입되었습니다.' })
   } catch (err) {
     // @ts-ignore
-    res.status(400).json({ message: err.message })
+    return res.status(400).json({ message: err.message })
   }
 })
 
@@ -58,13 +56,11 @@ authRouter.post('/login', isNotLoggedIn, (req, res, next) => {
    */
   passport.authenticate('local', (authError, user, info) => {
     if (authError) {
-      // eslint-disable-next-line no-console
-      console.error(authError)
       return next(authError)
     }
 
     if (!user) {
-      return res.redirect(`/?loginError=${info.message}`)
+      return res.redirect(`/?loginError=${info.message}`) // TODO : 수정
     }
 
     return req.login(user, (loginError) => {
@@ -73,8 +69,6 @@ authRouter.post('/login', isNotLoggedIn, (req, res, next) => {
         console.error(loginError)
         return next(loginError)
       }
-      // eslint-disable-next-line no-console
-      console.log('로그인 되었습니다.')
       return res.send('로그인 성공')
     })
   })(req, res, next)
