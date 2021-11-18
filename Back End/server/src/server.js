@@ -34,7 +34,7 @@ passportConfig() // 패스포트 설정
 connect() // 몽고디비 연결
 
 /** 미들웨어 설정 */
-app.use(cors())
+// app.use(cors())
 if (NODE_ENV === 'production') {
   // 베포 환경일 경우
   app.use(morgan('combined')) // 많은 사용자 정보를 로그로 남김
@@ -98,19 +98,20 @@ app.use('/mypage', myPageRouter)
 app.use('/community', communityRouter)
 
 /** 에러 핸들링 라우터 : 페이지가 없을 경우 메인 페이지로 돌아간다. */
-app.use((err, req, res) => {
-  // @ts-ignore
-  const errorMessage = err.message
-  // @ts-ignore
-  const wrongUrl = req.url
-  // eslint-disable-next-line
-  console.error(` 오류가 발생했습니다. : ${errorMessage}\n\n`)
-  // eslint-disable-next-line
-  console.error(`${wrongUrl} : 해당 페이지가 없습니다. 메인페이지로 돌아갑니다`)
-  // @ts-ignore
-  // res.redirect('/')
-  res.status(400).json({ message: 'ERROR!' })
-})
+// app.use((err, req, res) => {
+//   // @ts-ignore
+//   const errorMessage = err.message
+//   // @ts-ignore
+//   const wrongUrl = req.url
+//   // eslint-disable-next-line
+
+//   console.error(` 오류가 발생했습니다. : ${errorMessage}\n\n`)
+//   // eslint-disable-next-line
+//   console.error(`${wrongUrl} : 해당 페이지가 없습니다. 메인페이지로 돌아갑니다`)
+//   // @ts-ignore
+//   // res.redirect('/')
+//   res.status(400).json({ message: 'ERROR!' })
+// })
 
 /** 서버 실행 */
 app.listen(PORT, () => {
