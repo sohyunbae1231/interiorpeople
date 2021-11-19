@@ -69,6 +69,8 @@ authRouter.post('/login', isNotLoggedIn, (req, res, next) => {
         console.error(loginError)
         return next(loginError)
       }
+      // @ts-ignore
+      res.cookie('user', req.user.id, { maxAge: 1000 * 60 * 10 })
       return res.status(200).json({ message: '로그인 성공' })
     })
   })(req, res, next)
@@ -79,6 +81,8 @@ authRouter.get('/logout', isLoggedIn, (req, res) => {
   req.logout()
   // @ts-ignore
   req.session.destroy()
+  res.clearCookie('user')
+  res.clearCookie('loginData')
   // eslint-disable-next-line no-console
   console.log('로그아웃 되었습니다.')
   res.redirect('/')

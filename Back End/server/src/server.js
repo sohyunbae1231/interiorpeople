@@ -63,11 +63,14 @@ const redisClient = redis.createClient({
 // 세션 및 쿠키 설정
 app.use(cookieParser(COOKIE_KEY))
 const sessionOption = {
+  key: 'loginData',
   proxy: true,
-  resave: false,
+  resave: true,
+  httpOnly: false,
   saveUninitialized: false,
   secret: COOKIE_KEY,
   cookie: {
+    httpOnly: false,
     secure: false,
     maxAge: 1000 * 60 * 10,
   },
@@ -115,9 +118,9 @@ app.use((err, req, res) => {
   // @ts-ignore
   const wrongUrl = req.url
   // eslint-disable-next-line
-  console.error(` 오류가 발생했습니다. : ${errorMessage}\n\n`)
+  console.error(` \n\n오류가 발생했습니다. : ${errorMessage}`)
   // eslint-disable-next-line
-  console.error(`${wrongUrl} : 해당 페이지가 없습니다. 메인페이지로 돌아갑니다`)
+  console.error(`${wrongUrl} : 해당 페이지가 없습니다.`)
   // @ts-ignore
   // res.redirect('/')
   res.status(400).json({ message: 'ERROR!' })

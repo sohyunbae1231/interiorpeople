@@ -13,70 +13,59 @@ const DetailPost = () => {
   const [posts, setPosts] = useState([]);
   const [hasLiked, setHasLiked] = useState(false);
   const [error, setError] = useState(false);
-  const [image, setImage] = useState();
+  const [post, setPost] = useState();
   const [postUrl, setPostUrl] = useState("/server/community/post");
   const [postLoading, setPostLoading] = useState(false);
   const [postError, setPostError] = useState(false);
   const pastPostUrlRef = useRef();
 
-  useEffect(() => {
-    if (pastPostUrlRef.current === postUrl) {
-      return;
-    }
-    setPostLoading(true);
-    axios
-      .get(postUrl)
-      .then((result) => {
-        setPosts((prevData) => [...prevData, ...result.data]);
-      })
-      .catch((err) => {
-        setPostError(err);
-      })
-      .finally(() => {
-        setPostLoading(false);
-        pastPostUrlRef.current = postUrl;
-      });
-  }, [postUrl]);
+  // useEffect(() => {
+  //   if (pastPostUrlRef.current === postUrl) {
+  //     return;
+  //   }
+  //   setPostLoading(true);
+  //   axios
+  //     .get(postUrl)
+  //     .then((result) => {
+  //       setPosts((prevData) => [...prevData, ...result.data]);
+  //     })
+  //     .catch((err) => {
+  //       setPostError(err);
+  //     })
+  //     .finally(() => {
+  //       setPostLoading(false);
+  //       pastPostUrlRef.current = postUrl;
+  //     });
+  // }, [postUrl]);
 
   useEffect(() => {
     const img = posts.find((post) => post._id === postId);
     if (img) {
-      setImage(img);
+      setPost(img);
     }
   }, [posts, postId]);
 
   useEffect(() => {
-    if (image && image._id === postId) {
-      return;
-    } // 배열의 이미지가 존재할 때
-    else {
-      // 배열에 이미지가 존재하지 않으면 무조건 서버 호출한다.
-      axios
-        .get(`/images/${postId}`)
-        .then(({ data }) => {
-          setImage(data);
-          setError(false);
-        })
-        .catch((err) => {
-          setError(true);
-        });
-    }
-  }, [image, postId]);
+    axios
+      .get(`/server/community/post/${postId}`)
+      .then(({ data }) => {
+        setPost(data);
+        setError(false);
+      })
+      .catch((err) => {
+        setError(true);
+      });
+  }, []);
 
-  useEffect(() => {
-    console.log("me의 값 : ", user);
-    console.log(image);
-    if (user && image && image.likes.includes(user.name)) {
-      setHasLiked(true);
-      console.log("hello");
-    }
-  }, [user, image]);
-  // ? images, myImages 의 값이 바뀔 때 컴포넌트가 리렌더링 되면서 코드를 다시 실행함
-  // ? 따라서 이미지를 불러오지 못헀을 때는 아래 if문이 되고 이미지를 불러왔다면
-  // ? 이미지를 보여줌
+  // useEffect(() => {
+  //   if (user && post && post.likes.includes(user.name)) {
+  //     setHasLiked(true);
+  //   }
+  // }, [user, post]);
+
   if (error) {
     return <h3>Error...</h3>;
-  } else if (!image) {
+  } else if (!post) {
     return <h3>Loading...</h3>;
   }
 
@@ -119,33 +108,34 @@ const DetailPost = () => {
     // } catch (err) {}
   };
 
-  const allImagesInPost = () => {
-    for (let postImageUrl of postId.s3_photo_img_url) {
-      <img
-        style={{ width: "100%" }}
-        alt={postId}
-        src={`/uploads/${postImageUrl}`}
-      />;
-    }
-  };
+  const allImagesInPost = post.s3_photo_img_url.map((imageUrl, index) => (
+    <img
+      key={index}
+      src={`/uploads/${imageUrl}`}
+      style={{ width: 200, height: 200, objectFit: "cover" }}
+      alt=""
+      className={`image-preview ${imageUrl && "image-preview-show"}`}
+    />
+  ));
 
   return (
     <div>
-      <h3>Image </h3>
+      <h3>post </h3>
       {allImagesInPost}
-
-      <span>좋아요 {image.likes.length}</span>
+      <h2>{post.title}</h2>
+      <h3>{post.content}</h3>
+      {/* <span>좋아요 {post.likes.length}</span>
       <button style={{ float: "right" }} onClick={likeHandler}>
         {hasLiked ? "좋아요 취소" : "좋아요"}
-      </button>
-      {user && image.user.name === user.name && (
+      </button> */}
+      {/* {user && post.user.name === user.name && (
         <button
           style={{ float: " right", marginLeft: 10 }}
           onClick={deleteHandler}
         >
           삭제
         </button>
-      )}
+      )} */}
     </div>
   );
 };

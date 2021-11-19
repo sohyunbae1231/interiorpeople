@@ -94,6 +94,7 @@ if (process.env.NODE_ENV === 'dev') {
 // TODO : 인기글, 나의 글 구현
 
 /** 공개된 모든 포스트 불러오기  */
+// TODO : url 이후 수정
 communityRouter.get('/post-list', ifIsLoggedIn, async (req, res) => {
   const { lastPostId } = req.query
   try {
@@ -127,6 +128,7 @@ communityRouter.get('/mypost', isLoggedIn, async (req, res) => {
   try {
     // @ts-ignore
     const userId = req.user.id
+    const realUserId = req.cookies.user
 
     // 유효하지 않은 포스트의 id인 경우
     if (lastPostId && !mongoose.isValidObjectId(lastPostId)) {
@@ -137,12 +139,13 @@ communityRouter.get('/mypost', isLoggedIn, async (req, res) => {
       throw new Error('권한이 없습니다.')
     }
     // @ts-ignore
-    const myPosts = await Post.find(lastPostId ? { writer_id: userId, _id: { $lt: lastPostId } } : { writer_id: userId })
+    const myPosts = await Post.find(lastPostId ? { writer_id: realUserId, _id: { $lt: lastPostId } } : { writer_id: realUserId })
       .sort({ _id: -1 })
       .limit(20)
-
-    console.log(req.user)
-    console.log(myPosts)
+    // eslint-disable-next-line no-console
+    console.log('req.user :', req.user)
+    // eslint-disable-next-line no-console
+    console.log(realUserId)
     res.status(200).json(myPosts)
   } catch (err) {
     // eslint-disable-next-line no-console
@@ -156,6 +159,10 @@ communityRouter.get('/mypost', isLoggedIn, async (req, res) => {
 communityRouter.get('/post/:postId', ifIsLoggedIn, async (req, res) => {
   const { postId } = req.params
   const currentPost = await Post.findById(postId)
+  // @ts-ignore
+  if (!req.user) {
+    return res.json(currentPost)
+  }
   // @ts-ignore
   const userId = req.user.id
 

@@ -56,7 +56,7 @@ const WritePost = () => {
     formData.append("title", title);
     formData.append("content", content);
     try {
-      await axios.post("/community/mypost/write", formData, {
+      await axios.post("/server/community/mypost/write", formData, {
         Headers: { "Content-Type": "multipart/form-data" },
       });
 
