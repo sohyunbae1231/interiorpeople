@@ -8,7 +8,7 @@ import "./PostList.css";
 
 const PostList = () => {
   // const [user] = useContext(AuthContext);
-  const [posts, setPosts] = useState([]);
+  const [postlist, setPostlist] = useState([]);
   const [postUrl, setPostUrl] = useState("/server/community/post-list");
   const [postLoading, setPostLoading] = useState(false);
   const [postError, setPostError] = useState(false);
@@ -23,7 +23,7 @@ const PostList = () => {
     axios
       .get(postUrl)
       .then((result) => {
-        setPosts(
+        setPostlist(
           (prevData) => [...prevData, ...result.data]
           // Array.from(new Set([...prevData, ...result.data]))
         );
@@ -40,12 +40,12 @@ const PostList = () => {
 
   // ? 리렌더링 될 때마다 함수가 새로 만들어짐 -> useCallback 사용
   const loaderMoreImages = useCallback(() => {
-    if (postLoading || posts.length === 0) {
+    if (postLoading || postlist.length === 0) {
       return;
     }
-    const lastPostId = posts[posts.length - 1]._id;
+    const lastPostId = postlist[postlist.length - 1]._id;
     setPostUrl(`/server/community/post-list?lastPostId=${lastPostId}`);
-  }, [posts, postLoading, setPostUrl]);
+  }, [postlist, postLoading, setPostUrl]);
 
   //무한 스크롤 해당 엘리먼트 추적
   useEffect(() => {
@@ -64,11 +64,11 @@ const PostList = () => {
   }, [loaderMoreImages]);
 
   /** 받아온 키를 이용하여 사진 호출 */
-  const imgList = posts.map((post, index) => (
+  const imgList = postlist.map((post, index) => (
     <Link
       key={post.s3_photo_img_url[0]}
       to={`/community/post/${post._id}`}
-      ref={index + 1 === posts.length ? elementRef : undefined} // 무한 스크롤의 기준
+      ref={index + 1 === postlist.length ? elementRef : undefined} // 무한 스크롤의 기준
     >
       <img alt="" src={`/uploads/${post.s3_photo_img_url[0]}`} />
     </Link>

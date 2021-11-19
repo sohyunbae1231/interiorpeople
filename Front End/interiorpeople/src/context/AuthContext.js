@@ -8,7 +8,8 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState();
 
   useEffect(() => {
-    const userConnectSid = cookies.get("connect.sid");
+    const userConnectSid = cookies.get("loginData");
+    console.log(userConnectSid);
     if (userConnectSid) {
       setUser(userConnectSid);
     } else {

@@ -14,7 +14,9 @@ function Nav() {
       // 두번째 인자는 req.body이고 세번째 인자는 설정임
       await axios.get("/account/logout");
       setUser();
-      cookies.remove("connect.sid");
+      cookies.remove("loginData");
+      cookies.remove("loginData");
+      cookies.remove("loginData");
       // alert("로그아웃되었습니다.");
       window.location.replace("/");
     } catch (err) {
@@ -44,12 +46,6 @@ function Nav() {
           </button>
         ) : (
           <>
-            <button
-              onClick={logoutHandler}
-              style={{ float: "right", cursor: "pointer" }}
-            >
-              로그아웃
-            </button>
             <Link to="./login">
               <button style={{ float: "right" }}>로그인{user}</button>
             </Link>

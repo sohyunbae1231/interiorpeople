@@ -1,10 +1,4 @@
-import React, {
-  useContext,
-  useRef,
-  useCallback,
-  useEffect,
-  useState,
-} from "react";
+import React, { useRef, useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 
@@ -12,12 +6,9 @@ import { Link } from "react-router-dom";
 // import PostList from "../components/PostList";
 // import UploadForm from "../components/UploadForm";
 
-import { AuthContext } from "../../context/AuthContext";
-
 import "./PostList.css";
 
 const MyPost = () => {
-  const [user] = useContext(AuthContext);
   const [myPosts, setMyPosts] = useState([]);
   const [postUrl, setPostUrl] = useState("/server/community/mypost");
   const [imageLoading, setImageLoading] = useState(false);
@@ -87,7 +78,7 @@ const MyPost = () => {
   return (
     <div>
       <h3 style={{ display: "inline-block", marginRight: 10 }}>
-        Image List(개인 사진)
+        나의 포스트 리스트
       </h3>
       <div className="image-list-container">{imgList}</div>
       {imageError && <div>Error...</div>}

@@ -11,26 +11,30 @@ function Login() {
   const [id, setId] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
-  const [, setUser] = useContext(AuthContext);
+  const [user, setUser] = useContext(AuthContext);
 
   // 현재 유저가 어떤 유저인지 판별
   const loginHandler = async (e) => {
     e.preventDefault();
     try {
-      // ! 수정 필요
-      console.log(id, password);
-      const result = await axios.post("/account/login", {
-        id: id,
-        password: password,
-      });
-      console.log(result);
+      await axios.post(
+        "/account/login",
+        {
+          id: id,
+          password: password,
+        },
+        { withCredentials: true }
+      );
 
       // 홈으로 이동
-      setUser(cookies.get("connect.sid"));
-      alert("로그인되었습니다.");
+      alert(`로그인되었습니다.`);
       navigate("/");
     } catch (err) {
       console.log(err.message);
+    } finally {
+      console.log("user : ", user);
+      console.log("loginData : ", cookies.get("loginData"));
+      setUser(cookies.get("loginData"));
     }
   };
 
