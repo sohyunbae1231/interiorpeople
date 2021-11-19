@@ -103,7 +103,7 @@ app.use('/', indexRouter)
 app.use('/account', authRouter)
 
 // * 고객센터 라우터
-app.use('/support', supportRouter)
+app.use('/server/support', supportRouter)
 
 // * 마이 페이지 라우터
 app.use('/mypage', myPageRouter)
