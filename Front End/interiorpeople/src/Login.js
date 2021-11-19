@@ -32,9 +32,7 @@ function Login() {
     } catch (err) {
       console.log(err.message);
     } finally {
-      console.log("user : ", user);
-      console.log("loginData : ", cookies.get("loginData"));
-      setUser(cookies.get("loginData"));
+      setUser(cookies.get("user"));
     }
   };
 

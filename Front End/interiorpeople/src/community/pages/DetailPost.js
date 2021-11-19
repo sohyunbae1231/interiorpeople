@@ -45,6 +45,7 @@ const DetailPost = () => {
     }
   }, [posts, postId]);
 
+  /** 포스트 불러오기 */
   useEffect(() => {
     axios
       .get(`/server/community/post/${postId}`)
@@ -57,6 +58,7 @@ const DetailPost = () => {
       });
   }, []);
 
+  // TODO : 좋아요 갯수 및 데이터베이스 반영
   // useEffect(() => {
   //   if (user && post && post.likes.includes(user.name)) {
   //     setHasLiked(true);
@@ -88,7 +90,7 @@ const DetailPost = () => {
     );
   // TODO : 자신의 포스트는 좋아요 불가
   const likeHandler = async () => {
-    await axios.post(`community/post/${postId}/like`);
+    await axios.post(`/server/community/post/${postId}/like`);
     setHasLiked(!hasLiked);
   };
 
@@ -108,6 +110,7 @@ const DetailPost = () => {
     // } catch (err) {}
   };
 
+  /** 포스트의 이미지를 보여주는 함수 */
   const allImagesInPost = post.s3_photo_img_url.map((imageUrl, index) => (
     <img
       key={index}
@@ -124,18 +127,18 @@ const DetailPost = () => {
       {allImagesInPost}
       <h2>{post.title}</h2>
       <h3>{post.content}</h3>
-      {/* <span>좋아요 {post.likes.length}</span>
+      <span>좋아요 {post.like_num}</span>
       <button style={{ float: "right" }} onClick={likeHandler}>
         {hasLiked ? "좋아요 취소" : "좋아요"}
-      </button> */}
-      {/* {user && post.user.name === user.name && (
+      </button>
+      {user && post.writer_id === user.name && (
         <button
           style={{ float: " right", marginLeft: 10 }}
           onClick={deleteHandler}
         >
           삭제
         </button>
-      )} */}
+      )}
     </div>
   );
 };

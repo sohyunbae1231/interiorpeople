@@ -77,7 +77,7 @@ const PostList = () => {
   return (
     <div>
       <h3 style={{ display: "inline-block", marginRight: 10 }}>
-        Image List(모든 사진)
+        모든 포스트 리스트
       </h3>
       <div className="image-list-container">{imgList}</div>
       {postError && <div>Error...</div>}
