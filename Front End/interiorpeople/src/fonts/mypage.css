@@ -1,0 +1,32 @@
+/* 마이페이지 폰트 */
+@import url('https://fonts.googleapis.com/css2?family=Gowun+Dodum&display=swap');
+
+.mypage-font {
+    left: 0;
+    text-align: center;
+    height: 14px;
+    font-weight: 400;
+    font-size: 14px;
+    font-family: 'Gowun Dodum', sans-serif;
+    /* 텍스트 드래그 못하게 */
+    -ms-user-select: none; 
+    -moz-user-select: -moz-none;
+    -khtml-user-select: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+.a {
+    left: 0;
+    text-align: center;
+    height: 14px;
+    font-weight: 800;
+    font-size: 14px;
+    font-family: 'Gowun Dodum', sans-serif;
+    /* 텍스트 드래그 못하게 */
+    -ms-user-select: none; 
+    -moz-user-select: -moz-none;
+    -khtml-user-select: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
