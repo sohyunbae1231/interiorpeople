@@ -15,8 +15,6 @@ function Nav() {
       await axios.get("/account/logout");
       setUser();
       cookies.remove("loginData");
-      cookies.remove("loginData");
-      cookies.remove("loginData");
       // alert("로그아웃되었습니다.");
       window.location.replace("/");
     } catch (err) {

@@ -11,7 +11,7 @@ function Login() {
   const [id, setId] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
-  const [user, setUser] = useContext(AuthContext);
+  const [, setUser] = useContext(AuthContext);
 
   // 현재 유저가 어떤 유저인지 판별
   const loginHandler = async (e) => {
@@ -32,9 +32,7 @@ function Login() {
     } catch (err) {
       console.log(err.message);
     } finally {
-      console.log("user : ", user);
-      console.log("loginData : ", cookies.get("loginData"));
-      setUser(cookies.get("loginData"));
+      setUser(cookies.get("user"));
     }
   };
 

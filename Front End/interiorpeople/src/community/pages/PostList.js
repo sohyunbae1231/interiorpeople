@@ -65,21 +65,25 @@ const PostList = () => {
 
   /** 받아온 키를 이용하여 사진 호출 */
   const imgList = postlist.map((post, index) => (
-    <Link
-      key={post.s3_photo_img_url[0]}
-      to={`/community/post/${post._id}`}
-      ref={index + 1 === postlist.length ? elementRef : undefined} // 무한 스크롤의 기준
-    >
-      <img alt="" src={`/uploads/${post.s3_photo_img_url[0]}`} />
-    </Link>
+    <div>
+      <Link
+        key={post.s3_photo_img_url[0]}
+        to={`/community/post/${post._id}`}
+        ref={index + 1 === postlist.length ? elementRef : undefined} // 무한 스크롤의 기준
+      >
+        <img alt="" src={`/uploads/${post.s3_photo_img_url[0]}`} />
+      </Link>
+      <h4>{post.title}</h4>
+    </div>
   ));
 
   return (
     <div>
       <h3 style={{ display: "inline-block", marginRight: 10 }}>
-        Image List(모든 사진)
+        모든 포스트 리스트
       </h3>
       <div className="image-list-container">{imgList}</div>
+
       {postError && <div>Error...</div>}
       {postLoading && <div>loading...</div>}
     </div>

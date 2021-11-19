@@ -8,43 +8,12 @@ import { AuthContext } from "../../context/AuthContext";
 const DetailPost = () => {
   const navigate = useNavigate();
   const { postId } = useParams();
-
   const [user] = useContext(AuthContext);
-  const [posts, setPosts] = useState([]);
   const [hasLiked, setHasLiked] = useState(false);
   const [error, setError] = useState(false);
   const [post, setPost] = useState();
-  const [postUrl, setPostUrl] = useState("/server/community/post");
-  const [postLoading, setPostLoading] = useState(false);
-  const [postError, setPostError] = useState(false);
-  const pastPostUrlRef = useRef();
 
-  // useEffect(() => {
-  //   if (pastPostUrlRef.current === postUrl) {
-  //     return;
-  //   }
-  //   setPostLoading(true);
-  //   axios
-  //     .get(postUrl)
-  //     .then((result) => {
-  //       setPosts((prevData) => [...prevData, ...result.data]);
-  //     })
-  //     .catch((err) => {
-  //       setPostError(err);
-  //     })
-  //     .finally(() => {
-  //       setPostLoading(false);
-  //       pastPostUrlRef.current = postUrl;
-  //     });
-  // }, [postUrl]);
-
-  useEffect(() => {
-    const img = posts.find((post) => post._id === postId);
-    if (img) {
-      setPost(img);
-    }
-  }, [posts, postId]);
-
+  /** 포스트 불러오기 */
   useEffect(() => {
     axios
       .get(`/server/community/post/${postId}`)
@@ -57,11 +26,19 @@ const DetailPost = () => {
       });
   }, []);
 
-  // useEffect(() => {
-  //   if (user && post && post.likes.includes(user.name)) {
-  //     setHasLiked(true);
-  //   }
-  // }, [user, post]);
+  /** 좋아요 처리 */
+  useEffect(() => {
+    if (!post) {
+      return;
+    }
+    if (hasLiked === false) {
+      // 좋아요를 누르지 않은 경우
+      post.like_num += 1;
+    } else {
+      // 좋아요를 누른 경우
+      post.like_num -= 1;
+    }
+  }, [hasLiked, post]);
 
   if (error) {
     return <h3>Error...</h3>;
@@ -69,45 +46,46 @@ const DetailPost = () => {
     return <h3>Loading...</h3>;
   }
 
-  const updateImage = (images, currentImage) =>
-    [
-      // 기존 이미지는 제외
-      ...images.filter((image) => image._id !== postId),
-      currentImage,
-    ].sort(
-      // ? 생성일 순으로 정렬
-      (a, b) =>
-        // ? a.createAt 는 Number가 아니라서(String) getTime을 이용해 Number 타입으로 변환
-        {
-          if (b._id > a._id) {
-            return 1;
-          } else {
-            return -1;
-          }
-        }
-    );
+  // const updateImage = (images, currentImage) =>
+  //   [
+  //     // 기존 이미지는 제외
+  //     ...images.filter((image) => image._id !== postId),
+  //     currentImage,
+  //   ].sort(
+  //     // ? 생성일 순으로 정렬
+  //     (a, b) =>
+  //       // ? a.createAt 는 Number가 아니라서(String) getTime을 이용해 Number 타입으로 변환
+  //       {
+  //         if (b._id > a._id) {
+  //           return 1;
+  //         } else {
+  //           return -1;
+  //         }
+  //       }
+  //   );
+
   // TODO : 자신의 포스트는 좋아요 불가
   const likeHandler = async () => {
-    await axios.post(`community/post/${postId}/like`);
-    setHasLiked(!hasLiked);
+    try {
+      await axios.post(`/server/community/post/${postId}/like`);
+      setHasLiked(!hasLiked);
+    } catch (err) {
+      alert("잠시 후 다시 시도하기 바랍니다.");
+    }
   };
 
   const deleteHandler = async () => {
-    // try {
-    //   //팝업창이 뜨도록 함 취소를 누르면 false이고 확인은 true임
-    //   if (!window.confirm("삭제하시겠습니까?")) {
-    //     return;
-    //   }
-    //   // console.log("delete");
-    //   const result = await axios.delete(`/images/${postId}`);
-    //   setImages((prevData) => prevData.filter((image) => image._id !== postId));
-    //   setMyImages((prevData) =>
-    //     prevData.filter((image) => image._id !== postId)
-    //   );
-    //   navigate.push("/community"); // 메인화면으로 복귀
-    // } catch (err) {}
+    try {
+      //팝업창이 뜨도록 함 취소를 누르면 false이고 확인은 true임
+      if (!window.confirm("삭제하시겠습니까?")) {
+        return;
+      }
+      await axios.delete(`/server/community/post/${postId}/delete`);
+      navigate("/community"); // 메인화면으로 복귀
+    } catch (err) {}
   };
 
+  /** 포스트의 이미지를 보여주는 함수 */
   const allImagesInPost = post.s3_photo_img_url.map((imageUrl, index) => (
     <img
       key={index}
@@ -124,18 +102,18 @@ const DetailPost = () => {
       {allImagesInPost}
       <h2>{post.title}</h2>
       <h3>{post.content}</h3>
-      {/* <span>좋아요 {post.likes.length}</span>
+      <span>좋아요 {post.like_num}</span>
       <button style={{ float: "right" }} onClick={likeHandler}>
         {hasLiked ? "좋아요 취소" : "좋아요"}
-      </button> */}
-      {/* {user && post.user.name === user.name && (
+      </button>
+      {user && post.writer_id === user && (
         <button
           style={{ float: " right", marginLeft: 10 }}
           onClick={deleteHandler}
         >
           삭제
         </button>
-      )} */}
+      )}
     </div>
   );
 };

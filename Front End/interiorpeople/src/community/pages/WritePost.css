@@ -1,7 +1,10 @@
 .file-dropper {
   border: 1px dashed black;
   height: 200px;
-  background-color: skyblue;
+  width: 50%;
+  margin-left: auto;
+  margin-right: auto;
+  background-color: grey;
   border-radius: 10px;
   margin-bottom: 20px;
   display: flex;
@@ -12,14 +15,14 @@
 
 .file-dropper input {
   opacity: 0;
-  width: 100%;
+  width: 50%;
   height: 100%;
   position: absolute;
   cursor: pointer;
 }
 
 .file-dropper:hover {
-  background-color: rgb(165, 241, 51);
+  background-color: grey;
   transition: 0.5s;
   color: white;
 }
