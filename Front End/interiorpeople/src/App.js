@@ -32,14 +32,15 @@ import CommunityMyPost from "./community/pages/MyPost";
 import CommunityPostList from "./community/pages/PostList";
 import CommunityWritePost from "./community/pages/WritePost";
 
-import Mypost from "./Mypost";
-import Postlist from "./Postlist";
-import Postwrite from "./Postwrite";
+// import Mypost from "./Mypost";
+// import Postlist from "./Postlist";
+// import Postwrite from "./Postwrite";
 
 // import Like from "./Like";
 
 //import MenuList from './MenuList';
 
+// TODO : 라우터별 접근 권한 부여 (예 : 로그인이 된 유저는 로그인 페이지로 넘어가서는 안됨)
 function App() {
   return (
     <div className="app">

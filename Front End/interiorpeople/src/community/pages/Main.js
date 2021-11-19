@@ -10,14 +10,14 @@ const MainPage = () => {
   return (
     <div>
       <Link to="mypost/write">
-        <button>글쓰기</button>
+        <button style={{ width: "100%", height: 30 }}>글쓰기</button>
       </Link>
       <Link to="mypost">
-        <button>나의글</button>
+        <button style={{ width: "100%", height: 30 }}>나의글</button>
       </Link>
 
       <Link to="postlist">
-        <button>포스트리스트</button>
+        <button style={{ width: "100%", height: 30 }}>포스트리스트</button>
       </Link>
     </div>
   );
