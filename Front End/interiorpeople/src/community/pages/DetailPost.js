@@ -4,8 +4,10 @@ import { useParams } from "react-router";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
+import Cookies from "universal-cookie";
 
 const DetailPost = () => {
+  const cookies = new Cookies();
   const navigate = useNavigate();
   const { postId } = useParams();
   const [user] = useContext(AuthContext);
@@ -26,27 +28,29 @@ const DetailPost = () => {
         setError(true);
       });
     /** 좋아요 불러오기 */
-    axios
-      .get(`/server/community/post/${postId}/like-check`)
-      .then((result) => {
-        if (result.data.message === "like") {
-          setHasLiked(true);
-        } else {
-          setHasLiked(false);
-        }
-      })
-      .catch((err) => alert("좋아요 불러오기 에러가 발생했습니다."));
-    /** 스크랩 불러오기 */
-    axios
-      .get(`/server/community/post/${postId}/scrape-check`)
-      .then((result) => {
-        if (result.data.message === "scrape") {
-          setHasScraped(true);
-        } else {
-          setHasScraped(false);
-        }
-      })
-      .catch((err) => alert("스크랩 불러오기 에러가 발생했습니다."));
+    if (user || cookies.get("loginData")) {
+      axios
+        .get(`/server/community/post/${postId}/like-check`)
+        .then((result) => {
+          if (result.data.message === "like") {
+            setHasLiked(true);
+          } else {
+            setHasLiked(false);
+          }
+        })
+        .catch((err) => alert("좋아요 불러오기 에러가 발생했습니다."));
+      /** 스크랩 불러오기 */
+      axios
+        .get(`/server/community/post/${postId}/scrape-check`)
+        .then((result) => {
+          if (result.data.message === "scrape") {
+            setHasScraped(true);
+          } else {
+            setHasScraped(false);
+          }
+        })
+        .catch((err) => alert("스크랩 불러오기 에러가 발생했습니다."));
+    }
     /** 팔로잉 불러오기 */
   }, [postId]);
 
@@ -77,7 +81,7 @@ const DetailPost = () => {
   const scrapeHandler = async () => {
     try {
       await axios.post(`/server/community/post/${postId}/scrape`);
-      setHasLiked(!hasLiked);
+      setHasScraped(!hasScraped);
     } catch (err) {
       alert("잠시 후 다시 시도하기 바랍니다.");
     }

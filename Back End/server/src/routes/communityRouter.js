@@ -265,13 +265,17 @@ communityRouter.get('/post/:postId/like-check', isLoggedIn, async (req, res) => 
   const userId = req.user.id
   try {
     const userLikeList = await Like.findOne({ id: userId })
-    const likeCheck = userLikeList.post_id.includes(postId)
-    if (likeCheck) {
-      // 이미 좋아요를 한 경우
-      res.status(200).json({ message: 'like' })
+    if (!userLikeList) {
+      res.status(200).json({ message: 'unScrape' })
     } else {
-      // 좋아요를 하지 않은 경우
-      res.status(200).json({ message: 'unLike' })
+      const likeCheck = userLikeList.post_id.includes(postId)
+      if (likeCheck) {
+        // 이미 좋아요를 한 경우
+        res.status(200).json({ message: 'like' })
+      } else {
+        // 좋아요를 하지 않은 경우
+        res.status(200).json({ message: 'unLike' })
+      }
     }
   } catch (err) {
     // @ts-ignore
