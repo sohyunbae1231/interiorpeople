@@ -227,6 +227,39 @@ communityRouter.post('/post/:postId/scrape', isLoggedIn, async (req, res) => {
   }
 })
 
+/** 팔로우가 되어 있는지 확인 */
+communityRouter.get('/post/:postId/follow-check', isLoggedIn, async (req, res) => {
+  const { postId } = req.params
+  // @ts-ignore
+  const userId = req.user.id
+  try {
+    const userFollowList = await Follow.find({ id: userId })
+    const currentPost = await Post.findById(postId)
+
+    if (!userFollowList) {
+      res.status(200).json({ message: 'unFollow' })
+    } else {
+      let followCheck = false
+      for (let i = 0; i < userFollowList.length; i += 1) {
+        if (userFollowList[i].followed_id === currentPost.writer_id) {
+          followCheck = true
+          break
+        }
+      }
+      if (followCheck) {
+        // 이미 팔로우를 한 경우
+        res.status(200).json({ message: 'follow' })
+      } else {
+        // 팔로우를 하지 않은 경우
+        res.status(200).json({ message: 'unFollow' })
+      }
+    }
+  } catch (err) {
+    // @ts-ignore
+    res.status(400).json({ message: err.message })
+  }
+})
+
 /** 팔로우을 눌렀을 시 */
 communityRouter.post('/post/:postId/follow', isLoggedIn, async (req, res) => {
   const { postId } = req.params
