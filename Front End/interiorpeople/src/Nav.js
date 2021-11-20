@@ -2,6 +2,7 @@ import React, { useContext } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import Cookies from "universal-cookie";
+import "./fonts/nav.css";
 
 /** 유저 인증 관련 컨텍스트 */
 import { AuthContext } from "./context/AuthContext";
@@ -26,13 +27,9 @@ function Nav() {
   return (
     <div>
       <div class="home">
-        <img
-          alt=""
-          src={require("./img/logo.jpg").default}
-          style={{ width: "50%", marginLeft: "15%" }}
-        />
+        Interior People
       </div>
-      <div style={{ paddingBottom: "0.5rem" }}>
+      <div class="btn_group" style={{ paddingBottom: "20px" }}>
         {/* 로그인이 되어있으면 로그아웃만 보임 */}
         {/* 로그인이 되어 있지 않으면 로그인,회원가입이 보임 */}
         {user ? (
@@ -44,16 +41,16 @@ function Nav() {
           </button>
         ) : (
           <>
-            <Link to="./login">
-              <button style={{ float: "right" }}>로그인{user}</button>
+          <Link to="./signup">
+              <button class="btn2" style={{ float: "right" }}>회원가입</button>
             </Link>
-            <Link to="./signup">
-              <button style={{ float: "right" }}>회원가입</button>
+            <Link to="./login">
+              <button class="btn1" style={{ float: "right" }}>로그인{user}</button>
             </Link>
           </>
         )}
       </div>
-      <ul>
+      <ul style={{ fontSize: " 14px"}}>
         <li>
           <Link to="/">홈</Link>
         </li>
