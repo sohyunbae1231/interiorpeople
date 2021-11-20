@@ -94,29 +94,18 @@ if (process.env.NODE_ENV === 'dev') {
 // TODO : 인기글, 나의 글 구현
 
 /** 공개된 모든 포스트 불러오기  */
-// TODO : url 이후 수정
 communityRouter.get('/post-list', ifIsLoggedIn, async (req, res) => {
   const { lastPostId } = req.query
   try {
-    // @ts-ignore
-    // const userId = req.user.id
     // 유효하지 않은 포스트의 id인 경우
     if (lastPostId && !mongoose.isValidObjectId(lastPostId)) {
       throw new Error('잘못된 접근입니다.')
     }
-    // @ts-ignore
-    // if (!userId) {
-    //   throw new Error('권한이 없습니다.')
-    // }
-    // @ts-ignore
     const posts = await Post.find(lastPostId ? { _id: { $lt: lastPostId } } : {})
       .sort({ _id: -1 })
       .limit(20)
-
     res.status(200).json(posts)
   } catch (err) {
-    // eslint-disable-next-line no-console
-    console.log(err)
     // @ts-ignore
     res.status(400).json({ message: err.message })
   }
@@ -142,14 +131,8 @@ communityRouter.get('/mypost', isLoggedIn, async (req, res) => {
     const myPosts = await Post.find(lastPostId ? { writer_id: realUserId, _id: { $lt: lastPostId } } : { writer_id: realUserId })
       .sort({ _id: -1 })
       .limit(20)
-    // eslint-disable-next-line no-console
-    console.log('req.user :', req.user)
-    // eslint-disable-next-line no-console
-    console.log(realUserId)
     res.status(200).json(myPosts)
   } catch (err) {
-    // eslint-disable-next-line no-console
-    console.log(err)
     // @ts-ignore
     res.status(400).json({ message: err.message })
   }
@@ -158,23 +141,52 @@ communityRouter.get('/mypost', isLoggedIn, async (req, res) => {
 /** 포스트 상세 */
 communityRouter.get('/post/:postId', ifIsLoggedIn, async (req, res) => {
   const { postId } = req.params
-  const currentPost = await Post.findById(postId)
-  // @ts-ignore
-  if (!req.user) {
-    return res.json(currentPost)
+  try {
+    const currentPost = await Post.findById(postId)
+    // @ts-ignore
+    if (req.user) {
+      // @ts-ignore
+      const userId = req.user.id
+
+      // 조회수 기록
+      if (userId && !req.cookies[postId]) {
+        // 조회수 증가
+        const clientIP = requestip.getClientIp(req) // 사용자 ip
+        res.cookie(postId, clientIP, { maxAge: 1000 * 10 * 60 })
+        currentPost.view_count += 1
+        await currentPost.save()
+      }
+    }
+    res.status(200).json(currentPost)
+  } catch (err) {
+    // @ts-ignore
+    res.status(400).json({ message: err.message })
   }
+})
+
+/** 스크랩이 되어 있는지 확인 */
+communityRouter.get('/post/:postId/scrape-check', isLoggedIn, async (req, res) => {
+  const { postId } = req.params
   // @ts-ignore
   const userId = req.user.id
-
-  // 조회수 기록
-  if (userId && !req.cookies[postId]) {
-    // 조회수 증가
-    const clientIP = requestip.getClientIp(req) // 사용자 ip
-    res.cookie(postId, clientIP, { maxAge: 1000 * 10 * 60 })
-    currentPost.view_count += 1
-    await currentPost.save()
+  try {
+    const userScrapeList = await Scrape.findOne({ id: userId })
+    if (!userScrapeList) {
+      res.status(200).json({ message: 'unScrape' })
+    } else {
+      const ScrapeCheck = userScrapeList.post_id.includes(postId)
+      if (ScrapeCheck) {
+        // 이미 스크랩을 한 경우
+        res.status(200).json({ message: 'scrape' })
+      } else {
+        // 스크랩을 하지 않은 경우
+        res.status(200).json({ message: 'unScrape' })
+      }
+    }
+  } catch (err) {
+    // @ts-ignore
+    res.status(400).json({ message: err.message })
   }
-  res.json(currentPost)
 })
 
 /** 스크랩을 눌렀을 시 */
@@ -185,7 +197,7 @@ communityRouter.post('/post/:postId/scrape', isLoggedIn, async (req, res) => {
 
   try {
     // 먼저 scrape 컬렉션에 유저 아이디가 있는지 확인
-    const userScrapeList = await Like.findOne({ id: userId })
+    const userScrapeList = await Scrape.findOne({ id: userId })
     if (userScrapeList) {
       // 이미 스크랩이 되어 있어 스크랩을 취소할 시
       // @ts-ignore
@@ -246,7 +258,27 @@ communityRouter.post('/post/:postId/follow', isLoggedIn, async (req, res) => {
   }
 })
 
-// TODO : 자신의 포스트는 좋아요 불가
+/** 좋아요가 눌러져 있는지 확인 */
+communityRouter.get('/post/:postId/like-check', isLoggedIn, async (req, res) => {
+  const { postId } = req.params
+  // @ts-ignore
+  const userId = req.user.id
+  try {
+    const userLikeList = await Like.findOne({ id: userId })
+    const likeCheck = userLikeList.post_id.includes(postId)
+    if (likeCheck) {
+      // 이미 좋아요를 한 경우
+      res.status(200).json({ message: 'like' })
+    } else {
+      // 좋아요를 하지 않은 경우
+      res.status(200).json({ message: 'unLike' })
+    }
+  } catch (err) {
+    // @ts-ignore
+    res.status(400).json({ message: err.message })
+  }
+})
+
 /** 좋아요를 눌렀을 시 */
 communityRouter.post('/post/:postId/like', isLoggedIn, async (req, res) => {
   const { postId } = req.params

@@ -7,7 +7,7 @@ import Home from "./Home";
 // 로그인, 회원가입, 비밀번호찾기
 import Login from "./Login";
 import Signup from "./Signup";
-import Forget from "./Forget";
+import Forgot from "./Forgot";
 // 고객센터
 import Support from "./Support";
 // 마이페이지 메인, 프로필 편집, 나의 사진, 스크랩, 추천 기록
@@ -53,7 +53,7 @@ function App() {
 
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
-          <Route path="/forget" element={<Forget />} />
+          <Route path="/forgot" element={<Forgot />} />
 
           <Route path="/support" element={<Support />} />
           <Route path="/mypage" element={<Mypage />} />
