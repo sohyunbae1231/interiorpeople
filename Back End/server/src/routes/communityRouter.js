@@ -1,8 +1,5 @@
 // @ts-check
 
-// TODO : 댓글 + 삭제 기능
-// TODO : 파일 이미지인지 확인 후 거르기
-
 /** 모듈 */
 const { Router } = require('express')
 const path = require('path')
@@ -23,6 +20,7 @@ const Post = require('../schemas/Post')
 const Like = require('../schemas/Like')
 const Scrape = require('../schemas/Scrape')
 const Follow = require('../schemas/Follow')
+const Comment = require('../schemas/Comment')
 
 /** 로그인 관련 */
 const { isLoggedIn, ifIsLoggedIn } = require('../middlewares/authentication')
@@ -142,12 +140,16 @@ communityRouter.get('/mypost', isLoggedIn, async (req, res) => {
 communityRouter.get('/post/:postId', ifIsLoggedIn, async (req, res) => {
   const { postId } = req.params
   try {
+    // 포스트 찾아오기
     const currentPost = await Post.findById(postId)
-    // @ts-ignore
-    if (req.user) {
-      // @ts-ignore
-      const userId = req.user.id
 
+    // 댓글 찾아오기
+    const comments = (await Comment.findById(postId)) || {}
+
+    // @ts-ignore
+    const userId = req.user ? req.user.id : undefined
+    // 로그인한 유저인 경우
+    if (userId) {
       // 조회수 기록
       if (userId && !req.cookies[postId]) {
         // 조회수 증가
@@ -156,32 +158,61 @@ communityRouter.get('/post/:postId', ifIsLoggedIn, async (req, res) => {
         currentPost.view_count += 1
         await currentPost.save()
       }
-    }
-    res.status(200).json(currentPost)
-  } catch (err) {
-    // @ts-ignore
-    res.status(400).json({ message: err.message })
-  }
-})
 
-/** 스크랩이 되어 있는지 확인 */
-communityRouter.get('/post/:postId/scrape-check', isLoggedIn, async (req, res) => {
-  const { postId } = req.params
-  // @ts-ignore
-  const userId = req.user.id
-  try {
-    const userScrapeList = await Scrape.findOne({ id: userId })
-    if (!userScrapeList) {
-      res.status(200).json({ message: 'unScrape' })
-    } else {
-      const ScrapeCheck = userScrapeList.post_id.includes(postId)
-      if (ScrapeCheck) {
-        // 이미 스크랩을 한 경우
-        res.status(200).json({ message: 'scrape' })
+      const checkResult = { likeCheckResult: '', scrapeCheckResult: '', followCheckResult: '' }
+      // 좋아요가 눌러져 있는지 확인
+      const userLikeList = await Like.findOne({ id: userId })
+      if (!userLikeList) {
+        checkResult.likeCheckResult = 'unLike'
       } else {
-        // 스크랩을 하지 않은 경우
-        res.status(200).json({ message: 'unScrape' })
+        const likeCheck = userLikeList.post_id.includes(postId)
+        if (likeCheck) {
+          // 이미 좋아요를 한 경우
+          checkResult.likeCheckResult = 'like'
+        } else {
+          // 좋아요를 하지 않은 경우
+          checkResult.likeCheckResult = 'unLike'
+        }
       }
+
+      // 스크랩이 눌러져 있는지 확인
+      const userScrapeList = await Scrape.findOne({ id: userId })
+      if (!userScrapeList) {
+        checkResult.scrapeCheckResult = 'unScrape'
+      } else {
+        const ScrapeCheck = userScrapeList.post_id.includes(postId)
+        if (ScrapeCheck) {
+          // 이미 스크랩을 한 경우
+          checkResult.scrapeCheckResult = 'scrape'
+        } else {
+          // 스크랩을 하지 않은 경우
+          checkResult.scrapeCheckResult = 'unScrape'
+        }
+      }
+
+      // 팔로우가 되어 있는지 확인
+      const userFollowList = await Follow.find({ id: userId })
+      if (!userFollowList) {
+        checkResult.followCheckResult = 'unFollow'
+      } else {
+        let followCheck = false
+        for (let i = 0; i < userFollowList.length; i += 1) {
+          if (userFollowList[i].followed_id === currentPost.writer_id) {
+            followCheck = true
+            break
+          }
+        }
+        if (followCheck) {
+          // 이미 팔로우를 한 경우
+          checkResult.followCheckResult = 'follow'
+        } else {
+          // 팔로우를 하지 않은 경우
+          checkResult.followCheckResult = 'unFollow'
+        }
+      }
+      res.status(200).json({ post: currentPost, checkResult, comments })
+    } else {
+      res.status(200).json({ post: currentPost, comments })
     }
   } catch (err) {
     // @ts-ignore
@@ -227,39 +258,6 @@ communityRouter.post('/post/:postId/scrape', isLoggedIn, async (req, res) => {
   }
 })
 
-/** 팔로우가 되어 있는지 확인 */
-communityRouter.get('/post/:postId/follow-check', isLoggedIn, async (req, res) => {
-  const { postId } = req.params
-  // @ts-ignore
-  const userId = req.user.id
-  try {
-    const userFollowList = await Follow.find({ id: userId })
-    const currentPost = await Post.findById(postId)
-
-    if (!userFollowList) {
-      res.status(200).json({ message: 'unFollow' })
-    } else {
-      let followCheck = false
-      for (let i = 0; i < userFollowList.length; i += 1) {
-        if (userFollowList[i].followed_id === currentPost.writer_id) {
-          followCheck = true
-          break
-        }
-      }
-      if (followCheck) {
-        // 이미 팔로우를 한 경우
-        res.status(200).json({ message: 'follow' })
-      } else {
-        // 팔로우를 하지 않은 경우
-        res.status(200).json({ message: 'unFollow' })
-      }
-    }
-  } catch (err) {
-    // @ts-ignore
-    res.status(400).json({ message: err.message })
-  }
-})
-
 /** 팔로우을 눌렀을 시 */
 communityRouter.post('/post/:postId/follow', isLoggedIn, async (req, res) => {
   const { postId } = req.params
@@ -284,31 +282,6 @@ communityRouter.post('/post/:postId/follow', isLoggedIn, async (req, res) => {
       // 팔로우를 하는 경우
       await new Follow({ follower_id: userId, followed_id: writerIdOfPost }).save()
       res.status(200).json({ message: 'follow' })
-    }
-  } catch (err) {
-    // @ts-ignore
-    res.status(400).json({ message: err.message })
-  }
-})
-
-/** 좋아요가 눌러져 있는지 확인 */
-communityRouter.get('/post/:postId/like-check', isLoggedIn, async (req, res) => {
-  const { postId } = req.params
-  // @ts-ignore
-  const userId = req.user.id
-  try {
-    const userLikeList = await Like.findOne({ id: userId })
-    if (!userLikeList) {
-      res.status(200).json({ message: 'unScrape' })
-    } else {
-      const likeCheck = userLikeList.post_id.includes(postId)
-      if (likeCheck) {
-        // 이미 좋아요를 한 경우
-        res.status(200).json({ message: 'like' })
-      } else {
-        // 좋아요를 하지 않은 경우
-        res.status(200).json({ message: 'unLike' })
-      }
     }
   } catch (err) {
     // @ts-ignore
@@ -365,9 +338,6 @@ communityRouter.post('/post/:postId/like', isLoggedIn, async (req, res) => {
     res.status(400).json({ message: err.message })
   }
 })
-
-/** 댓글 기능 */
-// TODO : 댓글 작성 및 삭제 기능
 
 /** 포스트 작성 */
 // upload.array('키', 최대파일개수)
@@ -441,5 +411,11 @@ communityRouter.delete('/post/:postId/delete', isLoggedIn, async (req, res) => {
     return res.status(400).json({ message: err.message })
   }
 })
+
+/** 댓글 작성 */
+communityRouter.post('/post/postId/write-comment', ifIsLoggedIn, (req, res) => {})
+
+/** 댓글 삭제 */
+communityRouter.delete('/post/postId/delete-comment', ifIsLoggedIn, (req, res) => {})
 
 module.exports = { communityRouter }
