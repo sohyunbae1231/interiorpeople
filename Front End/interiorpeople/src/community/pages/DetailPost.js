@@ -4,6 +4,8 @@ import { useParams } from "react-router";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
+import Cookies from "universal-cookie";
+const cookies = new Cookies();
 
 const DetailPost = () => {
   const navigate = useNavigate();
@@ -11,44 +13,69 @@ const DetailPost = () => {
   const [user] = useContext(AuthContext);
   const [hasLiked, setHasLiked] = useState(null);
   const [hasScraped, setHasScraped] = useState(null);
+  const [hasFollowed, setHasFollowed] = useState(null);
   const [error, setError] = useState(false);
   const [post, setPost] = useState();
 
   useEffect(() => {
-    /** 포스트 불러오기 */
-    axios
-      .get(`/server/community/post/${postId}`)
-      .then(({ data }) => {
-        setPost(data);
-        setError(false);
-      })
-      .catch((err) => {
-        setError(true);
-      });
-    /** 좋아요 불러오기 */
-    axios
-      .get(`/server/community/post/${postId}/like-check`)
-      .then((result) => {
-        if (result.data.message === "like") {
-          setHasLiked(true);
-        } else {
-          setHasLiked(false);
-        }
-      })
-      .catch((err) => alert("좋아요 불러오기 에러가 발생했습니다."));
-    /** 스크랩 불러오기 */
-    axios
-      .get(`/server/community/post/${postId}/scrape-check`)
-      .then((result) => {
-        if (result.data.message === "scrape") {
-          setHasScraped(true);
-        } else {
-          setHasScraped(false);
-        }
-      })
-      .catch((err) => alert("스크랩 불러오기 에러가 발생했습니다."));
-    /** 팔로잉 불러오기 */
-  }, [postId]);
+    try {
+      /** 포스트 불러오기 */
+      axios
+        .get(`/server/community/post/${postId}`)
+        .then(({ data }) => {
+          setPost(data);
+          setError(false);
+        })
+        .catch((err) => {
+          setError(true);
+        });
+      /** 좋아요 불러오기 */
+      if (user || cookies.get("loginData")) {
+        axios
+          .get(`/server/community/post/${postId}/like-check`)
+          .then((result) => {
+            if (result.data.message === "like") {
+              setHasLiked(true);
+            } else {
+              setHasLiked(false);
+            }
+          })
+          .catch((err) => {
+            throw new Error("좋아요 불러오기 에러가 발생했습니다.");
+          });
+        /** 스크랩 불러오기 */
+        axios
+          .get(`/server/community/post/${postId}/scrape-check`)
+          .then((result) => {
+            if (result.data.message === "scrape") {
+              setHasScraped(true);
+            } else {
+              setHasScraped(false);
+            }
+          })
+          .catch((err) => {
+            throw new Error("스크랩 불러오기 에러가 발생했습니다.");
+          });
+        /** 팔로잉 불러오기 */
+        axios
+          .get(`/server/community/post/${postId}/follow-check`)
+          .then((result) => {
+            if (result.data.message === "follow") {
+              setHasFollowed(true);
+            } else {
+              setHasFollowed(false);
+            }
+          })
+          .catch((err) => {
+            throw new Error("팔로우 불러오기 에러가 발생했습니다.");
+          });
+      }
+    } catch (err) {
+      alert(err.message);
+      window.location.replace("/");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (error) {
     return <h3>Error...</h3>;
@@ -69,7 +96,7 @@ const DetailPost = () => {
       }
       setHasLiked(!hasLiked);
     } catch (err) {
-      alert("잠시 후 다시 시도하기 바랍니다.");
+      alert("좋아요 핸들러 오류.");
     }
   };
 
@@ -77,9 +104,19 @@ const DetailPost = () => {
   const scrapeHandler = async () => {
     try {
       await axios.post(`/server/community/post/${postId}/scrape`);
-      setHasLiked(!hasLiked);
+      setHasScraped(!hasScraped);
     } catch (err) {
-      alert("잠시 후 다시 시도하기 바랍니다.");
+      alert("스크랩 핸들러 오류");
+    }
+  };
+
+  /** 팔로우 핸들러 */
+  const followHanlder = async () => {
+    try {
+      await axios.post(`/server/community/post/${postId}/follow`);
+      setHasFollowed(!hasFollowed);
+    } catch (err) {
+      alert("팔로우 핸들러 오류");
     }
   };
 
@@ -118,6 +155,9 @@ const DetailPost = () => {
         <></>
       ) : (
         <div>
+          <button style={{ float: "right" }} onClick={followHanlder}>
+            {hasFollowed !== null && (hasFollowed ? "팔로잉 취소" : "팔로우")}
+          </button>
           <button style={{ float: "right" }} onClick={likeHandler}>
             {hasLiked !== null && (hasLiked ? "좋아요 취소" : "좋아요")}
           </button>
