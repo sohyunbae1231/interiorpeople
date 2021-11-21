@@ -413,9 +413,9 @@ communityRouter.delete('/post/:postId/delete', isLoggedIn, async (req, res) => {
 })
 
 /** 댓글 작성 */
-communityRouter.post('/post/postId/write-comment', ifIsLoggedIn, (req, res) => {})
+communityRouter.post('/post/:postId/write-comment', ifIsLoggedIn, (req, res) => {})
 
 /** 댓글 삭제 */
-communityRouter.delete('/post/postId/delete-comment', ifIsLoggedIn, (req, res) => {})
+communityRouter.delete('/post/postId/:delete-comment', ifIsLoggedIn, (req, res) => {})
 
 module.exports = { communityRouter }

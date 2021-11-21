@@ -89,13 +89,17 @@ authRouter.get('/logout', isLoggedIn, (req, res) => {
 })
 
 /** 비밀번호 찾기 */
-authRouter.post('/forget', isNotLoggedIn, async (req, res) => {
+authRouter.post('/forgot', isNotLoggedIn, async (req, res) => {
   const { id } = req.body
   // 임의의 비밀번호를 재발급
-  const newPassword = Math.random().toString(36).slice(2)
-  const hashedPassword = await bcrypt.hash(newPassword, 11)
-  await User.updateOne({ id }, { hashedPassword })
-  res.json({ password: newPassword })
+  try {
+    const newPassword = Math.random().toString(36).slice(2)
+    const hashedPassword = await bcrypt.hash(newPassword, 11)
+    await User.updateOne({ id }, { hashedPassword })
+    res.json({ newPassword })
+  } catch (err) {
+    res.status(400).json({ message: '에러가 발생했습니다.' })
+  }
 })
 
 module.exports = { authRouter }

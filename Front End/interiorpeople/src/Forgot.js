@@ -1,76 +1,57 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 function Login() {
-  const [inputId, setInputId] = useState("");
-  const [inputPw, setInputPw] = useState("");
+  const [id, setId] = useState("");
+  const navigate = useNavigate();
 
-  const handleInputId = (e) => {
-    setInputId(e.target.value);
+  // 현재 유저가 어떤 유저인지 판별
+  const forgotHanlder = async (e) => {
+    e.preventDefault();
+    try {
+      await axios
+        .post("/account/forgot", {
+          id: id,
+        })
+        .then((result) => {
+          alert(
+            `새로운 비밀번호가 발급되었습니다. : ${result.data.newPassword}`
+          );
+          // 홈으로 이동
+          navigate("/");
+        });
+    } catch (err) {
+      console.log(err.message);
+    }
   };
-
-  const handleInputPw = (e) => {
-    setInputPw(e.target.value);
-  };
-
-  const onClickLogin = () => {
-    console.log("click login");
-  };
-
-  useEffect(() => {
-    axios
-      .get("/user_inform/login")
-      .then((res) => console.log(res))
-      .catch();
-  }, []);
 
   return (
-    <div>
-      <h2>회원가입</h2>
-      <div>
-        <input
-          type="text"
-          name="input_id"
-          value={inputId}
-          onChange={handleInputId}
-          placeholder="아이디"
-        />
-      </div>
-      <div>
-        <input
-          type="password"
-          name="input_pw"
-          value={inputPw}
-          onChange={handleInputPw}
-          placeholder="비밀번호"
-        />
-      </div>
-      <div>
-        <input
-          type="password"
-          name="input_pw"
-          value={inputPw}
-          onChange={handleInputPw}
-          placeholder="비밀번호 확인"
-        />
-      </div>
-      <div>
-        <button type="button" onClick={onClickLogin}>
-          회원가입하기
-        </button>
-      </div>
-      <div>
-        <h4>SNS계정으로 간편 회원가입</h4>
-        <a href="signup.html">
-          <img src="img/facebook.png" width="48" height="48"></img>
-        </a>
-        <a href="signup.html">
-          <img src="img/kakao.png" width="48" height="48"></img>
-        </a>
-        <a href="signup.html">
-          <img src="img/naver.png" width="48" height="48"></img>
-        </a>
-      </div>
+    <div class="login">
+      <h2>비밀번호 찾기</h2>
+      <form onSubmit={forgotHanlder}>
+        {/* 아이디 입력 */}
+        <br />
+        <div>
+          <span style={{ float: "left", marginRight: 10 }}>
+            찾고자 하는 아이디를 입력하세요
+          </span>
+          <div class="id" style={{ float: "right" }}>
+            <input
+              type="text"
+              value={id}
+              onChange={(e) => {
+                setId(e.target.value);
+              }}
+              placeholder="아이디"
+            />
+          </div>
+          <br />
+          <div class="submit">
+            <button type="submit">비밀번호 찾기</button>
+          </div>
+        </div>
+      </form>
     </div>
   );
 }
