@@ -57,7 +57,7 @@ h2 {
 
 .login_id {
   margin-top: 20px;
-  width: 80%;
+  width: 90%;
 }
 
 .login_id input {
@@ -73,7 +73,7 @@ h2 {
 
 .login_pw {
   margin-top: 10px;
-  width: 80%;
+  width: 90%;
 }
 
 .login_pw input {
@@ -92,7 +92,7 @@ h2 {
 }
 
 .submit button {
-  width: 100%;
+  width: 110%;
   height: 50px;
   border: 0;
   padding: 0px 20px;

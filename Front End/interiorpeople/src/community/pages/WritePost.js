@@ -86,7 +86,7 @@ const WritePost = () => {
   // 이미지 이름을 하나의 스트링으로 합쳐 나열함
   const fileName =
     previews.length === 0
-      ? "이미지 파일을 업로드 해주세요"
+      ? "인테리어 분석 결과 사진과 실제 적용 사진을 공유해보세요!"
       : previews.reduce(
           (previous, current) => previous + `${current.filename},`,
           ""
@@ -96,7 +96,7 @@ const WritePost = () => {
     <div>
       {/* <SimpleSlider /> */}
       <form onSubmit={onSubmit}>
-        <div style={{ display: "flex", flexWrap: "wrap" }}>
+        <div style={{ display: "flex", flexWrap: "wrap", marginTop: "30px"}}>
           {/* 이미지 미리보기 */}
           {previewImages}
         </div>
@@ -113,38 +113,44 @@ const WritePost = () => {
             onChange={imageSelectHandler}
           />
         </div>
-        <div>
-          <label>제목</label>
-          <input
-            style={{ width: "100%" }}
-            value={title}
-            onChange={(e) => {
-              setTitle(e.target.value);
-            }}
-          />
-        </div>
-        <div>
-          <label>내용</label>
-          <input
-            style={{ width: "100%" }}
-            value={content}
-            onChange={(e) => {
-              setContent(e.target.value);
-            }}
-          />
-        </div>
+        <div style={{ margin: "auto", width: "85%" }}>
+          <div>
+            <label>제목</label>
+            <input
+              style={{ width: "90%" }}
+              value={title}
+              onChange={(e) => {
+                setTitle(e.target.value);
+              }}
+            />
+          </div>
+          <div>
+            <label>내용</label>
+            <input
+              style={{ width: "90%" }}
+              value={content}
+              onChange={(e) => {
+                setContent(e.target.value);
+              }}
+            />
+          </div>
 
-        <button
-          type="submit"
-          style={{
-            width: "100%",
-            height: 40,
-            borderRadius: "3px",
-            cursor: "alias",
-          }}
-        >
-          포스트 작성
-        </button>
+          <button
+            type="submit"
+            style={{
+              width: "93%",
+              height: "40px",
+              border: 0,
+              borderRadius: "10px",
+              background: "#203864",
+              color: "white",
+              cursor: "alias",
+              marginTop: "30px"
+            }}
+          >
+            업로드
+          </button>
+        </div>
       </form>
     </div>
   );

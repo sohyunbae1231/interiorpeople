@@ -32,10 +32,6 @@ import CommunityMyPost from "./community/pages/MyPost";
 import CommunityPostList from "./community/pages/PostList";
 import CommunityWritePost from "./community/pages/WritePost";
 
-// import Mypost from "./Mypost";
-// import Postlist from "./Postlist";
-// import Postwrite from "./Postwrite";
-
 // import Like from "./Like";
 
 //import MenuList from './MenuList';

@@ -79,10 +79,12 @@ const PostList = () => {
 
   return (
     <div>
-      <h3 style={{ display: "inline-block", marginRight: 10 }}>
-        모든 포스트 리스트
+      <h3 style={{ display: "inline-block", marginTop: 20, marginBottom: 20, marginLeft: 10 }}>
+        Post List
       </h3>
-      <div className="image-list-container">{imgList}</div>
+      <div>
+        <div class="image-list-container">{imgList}</div>
+      </div>
 
       {postError && <div>Error...</div>}
       {postLoading && <div>loading...</div>}

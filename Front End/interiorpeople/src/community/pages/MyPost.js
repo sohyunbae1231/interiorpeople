@@ -83,7 +83,9 @@ const MyPost = () => {
       <h3 style={{ display: "inline-block", marginRight: 10 }}>
         나의 포스트 리스트
       </h3>
-      <div className="image-list-container">{imgList}</div>
+      <div>
+        <div class="myimage-list-container">{imgList}</div>
+      </div>
       {imageError && <div>Error...</div>}
       {imageLoading && <div>loading...</div>}
     </div>
