@@ -89,7 +89,6 @@ h2 {
 
 .submit {
   margin-top: 30px;
-  width: 90%
 }
 
 .submit button {
@@ -111,9 +110,8 @@ h2 {
   width: 90%;
   font-size: 15px;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
   font-weight: bold;
+  justify-content: center;
 }
 
 .sns_etc {

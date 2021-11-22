@@ -41,7 +41,7 @@ function Login() {
       <h2>로그인</h2>
       <form onSubmit={loginHandler}>
         {/* 아이디 입력 */}
-        <div class="id">
+        <div class="login_id">
           <input
             type="text"
             value={id}
@@ -52,7 +52,7 @@ function Login() {
           />
         </div>
         {/* 비밀번호 입력 */}
-        <div class="password">
+        <div class="login_pw">
           <input
             type="current-password"
             value={password}
@@ -68,8 +68,6 @@ function Login() {
         </div>
       </form>
       <div class="login_etc">
-        <Link to="/forgot">아이디/비밀번호 찾기</Link>
-        <Link to="/signup">회원가입</Link>
       </div>
       <div class="sns_etc">SNS계정으로 간편 로그인/회원가입</div>
       <div class="login_sns">
