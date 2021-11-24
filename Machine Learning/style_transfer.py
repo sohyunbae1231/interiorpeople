@@ -28,6 +28,7 @@ parser.add_argument('--decoder_path', required=True, help = 'decoder path')
 parser.add_argument('--content_image', required=True, help = 'content image path')
 parser.add_argument('--style_image', required=True, help = 'style image path')
 parser.add_argument('--output_path', required=True, help = 'output image path')
+parser.add_argument('--style_intensity', required=False, default = 'Middle', help='Style Image intensity; High, Middle, Low')
 
 args = parser.parse_args()
 # args, unknown = parser.parse_known_args()
@@ -246,6 +247,14 @@ style = style_tf(Image.open(str(style_path)))
 
 style = style.to(device).unsqueeze(0)
 content = content.to(device).unsqueeze(0)
+alpha = args.style_intensity
+if alpha == 'High':
+  alpha=0.9
+elif alpha == 'Middle':
+  alpha=0.6
+elif alpha == 'Low':
+  alpha=0.3
+
 with torch.no_grad():
     output = style_transfer(vgg, decoder, content, style, alpha=0.6) # lower alpha -> more contents
 output = output.cpu()
