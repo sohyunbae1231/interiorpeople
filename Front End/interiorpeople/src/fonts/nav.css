@@ -6,9 +6,9 @@
   top: 0;
   left: 0;
   text-align: center;
-  height: 35px;
+  height: 30px;
   font-weight: 800;
-  font-size: 35px;
+  font-size: 30px;
   font-family: 'Baloo Tamma 2', cursive;
   /* 텍스트 드래그 못하게 */
   -ms-user-select: none; 
