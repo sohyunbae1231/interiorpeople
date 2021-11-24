@@ -2,12 +2,7 @@
 
 /** 모듈 */
 const { Router } = require('express')
-const multer = require('multer')
-const AWS = require('aws-sdk')
-const multers3 = require('multer-s3')
-const path = require('path')
 const bcrypt = require('bcrypt')
-const { v1: uuid } = require('uuid')
 
 /** 데이터베이스 관련 */
 const User = require('../schemas/User')
@@ -16,26 +11,12 @@ const Scrape = require('../schemas/Scrape')
 /** 로그인 관련 */
 const { isLoggedIn } = require('../middlewares/authentication')
 
+/** multer 및 AWS 관련 */
+const { s3, multerConfig } = require('../middlewares/multerConfig')
+
+const uploadProfilePhoto = multerConfig('profilePhoto_img')
+
 const myPageRouter = Router()
-
-/** AWS 설정 */
-AWS.config.update({
-  accessKeyId: process.env.S3_ACCESS_KEY_ID,
-  secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
-  region: 'ap-northeast-2',
-})
-
-/** 마이페이지 프로필 이미지 */
-const uploadProfilePhoto = multer({
-  storage: multers3({
-    s3: new AWS.S3(),
-    bucket: 'interiorpeople',
-    key(req, file, cb) {
-      cb(null, `profilePhoto_img/${uuid()}${path.extname(file.originalname)}`)
-    },
-  }),
-  limits: { fileSize: 5 * 1024 * 1024 },
-})
 
 /** 메인 페이지 */
 /**

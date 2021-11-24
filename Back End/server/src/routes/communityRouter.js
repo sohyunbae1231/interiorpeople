@@ -2,13 +2,7 @@
 
 /** 모듈 */
 const { Router } = require('express')
-const path = require('path')
-const multer = require('multer')
-const AWS = require('aws-sdk')
-const multers3 = require('multer-s3')
 const requestip = require('request-ip')
-const { v1: uuid } = require('uuid')
-const mime = require('mime-types') // 파일의 타입을 처리
 const mongoose = require('mongoose')
 const fs = require('fs')
 const { promisify } = require('util')
@@ -25,67 +19,13 @@ const Comment = require('../schemas/Comment')
 /** 로그인 관련 */
 const { isLoggedIn, ifIsLoggedIn } = require('../middlewares/authentication')
 
+/** multer 및 AWS 관련 */
+const { s3, multerConfig } = require('../middlewares/multerConfig')
+
+const uploadPost = multerConfig('post_img')
+
 /** 라우터 */
 const communityRouter = Router()
-
-/** 이미지 업로드 관련 */
-/** AWS 설정 */
-const s3 = new AWS.S3({
-  accessKeyId: process.env.S3_ACCESS_KEY_ID,
-  secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
-  region: 'ap-northeast-2',
-})
-
-let uploadPost = multer()
-if (process.env.NODE_ENV === 'dev') {
-  /** dev 환경일 경우 local storage에서 이미지 관리 */
-  const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-      cb(null, './uploads')
-    },
-    filename: (req, file, cb) => {
-      const temporaryFileName = `post_img/${uuid()}.${mime.extension(file.mimetype)}`
-      cb(null, temporaryFileName)
-    },
-  })
-
-  uploadPost = multer({
-    storage,
-    fileFilter: (req, file, cb) => {
-      if (['image/png', 'image/jpeg', 'image/jpg'].includes(file.mimetype)) {
-        cb(null, true)
-      } else {
-        // @ts-ignore
-        cb(new Error(`파일 타입이 이미지가 아닙니다! : ${file.mimetype}`), false)
-      }
-    },
-    limits: {
-      fileSize: 1024 * 1024 * 5, // 파일 크기를 5mb로 제한
-    },
-  })
-} else if (process.env.NODE_ENV === 'production') {
-  /** production 환경일 경우 AWS S3에서 이미지 관리 */
-
-  uploadPost = multer({
-    storage: multers3({
-      s3,
-      bucket: 'interiorpeople',
-      key(req, file, cb) {
-        // 저장할 파일 위치 설정
-        cb(null, `post_img/${uuid()}${path.extname(file.originalname)}`)
-      },
-    }),
-    fileFilter: (req, file, cb) => {
-      if (['image/png', 'image/jpeg', 'image/jpg'].includes(file.mimetype)) {
-        cb(null, true)
-      } else {
-        // @ts-ignore
-        cb(new Error(`파일 타입이 이미지가 아닙니다! : ${file.mimetype}`), false)
-      }
-    },
-    limits: { fileSize: 5 * 1024 * 1024 }, // 파일 크기를 5mb로 제한
-  })
-}
 
 // TODO : 메인홈
 // TODO : 포스트 클릭 어떻게 구현
