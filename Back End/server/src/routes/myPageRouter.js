@@ -93,7 +93,7 @@ myPageRouter.patch('/profile', isLoggedIn, uploadProfilePhoto.single('image'), a
     currentUser.name = req.body.name
   }
   // 프로필 사진 변경
-  // TODO : 프로필 사진 없애고 로컬일 경우 삭제
+  // TODO : 프로필 사진 없애고 로컬일 경우 삭제.
   if (req.file) {
     if (process.env.NODE_ENV === 'dev') {
       // @ts-ignore
