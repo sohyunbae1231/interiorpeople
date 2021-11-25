@@ -101,7 +101,6 @@ myPageRouter.patch('/profile', isLoggedIn, uploadProfilePhoto.single('image'), a
     }
     // @ts-ignore
     currentUser.s3_profilephoto_img_url = req.file.location
-    console.log(req.file)
   }
   try {
     await currentUser.save()
