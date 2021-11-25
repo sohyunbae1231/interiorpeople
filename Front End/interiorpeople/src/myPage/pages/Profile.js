@@ -1,75 +1,120 @@
-import React, { useRef, useState, useEffect } from 'react';
-import axios from 'axios';
+import React, { useState, useContext } from "react";
+import axios from "axios";
+// import { useNavigate } from "react-router-dom";
 
-// 회원 이름 추가/변경(완료?), 프로필 사진 추가/변경(미완료), 비밀번호 변경(완료)
+/** 유저 인증 관련 컨텍스트 */
+// import { AuthContext } from "../../context/AuthContext";
 
-function Profile() {    
-    // 닉네임 변경
-    const [inputs, setInputs] = useState({
-      nickname: "",
-    });
-    const nameInput = useRef();	// useRef()를 사용해서 Ref 객체 생성
-  
-    const { nickname } = inputs;
-  
-    const onChange = (e) => {
-      const { value, name } = e.target;
-      setInputs({
-        ...inputs,
-        [name]: value,
+function Profile() {
+  const [password, setPassword] = useState(null);
+  const [name, setName] = useState(null);
+  const [image, setImage] = useState(null);
+  // const [, setUser] = useContext(AuthContext);
+
+  // 이름 체인지
+  const nameChangeSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await axios.patch("/api/mypage/profile", {
+        name,
       });
-    };
-  
-    const onReset = () => {
-      setInputs({
-        nickname: "",
+
+      // 홈으로 이동
+      alert(`변경되었습니다.`);
+      window.location.replace("/mypage/profile");
+    } catch (err) {
+      console.log(err.message);
+    }
+  };
+
+  // 비밀번호 체인지
+  const passwordChangeSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await axios.patch("/api/mypage/profile", {
+        password,
       });
-      nameInput.current.focus();	// nameInput.current가 특정 DOM을 가리킴.
-    };
 
+      // 홈으로 이동
+      alert(`변경되었습니다.`);
+      window.location.replace("/mypage/profile");
+    } catch (err) {
+      console.log(err.message);
+    }
+  };
 
-    // 비밀번호 변경
-    const [password, setPassword] = useState("");
-    const [disabled, setDisabled] = useState(false);
-    const handleChange = ({ target: { value } }) => setPassword(value);
-  
-    const handleSubmit = async (event) => {
-      setDisabled(true);
-      event.preventDefault();
-      await new Promise((r) => setTimeout(r, 1000));
-      if (password.length < 8) {
-        alert("8자의 이상의 비밀번호를 사용해야 합니다.");
-      } else {
-        alert(`변경된 패스워드: ${password}`);
-      }
-      setDisabled(false);
-    };
-  
-    return (
-      <div> 
-        <form onSubmit={handleSubmit}>
+  // 프로필 사진 체인지
+  const profilePhotoChangeSubmit = async (e) => {
+    e.preventDefault();
+    const formData = new FormData();
+    formData.append("image", image);
+    try {
+      await axios.patch("/api/mypage/profile", formData, {
+        Headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      // 홈으로 이동
+      alert(`변경되었습니다.`);
+      window.location.replace("/mypage/profile");
+    } catch (err) {
+      console.log(err.message);
+    }
+  };
+
+  const imageSelectHandler = async (event) => {
+    /** 이미지 파일의 정보를 읽어와서 file변수에 저장 */
+    const imageFile = event.target.files[0];
+    setImage(imageFile);
+    console.log(imageFile);
+  };
+
+  return (
+    <div>
+      <div className="name">
+        <form onSubmit={nameChangeSubmit}>
+          <h4>이름</h4>
           <input
-            name="nickname"
-            value={nickname}
-            placeholder="닉네임"
-            onChange={onChange}
+            type="text"
+            value={name}
+            onChange={(e) => {
+              setName(e.target.value);
+            }}
+            placeholder=""
           />
-          <button onClick={onReset}>닉네임 변경</button>
-        </form> 
-        <form onSubmit={handleSubmit}>
-          <input
-            type="password"
-            name="password"
-            value={password}
-            placeholder="비밀번호"
-            onChange={handleChange}
-          />
-          <button type="submit" disabled={disabled}>
-            비밀번호 변경
-          </button>
+          <button type="submit">변경하기</button>
         </form>
       </div>
-    );
+
+      <div className="password">
+        <form onSubmit={passwordChangeSubmit}>
+          <h4>비밀번호</h4>
+          <input
+            type="text"
+            value={password}
+            onChange={(e) => {
+              setPassword(e.target.value);
+            }}
+            placeholder=""
+          />
+          <button type="submit">변경하기</button>
+        </form>
+      </div>
+
+      <div className="imageSelect">
+        <form onSubmit={profilePhotoChangeSubmit}>
+          {/* type="file"로 할 경우 모든 파일이 전부 가능. 따라서 accept를 사용 */}
+          <input
+            id="image"
+            type="file"
+            multiple={false}
+            accept="image/*" // 오직 이미지만
+            onChange={imageSelectHandler}
+          />
+          <button type="submit">변경하기</button>
+        </form>
+      </div>
+    </div>
+  );
 }
 
- export default Profile;
+export default Profile;
