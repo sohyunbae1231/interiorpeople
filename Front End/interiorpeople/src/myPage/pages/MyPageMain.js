@@ -13,7 +13,7 @@ const MyPageMain = () => {
 
   useEffect(() => {
     try {
-      axios.get(`/server/mypage`).then((result) => {
+      axios.get(`/api/mypage`).then((result) => {
         setUserName(result.data.name);
         setUserId(result.data.id);
         setUserProfilePhoto(result.data.s3_profilephoto_img_url);

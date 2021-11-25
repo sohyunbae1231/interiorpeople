@@ -56,7 +56,7 @@ const WritePost = () => {
     formData.append("title", title);
     formData.append("content", content);
     try {
-      await axios.post("/server/community/mypost/write", formData, {
+      await axios.post("/api/community/mypost/write", formData, {
         Headers: { "Content-Type": "multipart/form-data" },
       });
 
@@ -96,7 +96,7 @@ const WritePost = () => {
     <div>
       {/* <SimpleSlider /> */}
       <form onSubmit={onSubmit}>
-        <div style={{ display: "flex", flexWrap: "wrap", marginTop: "30px"}}>
+        <div style={{ display: "flex", flexWrap: "wrap", marginTop: "30px" }}>
           {/* 이미지 미리보기 */}
           {previewImages}
         </div>
@@ -145,7 +145,7 @@ const WritePost = () => {
               background: "#203864",
               color: "white",
               cursor: "alias",
-              marginTop: "30px"
+              marginTop: "30px",
             }}
           >
             업로드

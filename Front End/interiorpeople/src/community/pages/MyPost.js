@@ -11,7 +11,7 @@ import "./PostList.css";
 
 const MyPost = () => {
   const [myPosts, setMyPosts] = useState([]);
-  const [postUrl, setPostUrl] = useState("/server/community/mypost");
+  const [postUrl, setPostUrl] = useState("/api/community/mypost");
   const [imageLoading, setImageLoading] = useState(false);
   const [imageError, setImageError] = useState(false);
   const pastPostUrlRef = useRef();
@@ -46,7 +46,7 @@ const MyPost = () => {
       return;
     }
     const lastPostId = myPosts[myPosts.length - 1]._id;
-    setPostUrl(`/server/community/mypost?lastPostId=${lastPostId}`);
+    setPostUrl(`/api/community/mypost?lastPostId=${lastPostId}`);
   }, [myPosts, imageLoading, setPostUrl]);
 
   //무한 스크롤 해당 엘리먼트 추적

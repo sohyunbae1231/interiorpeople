@@ -8,7 +8,7 @@ function Support() {
 
   useEffect(() => {
     axios
-      .get("/server/support")
+      .get("/api/support")
       .then((supportResult) => {
         setFaq({ title: "FAQ", rows: supportResult.data.faq });
         setGuide({ title: "GUIDE", rows: supportResult.data.guide });

@@ -96,16 +96,16 @@ app.get('/favicon.ico', (req, res) => res.status(204).end())
 app.get('/logo192.png', (req, res) => res.status(204).end())
 
 // * 로그인, 로그아웃, 회원가입, 비밀번호 찾기 라우터
-app.use('/account', authRouter)
+app.use('/api/account', authRouter)
 
 // * 고객센터 라우터
-app.use('/server/support', supportRouter)
+app.use('/api/support', supportRouter)
 
 // * 마이 페이지 라우터
-app.use('/server/mypage', myPageRouter)
+app.use('/api/mypage', myPageRouter)
 
 // * 커뮤니티 라우터
-app.use('/server/community', communityRouter)
+app.use('/api/community', communityRouter)
 
 /** 에러 핸들링 라우터 : 페이지가 없을 경우 메인 페이지로 돌아간다. */
 app.use((err, req, res) => {

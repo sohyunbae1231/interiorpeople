@@ -12,7 +12,7 @@ const DetailPost = () => {
   const { postId } = useParams();
   const [user] = useContext(AuthContext);
   const [hasLiked, setHasLiked] = useState(null);
-  const [hasScraped, setHasScraped] = useState(null);
+  const [hasBookmarked, setHasBookmarked] = useState(null);
   const [hasFollowed, setHasFollowed] = useState(null);
   const [error, setError] = useState(false);
   const [post, setPost] = useState();
@@ -21,7 +21,7 @@ const DetailPost = () => {
   useEffect(() => {
     try {
       /** 포스트 불러오기 */
-      axios.get(`/server/community/post/${postId}`).then((result) => {
+      axios.get(`/api/community/post/${postId}`).then((result) => {
         setPost(result.data.post);
         setError(false);
 
@@ -35,10 +35,10 @@ const DetailPost = () => {
           }
 
           // 북마크
-          if (result.data.checkResult.scrapeCheckResult === "scrape") {
-            setHasScraped(true);
+          if (result.data.checkResult.bookmarkCheckResult === "bookmark") {
+            setHasBookmarked(true);
           } else {
-            setHasScraped(false);
+            setHasBookmarked(false);
           }
 
           // 팔로우
@@ -68,7 +68,7 @@ const DetailPost = () => {
   /** 좋아요 핸들러 */
   const likeHandler = async () => {
     try {
-      await axios.post(`/server/community/post/${postId}/like`);
+      await axios.post(`/api/community/post/${postId}/like`);
       if (hasLiked === false) {
         // 좋아요를 누르지 않은 경우
         post.like_num += 1;
@@ -83,19 +83,19 @@ const DetailPost = () => {
   };
 
   /** 북마크 핸들러 */
-  const scrapeHandler = async () => {
+  const bookmarkHandler = async () => {
     try {
-      await axios.post(`/server/community/post/${postId}/scrape`);
-      setHasScraped(!hasScraped);
+      await axios.post(`/api/community/post/${postId}/bookmark`);
+      setHasBookmarked(!hasBookmarked);
     } catch (err) {
-      alert("스크랩 핸들러 오류");
+      alert("북마크 핸들러 오류");
     }
   };
 
   /** 팔로우 핸들러 */
   const followHandler = async () => {
     try {
-      await axios.post(`/server/community/post/${postId}/follow`);
+      await axios.post(`/api/community/post/${postId}/follow`);
       setHasFollowed(!hasFollowed);
     } catch (err) {
       alert("팔로우 핸들러 오류");
@@ -109,7 +109,7 @@ const DetailPost = () => {
       if (!window.confirm("삭제하시겠습니까?")) {
         return;
       }
-      await axios.delete(`/server/community/post/${postId}/delete`);
+      await axios.delete(`/api/community/post/${postId}/delete`);
       navigate("/community"); // 메인화면으로 복귀
     } catch (err) {}
   };
@@ -156,8 +156,9 @@ const DetailPost = () => {
             <button style={{ float: "right" }} onClick={likeHandler}>
               {hasLiked !== null && (hasLiked ? "좋아요 취소" : "좋아요")}
             </button>
-            <button style={{ float: "right" }} onClick={scrapeHandler}>
-              {hasScraped !== null && (hasScraped ? "북마크 취소" : "북마크")}
+            <button style={{ float: "right" }} onClick={bookmarkHandler}>
+              {hasBookmarked !== null &&
+                (hasBookmarked ? "북마크 취소" : "북마크")}
             </button>
           </div>
           <button onClick={commentCreateHandler}>댓글 달기</button>

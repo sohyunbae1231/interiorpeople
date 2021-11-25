@@ -120,8 +120,8 @@ communityRouter.get('/post/:postId', ifIsLoggedIn, async (req, res) => {
       if (!userBookmarkList) {
         checkResult.bookmarkCheckResult = 'unBookmark'
       } else {
-        const ScrapeCheck = userBookmarkList.post_id.includes(postId)
-        if (ScrapeCheck) {
+        const bookmarkCheck = userBookmarkList.post_id.includes(postId)
+        if (bookmarkCheck) {
           // 이미 스크랩을 한 경우
           checkResult.bookmarkCheckResult = 'bookmark'
         } else {
@@ -161,7 +161,7 @@ communityRouter.get('/post/:postId', ifIsLoggedIn, async (req, res) => {
 })
 
 /** 북마크를 눌렀을 시 */
-communityRouter.post('/post/:postId/scrape', isLoggedIn, async (req, res) => {
+communityRouter.post('/post/:postId/bookmark', isLoggedIn, async (req, res) => {
   const { postId } = req.params
   // @ts-ignore
   const userId = req.user.id
@@ -176,13 +176,13 @@ communityRouter.post('/post/:postId/scrape', isLoggedIn, async (req, res) => {
       if (postIdIndex !== -1) {
         userBookmarkList.post_id.splice(postIdIndex, 1)
         await userBookmarkList.save()
-        res.status(200).json({ message: 'unScrape' })
+        res.status(200).json({ message: 'unBookmark' })
       }
       // 북마크를 할 시
       else {
         userBookmarkList.post_id = [...userBookmarkList.post_id, postId]
         await userBookmarkList.save()
-        res.status(200).json({ message: 'scrape' })
+        res.status(200).json({ message: 'bookmark' })
       }
     } else {
       // 컬렉션에 데이터 생성
@@ -190,7 +190,7 @@ communityRouter.post('/post/:postId/scrape', isLoggedIn, async (req, res) => {
         user_id: userId,
         post_id: [postId],
       }).save()
-      res.status(200).json({ message: 'scrape' })
+      res.status(200).json({ message: 'bookmark' })
     }
   } catch (err) {
     // @ts-ignore
@@ -236,9 +236,9 @@ communityRouter.post('/post/:postId/like', isLoggedIn, async (req, res) => {
   const userId = req.user.id
   // 먼저 like 컬렉션에 유저 아이디가 있는지 확인
   try {
-    const userLikeList = await Like.findOne({ id: userId })
+    const userLikeList = await Like.findOne({ user_id: userId })
     const currentPost = await Post.findById(postId)
-    if (!req.params.postId) {
+    if (!currentPost) {
       throw new Error('존재하지 않는 포스트입니다.')
     }
     // 있는 경우
@@ -264,6 +264,7 @@ communityRouter.post('/post/:postId/like', isLoggedIn, async (req, res) => {
     }
     // 없는 경우
     else {
+      console.log(userId)
       // 좋아요를 누름
       currentPost.like_num += 1
       await currentPost.save()
@@ -314,12 +315,13 @@ communityRouter.post('/mypost/write', isLoggedIn, uploadPost.array('images', 10)
 communityRouter.delete('/post/:postId/delete', isLoggedIn, async (req, res) => {
   // @ts-ignore
   const userId = req.user.id
+  const { postId } = req.params
   try {
     // ObjectId 인지 확인
-    if (!mongoose.isValidObjectId(req.params.postId)) {
+    if (!mongoose.isValidObjectId(postId)) {
       throw new Error(`올바르지 않은 포스트입니다.`)
     }
-    const post = await Post.findOneAndDelete({ _id: req.params.postId, writer_id: userId })
+    const post = await Post.findOneAndDelete({ _id: postId, writer_id: userId })
     if (!post) {
       return res.status(400).json({ message: '존재하지 않는 포스트입니다.' })
     }
@@ -345,6 +347,11 @@ communityRouter.delete('/post/:postId/delete', isLoggedIn, async (req, res) => {
         )
       })
     }
+    // 북마크, 커멘트, 좋아요 삭제
+    Bookmark.deleteMany({ post_id: postId })
+    Comment.deleteMany({ post_id: postId })
+    Like.deleteMany({ post_id: { $elemMatch: postId } })
+
     return res.status(200).json({ message: '성공적으로 삭제되었습니다.' })
   } catch (err) {
     // @ts-ignore
