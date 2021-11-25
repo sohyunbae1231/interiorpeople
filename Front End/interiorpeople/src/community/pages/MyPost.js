@@ -1,3 +1,4 @@
+// cSpell:ignore : mypost
 import React, { useRef, useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
@@ -13,11 +14,11 @@ const MyPost = () => {
   const [postUrl, setPostUrl] = useState("/server/community/mypost");
   const [imageLoading, setImageLoading] = useState(false);
   const [imageError, setImageError] = useState(false);
-  const pastpostUrlRef = useRef();
+  const pastPostUrlRef = useRef();
   const elementRef = useRef(null); // 무한 스크롤 적용에 필요
 
   useEffect(() => {
-    if (pastpostUrlRef.current === postUrl) {
+    if (pastPostUrlRef.current === postUrl) {
       return;
     }
     setImageLoading(true);
@@ -35,7 +36,7 @@ const MyPost = () => {
       })
       .finally(() => {
         setImageLoading(false);
-        pastpostUrlRef.current = postUrl;
+        pastPostUrlRef.current = postUrl;
       });
   }, [postUrl]);
 

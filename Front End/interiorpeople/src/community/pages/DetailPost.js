@@ -93,7 +93,7 @@ const DetailPost = () => {
   };
 
   /** 팔로우 핸들러 */
-  const followHanlder = async () => {
+  const followHandler = async () => {
     try {
       await axios.post(`/server/community/post/${postId}/follow`);
       setHasFollowed(!hasFollowed);
@@ -150,7 +150,7 @@ const DetailPost = () => {
       ) : (
         <div>
           <div>
-            <button style={{ float: "right" }} onClick={followHanlder}>
+            <button style={{ float: "right" }} onClick={followHandler}>
               {hasFollowed !== null && (hasFollowed ? "팔로잉 취소" : "팔로우")}
             </button>
             <button style={{ float: "right" }} onClick={likeHandler}>

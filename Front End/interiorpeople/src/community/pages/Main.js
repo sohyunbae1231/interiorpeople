@@ -1,10 +1,7 @@
+// cSpell:ignore : mypost,postlist
 /** 메인 페이지 */
 import React from "react";
 import { Link } from "react-router-dom";
-
-/** 컴포넌트 임포트 */
-// import PostList from "../components/PostList";
-// import UploadForm from "../components/UploadForm";
 
 const MainPage = () => {
   return (
