@@ -19,18 +19,15 @@ const uploadProfilePhoto = multerConfig('profilePhoto_img')
 const myPageRouter = Router()
 
 /** 메인 페이지 */
-/**
- * TODO : 보내야 할 것들
- * TODO : 이름
- * TODO : 이메일
- * TODO : 프로필 사진
- */
 myPageRouter.get('/', isLoggedIn, async (req, res) => {
-  // @ts-ignore
-  const currentUser = await User.findOne({ id: req.user.id })
-  // TODO : 무엇을 보내야 할까
-  // ! 프론트
-  res.json(currentUser)
+  try {
+    // @ts-ignore
+    const currentUser = await User.findOne({ id: req.user.id }).select('_id id name s3_profilephoto_img_url email googleId naverId')
+    res.status(200).json(currentUser)
+  } catch (err) {
+    // @ts-ignore
+    res.status(400).json({ message: err.message })
+  }
 })
 
 /** 나의 사진 페이지 */
@@ -45,9 +42,15 @@ myPageRouter.get('/photo', isLoggedIn, async (req, res) => {})
 
 /** 스크랩 페이지 */
 myPageRouter.get('/scrap', isLoggedIn, async (req, res) => {
-  // @ts-ignore
-  const userScrapeList = await Scrape.findOne({ user_id: req.user.id })
-  res.status(200).json({ scrapeList: userScrapeList.post_id })
+  try {
+    // @ts-ignore
+    const userScrapeList = await Scrape.findOne({ user_id: req.user.id })
+    res.status(200).json({ scrapeList: userScrapeList.post_id })
+  } catch (err) {
+    // @ts-ignore
+
+    res.status(400).json({ message: err.message })
+  }
 })
 
 /** 프로필 수정 페이지 */
@@ -64,6 +67,7 @@ myPageRouter.patch('/profile', isLoggedIn, uploadProfilePhoto.single('img'), asy
     currentUser.name = req.body.name
   }
   // 프로필 사진 변경
+  // TODO : 프로필 사진 없애고 로컬일 경우 삭제
   if (req.file) {
     // @ts-ignore
     currentUser.s3_profilephoto_img_url = req.file.location
