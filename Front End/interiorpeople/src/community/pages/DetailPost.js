@@ -17,6 +17,7 @@ const DetailPost = () => {
   const [error, setError] = useState(false);
   const [post, setPost] = useState();
   const [comments, setComments] = useState();
+  const [writedComment, setWritedComment] = useState();
 
   useEffect(() => {
     try {
@@ -172,10 +173,7 @@ const DetailPost = () => {
           삭제
         </button>
       )}
-      <div>
-        <div>댓글</div>
-        <div>댓글</div>
-      </div>
+      <div></div>
     </div>
   );
 };

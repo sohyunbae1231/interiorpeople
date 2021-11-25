@@ -25,7 +25,9 @@ const myPageRouter = Router()
 myPageRouter.get('/', isLoggedIn, async (req, res) => {
   try {
     // @ts-ignore
-    const currentUser = await User.findOne({ id: req.user.id }).select('_id id name s3_profilephoto_img_url email googleId naverId')
+    const currentUser = await User.findOne({ id: req.user.id }).select(
+      '_id id name s3_profilephoto_img_url email googleId naverId'
+    )
     res.status(200).json(currentUser)
   } catch (err) {
     // @ts-ignore
@@ -59,7 +61,9 @@ myPageRouter.get('/bookmark', isLoggedIn, async (req, res) => {
       throw new Error('권한이 없습니다.')
     }
     // @ts-ignore
-    const bookmarkedPostId = await Bookmark.findOne(lastPostId ? { user_id: userId, post_id: { $lt: lastPostId } } : { user_id: userId })
+    const bookmarkedPostId = await Bookmark.findOne(
+      lastPostId ? { user_id: userId, post_id: { $lt: lastPostId } } : { user_id: userId }
+    )
       .sort({ _id: -1 })
       .limit(20)
     // @ts-ignore
@@ -76,7 +80,7 @@ myPageRouter.get('/bookmark', isLoggedIn, async (req, res) => {
 })
 
 /** 프로필 수정 페이지 */
-myPageRouter.patch('/profile', isLoggedIn, uploadProfilePhoto.single('img'), async (req, res) => {
+myPageRouter.patch('/profile', isLoggedIn, uploadProfilePhoto.single('image'), async (req, res) => {
   // @ts-ignore
   const currentUser = await User.findOne({ id: req.user.id })
   // 비밀번호 변경
@@ -89,17 +93,17 @@ myPageRouter.patch('/profile', isLoggedIn, uploadProfilePhoto.single('img'), asy
     currentUser.name = req.body.name
   }
   // 프로필 사진 변경
-  // TODO : 프로필 사진 없애고 로컬일 경우 삭제
+  // TODO : 프로필 사진 없애고 로컬일 경우 삭제.
   if (req.file) {
+    if (process.env.NODE_ENV === 'dev') {
+      // @ts-ignore
+      req.file.location = req.file.filename
+    }
     // @ts-ignore
     currentUser.s3_profilephoto_img_url = req.file.location
   }
   try {
-    await User.updateOne(
-      // @ts-ignore
-      { id: req.user.id },
-      currentUser
-    )
+    await currentUser.save()
     res.status(200).json({ succuss: true })
   } catch (err) {
     // @ts-ignore

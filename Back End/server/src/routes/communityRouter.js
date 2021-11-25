@@ -66,7 +66,9 @@ communityRouter.get('/mypost', isLoggedIn, async (req, res) => {
       throw new Error('권한이 없습니다.')
     }
     // @ts-ignore
-    const myPosts = await Post.find(lastPostId ? { writer_id: userId, _id: { $lt: lastPostId } } : { writer_id: userId })
+    const myPosts = await Post.find(
+      lastPostId ? { writer_id: userId, _id: { $lt: lastPostId } } : { writer_id: userId }
+    )
       .sort({ _id: -1 })
       .limit(20)
     res.status(200).json(myPosts)
@@ -82,9 +84,6 @@ communityRouter.get('/post/:postId', ifIsLoggedIn, async (req, res) => {
   try {
     // 포스트 찾아오기
     const currentPost = await Post.findById(postId)
-
-    // 댓글 찾아오기
-    const comments = (await Comment.findById(postId)) || {}
 
     // @ts-ignore
     const userId = req.user ? req.user.id : undefined
@@ -150,9 +149,9 @@ communityRouter.get('/post/:postId', ifIsLoggedIn, async (req, res) => {
           checkResult.followCheckResult = 'unFollow'
         }
       }
-      res.status(200).json({ post: currentPost, checkResult, comments })
+      res.status(200).json({ post: currentPost, checkResult })
     } else {
-      res.status(200).json({ post: currentPost, comments })
+      res.status(200).json({ post: currentPost })
     }
   } catch (err) {
     // @ts-ignore
@@ -209,7 +208,10 @@ communityRouter.post('/post/:postId/follow', isLoggedIn, async (req, res) => {
     const currentPost = await Post.findById(postId)
     const writerIdOfPost = currentPost.writer_id
     // 이미 팔로우 되어 있다면 팔로우를 찾는 동시에 삭제함으로써 팔로우 해제시킴
-    const isFollowing = await Follow.findOneAndDelete({ follower_id: userId, followed_id: writerIdOfPost })
+    const isFollowing = await Follow.findOneAndDelete({
+      follower_id: userId,
+      followed_id: writerIdOfPost,
+    })
     /**
      * ? findOneAndDelete 리턴값
      * ? isFollowing === null : 애초에 데이터가 없음
@@ -264,7 +266,6 @@ communityRouter.post('/post/:postId/like', isLoggedIn, async (req, res) => {
     }
     // 없는 경우
     else {
-      console.log(userId)
       // 좋아요를 누름
       currentPost.like_num += 1
       await currentPost.save()
@@ -282,34 +283,39 @@ communityRouter.post('/post/:postId/like', isLoggedIn, async (req, res) => {
 
 /** 포스트 작성 */
 // upload.array('키', 최대파일개수)
-communityRouter.post('/mypost/write', isLoggedIn, uploadPost.array('images', 10), async (req, res) => {
-  try {
-    // 객체 배열에서 특정 요소를 추출할 때는 filter가 아니라 map을 사용함.
-    if (process.env.NODE_ENV === 'dev') {
-      // @ts-ignore
-      req.files.forEach((element) => {
-        // eslint-disable-next-line no-param-reassign
-        element.location = element.filename
-      })
-    }
+communityRouter.post(
+  '/mypost/write',
+  isLoggedIn,
+  uploadPost.array('images', 10),
+  async (req, res) => {
+    try {
+      // 객체 배열에서 특정 요소를 추출할 때는 filter가 아니라 map을 사용함.
+      if (process.env.NODE_ENV === 'dev') {
+        // @ts-ignore
+        req.files.forEach((element) => {
+          // eslint-disable-next-line no-param-reassign
+          element.location = element.filename
+        })
+      }
 
-    // @ts-ignore
-    const imgURLs = req.files.map((element) => element.location)
-    // 포스트 생성
-    const createdPost = await new Post({
       // @ts-ignore
-      writer_id: req.user.id,
-      title: req.body.title,
-      content: req.body.content,
-      like_num: 0,
-      s3_photo_img_url: imgURLs,
-    }).save()
-    res.status(200).json(createdPost)
-  } catch (err) {
-    // @ts-ignore
-    res.status(400).json({ message: err.message })
+      const imgURLs = req.files.map((element) => element.location)
+      // 포스트 생성
+      const createdPost = await new Post({
+        // @ts-ignore
+        writer_id: req.user.id,
+        title: req.body.title,
+        content: req.body.content,
+        like_num: 0,
+        s3_photo_img_url: imgURLs,
+      }).save()
+      res.status(200).json(createdPost)
+    } catch (err) {
+      // @ts-ignore
+      res.status(400).json({ message: err.message })
+    }
   }
-})
+)
 
 /** 포스트 삭제 */
 communityRouter.delete('/post/:postId/delete', isLoggedIn, async (req, res) => {
@@ -321,6 +327,11 @@ communityRouter.delete('/post/:postId/delete', isLoggedIn, async (req, res) => {
     if (!mongoose.isValidObjectId(postId)) {
       throw new Error(`올바르지 않은 포스트입니다.`)
     }
+    // 댓글, 북마크, 좋아요 삭제
+    await Comment.deleteMany({ post_id: postId })
+    await Bookmark.updateMany({}, { $pull: { post_id: postId } })
+    await Like.updateMany({}, { $pull: { post_id: postId } })
+
     const post = await Post.findOneAndDelete({ _id: postId, writer_id: userId })
     if (!post) {
       return res.status(400).json({ message: '존재하지 않는 포스트입니다.' })
@@ -347,10 +358,6 @@ communityRouter.delete('/post/:postId/delete', isLoggedIn, async (req, res) => {
         )
       })
     }
-    // 북마크, 커멘트, 좋아요 삭제
-    Bookmark.deleteMany({ post_id: postId })
-    Comment.deleteMany({ post_id: postId })
-    Like.deleteMany({ post_id: { $elemMatch: postId } })
 
     return res.status(200).json({ message: '성공적으로 삭제되었습니다.' })
   } catch (err) {
@@ -359,10 +366,83 @@ communityRouter.delete('/post/:postId/delete', isLoggedIn, async (req, res) => {
   }
 })
 
+/** 댓글 불러오기 */
+communityRouter.get('/post/:postId/comment-list', ifIsLoggedIn, async (req, res) => {
+  const { lastCommentId } = req.query
+  const { postId } = req.params
+  try {
+    if (lastCommentId && !mongoose.isValidObjectId(lastCommentId)) {
+      throw new Error('잘못된 접근입니다.')
+    }
+    const comments = await Comment.find(
+      lastCommentId ? { post_id: postId, _id: { $lt: lastCommentId } } : { post_id: postId }
+    )
+      .sort({ _id: -1 })
+      .limit(10)
+    res.status(200).json(comments)
+  } catch (err) {
+    // @ts-ignore
+    res.status(400).json({ message: err.message })
+  }
+})
+
 /** 댓글 작성 */
-// communityRouter.post('/post/:postId/write-comment', ifIsLoggedIn, (req, res) => {})
+communityRouter.post('/post/:postId/write-comment', isLoggedIn, async (req, res) => {
+  // @ts-ignore
+  const userId = req.user.id
+  const { parentCommentId, content } = req.body
+  const { postId } = req.params
+  try {
+    if (parentCommentId === '') {
+      // 일반 댓글인 경우
+      await new Comment({
+        user_id: userId,
+        post_id: postId,
+        content,
+        nestedComments: [],
+      }).save()
+      res.status(200).json({ message: 'created' })
+    } else {
+      // 대댓글인 경우
+      const comment = await Comment.findById(parentCommentId)
+      comment.nestedComments.push({
+        user_id: userId,
+        content,
+      })
+      await comment.save()
+      res.status(200).json({ message: 'created' })
+    }
+  } catch (err) {
+    // @ts-ignore
+    res.status(400).json({ message: err.message })
+  }
+})
 
 /** 댓글 삭제 */
-// communityRouter.delete('/post/postId/:delete-comment', ifIsLoggedIn, (req, res) => {})
+communityRouter.delete('/post/postId/:delete-comment', ifIsLoggedIn, async (req, res) => {
+  // @ts-ignore
+  const userId = req.user.id
+  const { parentCommentId, commentId } = req.body
+  try {
+    // 일반 댓글을 삭제하는 경우
+    if (parentCommentId === '') {
+      await Comment.findOneAndDelete({ _id: commentId, user_id: userId })
+      res.status(200).json({ message: 'deleted' })
+    } else {
+      // 대댓글을 삭제하는 경우
+      const parentComment = await Comment.findById(parentCommentId)
+      parentComment.nestedComments = parentComment.nestedComments.filter(
+        // @ts-ignore
+        // eslint-disable-next-line
+        (comment) => !(comment._id === commentId && user_id === userId)
+      )
+      parentComment.save()
+      res.status(200).json({ message: 'deleted' })
+    }
+  } catch (err) {
+    // @ts-ignore
+    res.status(400).json({ message: err.message })
+  }
+})
 
 module.exports = { communityRouter }
