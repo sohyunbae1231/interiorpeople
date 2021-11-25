@@ -17,7 +17,7 @@ import MyPage from "./myPage/pages/MyPage";
 import MyPageMain from "./myPage/pages/MyPageMain";
 import Profile from "./myPage/pages/Profile";
 import MyPhoto from "./myPage/pages/MyPhoto";
-import Scrap from "./myPage/pages/Scrap";
+import Bookmark from "./myPage/pages/Bookmark";
 import History from "./myPage/pages/History";
 
 // 인테리어 추천 - 사진 업로드, 영역 선택, 스타일 선택, 스타일 편집, 원하는 사진 추가 업로드, 분석 완료
@@ -62,7 +62,7 @@ function App() {
             <Route path="" element={<MyPageMain />} />
             <Route path="profile" element={<Profile />} />
             <Route path="myphoto" element={<MyPhoto />} />
-            <Route path="scrap" element={<Scrap />} />
+            <Route path="bookmark" element={<Bookmark />} />
             <Route path="history" element={<History />} />
           </Route>
 

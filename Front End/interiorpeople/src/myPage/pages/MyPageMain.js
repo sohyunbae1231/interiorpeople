@@ -1,7 +1,7 @@
 /** 마이 페이지 메인 */
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { BrowserRouter as Router, Route, Routes, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import "../../fonts/MyPageMain.css";
 
 // <ul></ul> 부분 고치기!! -> 깨져서 나옴
@@ -84,13 +84,13 @@ const MyPageMain = () => {
           </Link>
         </li>
         <li style={{ float: "left", width: "30%" }}>
-          <Link to="/mypage/scrap">
+          <Link to="/mypage/bookmark">
             <img
               alt=""
               src={require("../../img/bookmark.png").default}
               style={{ width: "68%", display: "block" }}
             />
-            스크랩
+            북마크
           </Link>
         </li>
         <li style={{ float: "left", width: "30%" }}>
