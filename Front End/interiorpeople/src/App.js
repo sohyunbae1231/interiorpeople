@@ -1,3 +1,5 @@
+// cSpell:ignore : mypage,myphoto,mypost,postlist
+
 import React from "react";
 import "./App.css";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
@@ -11,11 +13,13 @@ import Forgot from "./Forgot";
 // 고객센터
 import Support from "./Support";
 // 마이페이지 메인, 프로필 편집, 나의 사진, 스크랩, 추천 기록
-import Mypage from "./Mypage";
-import Profile from "./Profile";
-import Myphoto from "./Myphoto";
-import Scrap from "./Scrap";
-import History from "./History";
+import MyPage from "./myPage/pages/MyPage";
+import MyPageMain from "./myPage/pages/MyPageMain";
+import Profile from "./myPage/pages/Profile";
+import MyPhoto from "./myPage/pages/MyPhoto";
+import Bookmark from "./myPage/pages/Bookmark";
+import History from "./myPage/pages/History";
+
 // 인테리어 추천 - 사진 업로드, 영역 선택, 스타일 선택, 스타일 편집, 원하는 사진 추가 업로드, 분석 완료
 import Upload from "./Upload";
 import Selectarea from "./Selectarea";
@@ -54,11 +58,13 @@ function App() {
           <Route path="/support" element={<Support />} />
 
           {/* 마이페이지 관련 */}
-          <Route path="/mypage" element={<Mypage />} />
-          <Route path="/mypage/profile" element={<Profile />} />
-          <Route path="/mypage/myphoto" element={<Myphoto />} />
-          <Route path="/mypage/scrap" element={<Scrap />} />
-          <Route path="/mypage/history" element={<History />} />
+          <Route path="/mypage/*" element={<MyPage />}>
+            <Route path="" element={<MyPageMain />} />
+            <Route path="profile" element={<Profile />} />
+            <Route path="myphoto" element={<MyPhoto />} />
+            <Route path="bookmark" element={<Bookmark />} />
+            <Route path="history" element={<History />} />
+          </Route>
 
           {/* 인테리어 추천 페이지 관련 */}
           <Route path="/interior/upload" element={<Upload />} />

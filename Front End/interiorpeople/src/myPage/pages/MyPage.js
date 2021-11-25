@@ -1,8 +1,8 @@
-/** 커뮤니티 페이지 */
+/** 마이 페이지 */
 import React from "react";
 import { Outlet } from "react-router-dom";
 
-const CommunityPage = () => {
+const MyPage = () => {
   return (
     <div>
       <Outlet />
@@ -10,4 +10,4 @@ const CommunityPage = () => {
   );
 };
 
-export default CommunityPage;
+export default MyPage;

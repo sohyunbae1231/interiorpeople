@@ -12,7 +12,7 @@ const fileUnlink = promisify(fs.unlink)
 /** 데이터베이스 관련 */
 const Post = require('../schemas/Post')
 const Like = require('../schemas/Like')
-const Scrape = require('../schemas/Scrape')
+const Bookmark = require('../schemas/Bookmark')
 const Follow = require('../schemas/Follow')
 const Comment = require('../schemas/Comment')
 
@@ -55,7 +55,7 @@ communityRouter.get('/mypost', isLoggedIn, async (req, res) => {
   try {
     // @ts-ignore
     const userId = req.user.id
-    const realUserId = req.cookies.user
+    // const realUserId = req.cookies.user
 
     // 유효하지 않은 포스트의 id인 경우
     if (lastPostId && !mongoose.isValidObjectId(lastPostId)) {
@@ -66,7 +66,7 @@ communityRouter.get('/mypost', isLoggedIn, async (req, res) => {
       throw new Error('권한이 없습니다.')
     }
     // @ts-ignore
-    const myPosts = await Post.find(lastPostId ? { writer_id: realUserId, _id: { $lt: lastPostId } } : { writer_id: realUserId })
+    const myPosts = await Post.find(lastPostId ? { writer_id: userId, _id: { $lt: lastPostId } } : { writer_id: userId })
       .sort({ _id: -1 })
       .limit(20)
     res.status(200).json(myPosts)
@@ -99,7 +99,7 @@ communityRouter.get('/post/:postId', ifIsLoggedIn, async (req, res) => {
         await currentPost.save()
       }
 
-      const checkResult = { likeCheckResult: '', scrapeCheckResult: '', followCheckResult: '' }
+      const checkResult = { likeCheckResult: '', bookmarkCheckResult: '', followCheckResult: '' }
       // 좋아요가 눌러져 있는지 확인
       const userLikeList = await Like.findOne({ id: userId })
       if (!userLikeList) {
@@ -115,18 +115,18 @@ communityRouter.get('/post/:postId', ifIsLoggedIn, async (req, res) => {
         }
       }
 
-      // 스크랩이 눌러져 있는지 확인
-      const userScrapeList = await Scrape.findOne({ id: userId })
-      if (!userScrapeList) {
-        checkResult.scrapeCheckResult = 'unScrape'
+      // 북마크가 눌러져 있는지 확인
+      const userBookmarkList = await Bookmark.findOne({ id: userId })
+      if (!userBookmarkList) {
+        checkResult.bookmarkCheckResult = 'unBookmark'
       } else {
-        const ScrapeCheck = userScrapeList.post_id.includes(postId)
+        const ScrapeCheck = userBookmarkList.post_id.includes(postId)
         if (ScrapeCheck) {
           // 이미 스크랩을 한 경우
-          checkResult.scrapeCheckResult = 'scrape'
+          checkResult.bookmarkCheckResult = 'bookmark'
         } else {
           // 스크랩을 하지 않은 경우
-          checkResult.scrapeCheckResult = 'unScrape'
+          checkResult.bookmarkCheckResult = 'unBookmark'
         }
       }
 
@@ -160,33 +160,33 @@ communityRouter.get('/post/:postId', ifIsLoggedIn, async (req, res) => {
   }
 })
 
-/** 스크랩을 눌렀을 시 */
+/** 북마크를 눌렀을 시 */
 communityRouter.post('/post/:postId/scrape', isLoggedIn, async (req, res) => {
   const { postId } = req.params
   // @ts-ignore
   const userId = req.user.id
 
   try {
-    // 먼저 scrape 컬렉션에 유저 아이디가 있는지 확인
-    const userScrapeList = await Scrape.findOne({ id: userId })
-    if (userScrapeList) {
-      // 이미 스크랩이 되어 있어 스크랩을 취소할 시
+    // 먼저 Bookmark 컬렉션에 유저 아이디가 있는지 확인
+    const userBookmarkList = await Bookmark.findOne({ user_id: userId })
+    if (userBookmarkList) {
+      // 이미 북마크가 되어 있어 북마크를 취소할 시
       // @ts-ignore
-      const postIdIndex = userScrapeList.post_id.findIndex((element) => element === postId)
+      const postIdIndex = userBookmarkList.post_id.findIndex((element) => element === postId)
       if (postIdIndex !== -1) {
-        userScrapeList.post_id.splice(postIdIndex, 1)
-        await userScrapeList.save()
+        userBookmarkList.post_id.splice(postIdIndex, 1)
+        await userBookmarkList.save()
         res.status(200).json({ message: 'unScrape' })
       }
-      // 스크랩을 할 시
+      // 북마크를 할 시
       else {
-        userScrapeList.post_id = [...userScrapeList.post_id, postId]
-        await userScrapeList.save()
+        userBookmarkList.post_id = [...userBookmarkList.post_id, postId]
+        await userBookmarkList.save()
         res.status(200).json({ message: 'scrape' })
       }
     } else {
       // 컬렉션에 데이터 생성
-      await new Scrape({
+      await new Bookmark({
         user_id: userId,
         post_id: [postId],
       }).save()
@@ -353,9 +353,9 @@ communityRouter.delete('/post/:postId/delete', isLoggedIn, async (req, res) => {
 })
 
 /** 댓글 작성 */
-communityRouter.post('/post/:postId/write-comment', ifIsLoggedIn, (req, res) => {})
+// communityRouter.post('/post/:postId/write-comment', ifIsLoggedIn, (req, res) => {})
 
 /** 댓글 삭제 */
-communityRouter.delete('/post/postId/:delete-comment', ifIsLoggedIn, (req, res) => {})
+// communityRouter.delete('/post/postId/:delete-comment', ifIsLoggedIn, (req, res) => {})
 
 module.exports = { communityRouter }

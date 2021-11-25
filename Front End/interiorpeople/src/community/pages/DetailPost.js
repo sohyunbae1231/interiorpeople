@@ -25,7 +25,7 @@ const DetailPost = () => {
         setPost(result.data.post);
         setError(false);
 
-        /** 좋아요, 스크랩, 팔로우 여부 체크 */
+        /** 좋아요, 북마크, 팔로우 여부 체크 */
         if (user || cookies.get("loginData")) {
           // 좋아요
           if (result.data.checkResult.likeCheckResult === "like") {
@@ -34,7 +34,7 @@ const DetailPost = () => {
             setHasLiked(false);
           }
 
-          // 스크랩
+          // 북마크
           if (result.data.checkResult.scrapeCheckResult === "scrape") {
             setHasScraped(true);
           } else {
@@ -82,7 +82,7 @@ const DetailPost = () => {
     }
   };
 
-  /** 스크랩 핸들러 */
+  /** 북마크 핸들러 */
   const scrapeHandler = async () => {
     try {
       await axios.post(`/server/community/post/${postId}/scrape`);
@@ -93,7 +93,7 @@ const DetailPost = () => {
   };
 
   /** 팔로우 핸들러 */
-  const followHanlder = async () => {
+  const followHandler = async () => {
     try {
       await axios.post(`/server/community/post/${postId}/follow`);
       setHasFollowed(!hasFollowed);
@@ -150,14 +150,14 @@ const DetailPost = () => {
       ) : (
         <div>
           <div>
-            <button style={{ float: "right" }} onClick={followHanlder}>
+            <button style={{ float: "right" }} onClick={followHandler}>
               {hasFollowed !== null && (hasFollowed ? "팔로잉 취소" : "팔로우")}
             </button>
             <button style={{ float: "right" }} onClick={likeHandler}>
               {hasLiked !== null && (hasLiked ? "좋아요 취소" : "좋아요")}
             </button>
             <button style={{ float: "right" }} onClick={scrapeHandler}>
-              {hasScraped !== null && (hasScraped ? "스크랩 취소" : "스크랩")}
+              {hasScraped !== null && (hasScraped ? "북마크 취소" : "북마크")}
             </button>
           </div>
           <button onClick={commentCreateHandler}>댓글 달기</button>

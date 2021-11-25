@@ -3,19 +3,22 @@
 /** 모듈 */
 const { Router } = require('express')
 const bcrypt = require('bcrypt')
+const mongoose = require('mongoose')
 
 /** 데이터베이스 관련 */
 const User = require('../schemas/User')
-const Scrape = require('../schemas/Scrape')
+const Post = require('../schemas/Post')
+const Bookmark = require('../schemas/Bookmark')
 
 /** 로그인 관련 */
 const { isLoggedIn } = require('../middlewares/authentication')
 
 /** multer 및 AWS 관련 */
-const { s3, multerConfig } = require('../middlewares/multerConfig')
+const { multerConfig } = require('../middlewares/multerConfig')
 
 const uploadProfilePhoto = multerConfig('profilePhoto_img')
 
+/** 라우터선언 */
 const myPageRouter = Router()
 
 /** 메인 페이지 */
@@ -40,15 +43,34 @@ myPageRouter.get('/myphoto', isLoggedIn, async (req, res) => {})
 // eslint-disable-next-line no-unused-vars
 myPageRouter.get('/photo', isLoggedIn, async (req, res) => {})
 
-/** 스크랩 페이지 */
-myPageRouter.get('/scrap', isLoggedIn, async (req, res) => {
+/** 북마크 페이지 */
+myPageRouter.get('/bookmark', isLoggedIn, async (req, res) => {
+  const { lastPostId } = req.query
   try {
     // @ts-ignore
-    const userScrapeList = await Scrape.findOne({ user_id: req.user.id })
-    res.status(200).json({ scrapeList: userScrapeList.post_id })
+    const userId = req.user.id
+
+    // 유효하지 않은 포스트의 id인 경우
+    if (lastPostId && !mongoose.isValidObjectId(lastPostId)) {
+      throw new Error('잘못된 접근입니다.')
+    }
+    // @ts-ignore
+    if (!userId) {
+      throw new Error('권한이 없습니다.')
+    }
+    // @ts-ignore
+    const bookmarkedPostId = await Bookmark.findOne(lastPostId ? { user_id: userId, post_id: { $lt: lastPostId } } : { user_id: userId })
+      .sort({ _id: -1 })
+      .limit(20)
+    // @ts-ignore
+    if (bookmarkedPostId) {
+      const bookmarkedPosts = await Post.find({ _id: { $in: bookmarkedPostId.post_id } })
+      res.status(200).json(bookmarkedPosts)
+    } else {
+      res.status(200).json([])
+    }
   } catch (err) {
     // @ts-ignore
-
     res.status(400).json({ message: err.message })
   }
 })
