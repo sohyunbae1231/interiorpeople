@@ -52,12 +52,15 @@ function App() {
           <Route path="/forgot" element={<Forgot />} />
 
           <Route path="/support" element={<Support />} />
+
+          {/* 마이페이지 관련 */}
           <Route path="/mypage" element={<Mypage />} />
           <Route path="/mypage/profile" element={<Profile />} />
           <Route path="/mypage/myphoto" element={<Myphoto />} />
           <Route path="/mypage/scrap" element={<Scrap />} />
           <Route path="/mypage/history" element={<History />} />
 
+          {/* 인테리어 추천 페이지 관련 */}
           <Route path="/interior/upload" element={<Upload />} />
           <Route path="/interior/selectarea" element={<Selectarea />} />
           <Route path="/interior/selectstyle" element={<Selectstyle />} />

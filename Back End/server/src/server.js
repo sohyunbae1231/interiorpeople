@@ -20,7 +20,6 @@ const connect = require('./schemas')
 const passportConfig = require('./passport')
 
 /** 라우터 */
-const { indexRouter } = require('./routes/indexRouter') // 메인 페이지 라우터
 const { authRouter } = require('./routes/authRouter') // 유저 정보 관련 라우터
 const { communityRouter } = require('./routes/communityRouter') // 커뮤니티 기능 관련 라우터
 const { supportRouter } = require('./routes/supportRouter') // 서포트 라우터
@@ -96,9 +95,6 @@ app.use('/uploads', express.static('uploads'))
 app.get('/favicon.ico', (req, res) => res.status(204).end())
 app.get('/logo192.png', (req, res) => res.status(204).end())
 
-// *  메인 페이지 라우터
-app.use('/', indexRouter)
-
 // * 로그인, 로그아웃, 회원가입, 비밀번호 찾기 라우터
 app.use('/account', authRouter)
 
@@ -106,7 +102,7 @@ app.use('/account', authRouter)
 app.use('/server/support', supportRouter)
 
 // * 마이 페이지 라우터
-app.use('/mypage', myPageRouter)
+app.use('/server/mypage', myPageRouter)
 
 // * 커뮤니티 라우터
 app.use('/server/community', communityRouter)
