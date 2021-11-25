@@ -1,6 +1,6 @@
 import React, { useState, useContext } from "react";
 import axios from "axios";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Cookies from "universal-cookie";
 
 /** 유저 인증 관련 컨텍스트 */
@@ -18,7 +18,7 @@ function Login() {
     e.preventDefault();
     try {
       await axios.post(
-        "/account/login",
+        "/api/account/login",
         {
           id: id,
           password: password,
@@ -67,8 +67,7 @@ function Login() {
           <button type="submit">로그인</button>
         </div>
       </form>
-      <div class="login_etc">
-      </div>
+      <div class="login_etc"></div>
       <div class="sns_etc">SNS계정으로 간편 로그인/회원가입</div>
       <div class="login_sns">
         <li>

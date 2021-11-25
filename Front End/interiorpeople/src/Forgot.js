@@ -11,7 +11,7 @@ function Login() {
     e.preventDefault();
     try {
       await axios
-        .post("/account/forgot", {
+        .post("/api/account/forgot", {
           id: id,
         })
         .then((result) => {

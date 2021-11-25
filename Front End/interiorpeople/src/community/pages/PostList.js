@@ -9,7 +9,7 @@ import "./PostList.css";
 const PostList = () => {
   // const [user] = useContext(AuthContext);
   const [postlist, setPostlist] = useState([]);
-  const [postUrl, setPostUrl] = useState("/server/community/post-list");
+  const [postUrl, setPostUrl] = useState("/api/community/post-list");
   const [postLoading, setPostLoading] = useState(false);
   const [postError, setPostError] = useState(false);
   const pastPostUrlRef = useRef();
@@ -44,7 +44,7 @@ const PostList = () => {
       return;
     }
     const lastPostId = postlist[postlist.length - 1]._id;
-    setPostUrl(`/server/community/post-list?lastPostId=${lastPostId}`);
+    setPostUrl(`/api/community/post-list?lastPostId=${lastPostId}`);
   }, [postlist, postLoading, setPostUrl]);
 
   //무한 스크롤 해당 엘리먼트 추적
@@ -79,7 +79,14 @@ const PostList = () => {
 
   return (
     <div>
-      <h3 style={{ display: "inline-block", marginTop: 20, marginBottom: 20, marginLeft: 10 }}>
+      <h3
+        style={{
+          display: "inline-block",
+          marginTop: 20,
+          marginBottom: 20,
+          marginLeft: 10,
+        }}
+      >
         Post List
       </h3>
       <div>

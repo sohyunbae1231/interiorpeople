@@ -33,7 +33,7 @@ function Signup() {
         throw new Error();
       }
       // TODO: 추후에 로그인 관련 여기까지
-      await axios.post("/account/register", { id: id, password: password });
+      await axios.post("/api/account/register", { id: id, password: password });
       navigate("/");
       alert("회원가입이 완료되었습니다.");
     } catch (err) {

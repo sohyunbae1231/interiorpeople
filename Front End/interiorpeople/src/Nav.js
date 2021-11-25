@@ -13,7 +13,7 @@ function Nav() {
   const logoutHandler = async () => {
     try {
       // 두번째 인자는 req.body이고 세번째 인자는 설정임
-      await axios.get("/account/logout");
+      await axios.get("/api/account/logout");
       setUser();
       cookies.remove("loginData");
       // alert("로그아웃되었습니다.");
@@ -26,9 +26,7 @@ function Nav() {
 
   return (
     <div>
-      <div class="home">
-        Interior People
-      </div>
+      <div class="home">Interior People</div>
       <div class="btn_group" style={{ paddingBottom: "20px" }}>
         {/* 로그인이 되어있으면 로그아웃만 보임 */}
         {/* 로그인이 되어 있지 않으면 로그인,회원가입이 보임 */}
@@ -41,16 +39,20 @@ function Nav() {
           </button>
         ) : (
           <>
-          <Link to="./signup">
-              <button class="btn2" style={{ float: "right" }}>회원가입</button>
+            <Link to="./signup">
+              <button class="btn2" style={{ float: "right" }}>
+                회원가입
+              </button>
             </Link>
             <Link to="./login">
-              <button class="btn1" style={{ float: "right" }}>로그인{user}</button>
+              <button class="btn1" style={{ float: "right" }}>
+                로그인{user}
+              </button>
             </Link>
           </>
         )}
       </div>
-      <ul style={{ fontSize: " 14px"}}>
+      <ul style={{ fontSize: " 14px" }}>
         <li>
           <Link to="/">홈</Link>
         </li>

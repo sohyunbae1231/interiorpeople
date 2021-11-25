@@ -8,7 +8,7 @@ import { Link } from "react-router-dom";
 
 const Bookmark = () => {
   const [myBookmarks, setMyBookmarks] = useState([]);
-  const [bookmarkUrl, setBookmarkUrl] = useState("/server/mypage/bookmark");
+  const [bookmarkUrl, setBookmarkUrl] = useState("/api/mypage/bookmark");
   const [imageLoading, setImageLoading] = useState(false);
   const [imageError, setImageError] = useState(false);
   const pastBookmarkUrlRef = useRef();
@@ -41,7 +41,7 @@ const Bookmark = () => {
       return;
     }
     const lastPostId = myBookmarks[myBookmarks.length - 1]._id;
-    setBookmarkUrl(`/server/mypage/bookmark?lastPostId=${lastPostId}`);
+    setBookmarkUrl(`/api/mypage/bookmark?lastPostId=${lastPostId}`);
   }, [myBookmarks, imageLoading, setBookmarkUrl]);
 
   //무한 스크롤 해당 엘리먼트 추적
