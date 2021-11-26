@@ -1,11 +1,10 @@
 /* 마이페이지 폰트 */
-@import url('https://fonts.googleapis.com/css2?family=Gowun+Dodum&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR&family=Gowun+Dodum&display=swap');
 
 .mypage-font {
     left: 0;
     text-align: center;
     height: 14px;
-    font-weight: 400;
     font-size: 14px;
     font-family: 'Gowun Dodum', sans-serif;
     /* 텍스트 드래그 못하게 */
@@ -14,6 +13,14 @@
     -khtml-user-select: none;
     -webkit-user-select: none;
     user-select: none;
+}
+
+.mypage-title-font {
+    left: 0;
+    height: 13px;
+    font-size: 13px;
+    font-weight: 400;
+    font-family: 'Noto Sans KR', sans-serif;
 }
 
 .a {
@@ -29,4 +36,21 @@
     -khtml-user-select: none;
     -webkit-user-select: none;
     user-select: none;
+}
+
+.icon-wrapper {
+    width: 80%;
+    margin: 0 auto;
+}
+
+.icon {
+    width: 70%;
+    height: 70%;
+    line-height: 30px;
+    font-family: 'Gowun Dodum', sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    text-align: center;
+    float: left;
+    margin: 0 10px;
 }

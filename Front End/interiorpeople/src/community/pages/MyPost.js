@@ -76,17 +76,23 @@ const MyPost = () => {
       >
         <img alt="" src={`/uploads/${post.s3_photo_img_url[0]}`} />
       </Link>
-      <h4>{post.title}</h4>
+      <div class="mypage-title-font">{post.title}</div>
     </div>
   ));
 
   return (
     <div>
-      <h3 style={{ display: "inline-block", marginRight: 10 }}>
-        나의 포스트 리스트
+      <h3 class="title"
+        style={{
+          display: "inline-block",
+          marginTop: 10,
+          marginBottom: 10,
+          marginLeft: 20,
+        }}
+      >나의 글
       </h3>
       <div>
-        <div class="myimage-list-container">{imgList}</div>
+        <div class="image-list-container">{imgList}</div>
       </div>
       {imageError && <div>Error...</div>}
       {imageLoading && <div>loading...</div>}

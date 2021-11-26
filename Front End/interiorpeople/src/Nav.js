@@ -31,9 +31,9 @@ function Nav() {
         {/* 로그인이 되어있으면 로그아웃만 보임 */}
         {/* 로그인이 되어 있지 않으면 로그인,회원가입이 보임 */}
         {user ? (
-          <button
+          <button class="btn_logout"
             onClick={logoutHandler}
-            style={{ float: "right", cursor: "pointer" }}
+            style={{ float: "right" }}
           >
             로그아웃
           </button>

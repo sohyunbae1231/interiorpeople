@@ -1,3 +1,10 @@
+@font-face {
+  font-family: 'Jal_Haru';
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_20-10-21@1.0/Jal_Haru.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
 .image-list-container {
   display: flex;
   flex-wrap: wrap;
@@ -29,4 +36,8 @@
   box-shadow: 4px 4px 4px grey;
   opacity: 0.7;
   cursor: pointer;
+}
+
+.mypost-title {
+  font-family: 'Jal_Haru';
 }

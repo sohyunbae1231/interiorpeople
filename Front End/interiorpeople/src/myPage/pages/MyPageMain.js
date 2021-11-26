@@ -35,7 +35,7 @@ const MyPageMain = () => {
                 height: "90px",
                 left: "0",
                 marginLeft: "20%",
-                marginTop: "30px",
+                marginTop: "40px",
                 float: "left",
               }}
             />
@@ -48,7 +48,7 @@ const MyPageMain = () => {
                 height: "90px",
                 left: "0",
                 marginLeft: "20%",
-                marginTop: "30px",
+                marginTop: "40px",
                 float: "left",
               }}
             />
@@ -56,7 +56,7 @@ const MyPageMain = () => {
 
           <div
             class="explanation-group"
-            style={{ marginTop: "40px", display: "inline-block" }}
+            style={{ marginTop: "50px", display: "inline-block" }}
           >
             <div style={{ marginLeft: "35%" }}>{userName}</div>
             <div style={{ marginLeft: "35%" }}>{userId}</div>
@@ -74,38 +74,40 @@ const MyPageMain = () => {
               <Link to="/mypage/profile">프로필 편집</Link>
             </button>
           </div>
-          <ul style={{ width: "90%", margin: "10px auto", marginTop: "60px" }}>
-            <li style={{ float: "left", width: "30%" }}>
-              <Link to="/mypage/myphoto">
-                <img
-                  alt=""
-                  src={require("../../img/gallery.png").default}
-                  style={{ width: "50%", display: "block" }}
-                />
-                나의 사진
-              </Link>
-            </li>
-            <li style={{ float: "left", width: "30%" }}>
-              <Link to="/mypage/bookmark">
-                <img
-                  alt=""
-                  src={require("../../img/bookmark.png").default}
-                  style={{ width: "68%", display: "block" }}
-                />
-                북마크
-              </Link>
-            </li>
-            <li style={{ float: "left", width: "30%" }}>
-              <Link to="/mypage/history">
-                <img
-                  alt=""
-                  src={require("../../img/records.png").default}
-                  style={{ width: "50%", display: "block" }}
-                />
-                추천 기록
-              </Link>
-            </li>
-          </ul>
+          <div style={{marginTop: "70px"}}>
+            <ul class="icon-wrapper">
+              <li class="icon">
+                <Link to="/mypage/myphoto">
+                  <img
+                    alt=""
+                    src={require("../../img/gallery.png").default}
+                    style={{ marginLeft: "20%", width: "55%", display: "block" }}
+                  />
+                  나의 사진
+                </Link>
+              </li>
+              <li class="icon">
+                <Link to="/mypage/bookmark">
+                  <img
+                    alt=""
+                    src={require("../../img/bookmark.png").default}
+                    style={{ marginLeft: "20%", width: "60%", display: "block" }}
+                  />
+                  북마크
+                </Link>
+              </li>
+              <li class="icon">
+                <Link to="/mypage/history">
+                  <img
+                    alt=""
+                    src={require("../../img/records.png").default}
+                    style={{ marginLeft: "20%", width: "53%", display: "block" }}
+                  />
+                  추천 기록
+                </Link>
+              </li>
+            </ul>
+          </div>
         </div>
       ) : (
         <></>
