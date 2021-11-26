@@ -378,7 +378,7 @@ communityRouter.get('/post/:postId/comment-list', ifIsLoggedIn, async (req, res)
       lastCommentId ? { post_id: postId, _id: { $lt: lastCommentId } } : { post_id: postId }
     )
       .sort({ _id: -1 })
-      .limit(10)
+      .limit(5)
     res.status(200).json(comments)
   } catch (err) {
     // @ts-ignore
@@ -419,7 +419,7 @@ communityRouter.post('/post/:postId/write-comment', isLoggedIn, async (req, res)
 })
 
 /** 댓글 삭제 */
-communityRouter.delete('/post/postId/:delete-comment', ifIsLoggedIn, async (req, res) => {
+communityRouter.delete('/post/:postId/delete-comment', isLoggedIn, async (req, res) => {
   // @ts-ignore
   const userId = req.user.id
   const { parentCommentId, commentId } = req.body

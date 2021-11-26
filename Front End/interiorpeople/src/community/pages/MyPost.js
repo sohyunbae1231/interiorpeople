@@ -17,6 +17,7 @@ const MyPost = () => {
   const pastPostUrlRef = useRef();
   const elementRef = useRef(null); // 무한 스크롤 적용에 필요
 
+  // 스크롤링을 위함
   useEffect(() => {
     if (pastPostUrlRef.current === postUrl) {
       return;
