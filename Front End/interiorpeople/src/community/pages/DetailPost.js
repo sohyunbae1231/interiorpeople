@@ -1,4 +1,10 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, {
+  useContext,
+  useEffect,
+  useState,
+  useRef,
+  useCallback,
+} from "react";
 import { useParams } from "react-router";
 
 import axios from "axios";
@@ -16,8 +22,15 @@ const DetailPost = () => {
   const [hasFollowed, setHasFollowed] = useState(null);
   const [error, setError] = useState(false);
   const [post, setPost] = useState();
-  const [comments, setComments] = useState();
+
+  /** 댓글 관련 */
+  const [commnetUrl, setCommentUrl] = useState();
+  const [comments, setComments] = useState([]);
   const [writedComment, setWritedComment] = useState();
+  const pastCommentUrlRef = useRef();
+  const elementRef = useRef(null);
+  // const [imageLoading, setImageLoading] = useState(false);
+  // const [imageError, setImageError] = useState(false);
 
   useEffect(() => {
     try {
@@ -49,9 +62,8 @@ const DetailPost = () => {
             setHasFollowed(false);
           }
         }
-        // 댓글
-        setComments(result.data.comments);
-        console.log("댓글:", result.data);
+        // 댓글 최초 불러오기
+        setCommentUrl(`/api/community/post/${postId}/comment-list`);
       });
     } catch (err) {
       alert("오류가 발생했습니다. 메인화면으로 돌아갑니다.");
@@ -60,14 +72,62 @@ const DetailPost = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // ! 댓글 스크롤링 파트 시작
+  useEffect(() => {
+    if (pastCommentUrlRef.current === commnetUrl) {
+      return;
+    }
+    // setImageLoading(true);
+    axios
+      .get(commnetUrl)
+      .then((result) => {
+        setComments((prevData) => [...prevData, ...result.data]);
+      })
+      .catch((err) => {
+        console.error(err);
+        // setImageError(err);
+      })
+      .finally(() => {
+        // setImageLoading(false);
+        pastCommentUrlRef.current = commnetUrl;
+      });
+  }, [commnetUrl]);
+
+  const loaderMoreImages = useCallback(() => {
+    if (comments.length === 0) {
+      return;
+    }
+    const lastCommentId = comments[comments.length - 1]._id;
+    setCommentUrl(
+      `/api/community/post/${postId}/comment-list?lastCommentId=${lastCommentId}`
+    );
+  }, [comments, postId]);
+
+  // * Track the element in infinite scroll
+  useEffect(() => {
+    if (!elementRef.current) {
+      return;
+    }
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        loaderMoreImages();
+      }
+    });
+    observer.observe(elementRef.current);
+    return () => {
+      observer.disconnect();
+    };
+  }, [loaderMoreImages]);
+  // ! 댓글 스크롤링 파트 끝
+
   if (error) {
     return <h3>Error...</h3>;
   } else if (!post) {
     return <h3>Loading...</h3>;
   }
 
-  /** 좋아요 핸들러 */
-  const likeHandler = async () => {
+  /** 좋아요 */
+  const likeSubmit = async () => {
     try {
       await axios.post(`/api/community/post/${postId}/like`);
       if (hasLiked === false) {
@@ -79,32 +139,32 @@ const DetailPost = () => {
       }
       setHasLiked(!hasLiked);
     } catch (err) {
-      alert("좋아요 핸들러 오류");
+      alert("좋아요 오류");
     }
   };
 
-  /** 북마크 핸들러 */
-  const bookmarkHandler = async () => {
+  /** 북마크 */
+  const bookmarkSubmit = async () => {
     try {
       await axios.post(`/api/community/post/${postId}/bookmark`);
       setHasBookmarked(!hasBookmarked);
     } catch (err) {
-      alert("북마크 핸들러 오류");
+      alert("북마크 오류");
     }
   };
 
-  /** 팔로우 핸들러 */
-  const followHandler = async () => {
+  /** 팔로우 */
+  const followSubmit = async () => {
     try {
       await axios.post(`/api/community/post/${postId}/follow`);
       setHasFollowed(!hasFollowed);
     } catch (err) {
-      alert("팔로우 핸들러 오류");
+      alert("팔로우 오류");
     }
   };
 
-  /** 포스트 삭제 핸들러 */
-  const postDeleteHandler = async () => {
+  /** 포스트 삭제 */
+  const postDeleteSubmit = async () => {
     try {
       //팝업창이 뜨도록 함 취소를 누르면 false이고 확인은 true임
       if (!window.confirm("삭제하시겠습니까?")) {
@@ -115,17 +175,58 @@ const DetailPost = () => {
     } catch (err) {}
   };
 
-  /** 댓글 생성 핸들러 */
-  const commentCreateHandler = async () => {};
+  /** 댓글 생성 */
+  const commentCreateSubmit = async () => {
+    try {
+      await axios.post(`/api/community/post/${postId}/write-comment`, {
+        parentCommentId: "",
+        content: writedComment,
+      });
+      setWritedComment();
+    } catch (err) {
+      alert("댓글 생성 오류");
+    }
+  };
 
-  /** 댓글 삭제 핸들러 */
-  const commentDeleteHandler = async () => {};
+  /** 댓글 삭제 */
+  const commentDeleteSubmit = async (commentId) => {
+    console.log(commentId);
+    try {
+      await axios.delete(`/api/community/post/${postId}/delete-comment`, {
+        data: {
+          parentCommentId: "",
+          commentId: commentId,
+        },
+      });
+      alert("댓글이 삭제되었습니다.");
+      window.location.reload();
+    } catch (err) {
+      alert("댓글 삭제 오류");
+    }
+  };
 
   /** 모든 댓글을 보여줌 */
-  const allCommnets = () => {
-    // const comments.map((comment)=>{
-    // })
-  };
+  const allCommnets = comments.map((comment, index) => (
+    <ul>
+      {/* <li>{comment._id}</li> */}
+      <li>유저 : {comment.user_id}</li>
+      <li>내용 : {comment.content}</li>
+      <li>작성일 : {comment.createdAt}</li>
+      {user && comment.user_id === user ? (
+        <li>
+          <button
+            onClick={() => {
+              commentDeleteSubmit(comment._id);
+            }}
+          >
+            댓글 삭제
+          </button>
+        </li>
+      ) : (
+        <></>
+      )}
+    </ul>
+  ));
 
   /** 포스트의 모든 이미지를 보여줌 */
   const allImagesInPost = post.s3_photo_img_url.map((imageUrl, index) => (
@@ -151,29 +252,52 @@ const DetailPost = () => {
       ) : (
         <div>
           <div>
-            <button style={{ float: "right" }} onClick={followHandler}>
+            <button style={{ float: "right" }} onClick={followSubmit}>
               {hasFollowed !== null && (hasFollowed ? "팔로잉 취소" : "팔로우")}
             </button>
-            <button style={{ float: "right" }} onClick={likeHandler}>
+            <button style={{ float: "right" }} onClick={likeSubmit}>
               {hasLiked !== null && (hasLiked ? "좋아요 취소" : "좋아요")}
             </button>
-            <button style={{ float: "right" }} onClick={bookmarkHandler}>
+            <button style={{ float: "right" }} onClick={bookmarkSubmit}>
               {hasBookmarked !== null &&
                 (hasBookmarked ? "북마크 취소" : "북마크")}
             </button>
           </div>
-          <button onClick={commentCreateHandler}>댓글 달기</button>
         </div>
       )}
       {user && post.writer_id === user && (
         <button
           style={{ float: " right", marginLeft: 10 }}
-          onClick={postDeleteHandler}
+          onClick={postDeleteSubmit}
         >
           삭제
         </button>
       )}
-      <div></div>
+      {user ? (
+        <form onSubmit={commentCreateSubmit}>
+          <div style={{ margin: "auto", width: "85%" }}>
+            <div>
+              <label>댓글 내용</label>
+              <input
+                style={{ width: "90%" }}
+                value={writedComment}
+                onChange={(e) => {
+                  setWritedComment(e.target.value);
+                }}
+              />
+            </div>
+            <button type="submit">댓글 달기</button>
+          </div>
+        </form>
+      ) : (
+        <></>
+      )}
+      <div>
+        <h3 style={{ display: "inline-block", marginRight: 10 }}>댓글</h3>
+        <div>
+          <div>{allCommnets}</div>
+        </div>
+      </div>
     </div>
   );
 };

@@ -4,6 +4,7 @@
 const { Router } = require('express')
 const bcrypt = require('bcrypt')
 const mongoose = require('mongoose')
+const fs = require('fs')
 
 /** 데이터베이스 관련 */
 const User = require('../schemas/User')
@@ -14,7 +15,7 @@ const Bookmark = require('../schemas/Bookmark')
 const { isLoggedIn } = require('../middlewares/authentication')
 
 /** multer 및 AWS 관련 */
-const { multerConfig } = require('../middlewares/multerConfig')
+const { s3, multerConfig } = require('../middlewares/multerConfig')
 
 const uploadProfilePhoto = multerConfig('profilePhoto_img')
 
@@ -83,26 +84,53 @@ myPageRouter.get('/bookmark', isLoggedIn, async (req, res) => {
 myPageRouter.patch('/profile', isLoggedIn, uploadProfilePhoto.single('image'), async (req, res) => {
   // @ts-ignore
   const currentUser = await User.findOne({ id: req.user.id })
-  // 비밀번호 변경
-  if (req.body.password) {
-    const hashedPassword = await bcrypt.hash(req.body.password, 11)
-    currentUser.hashedPassword = hashedPassword
-  }
-  // 이름 변경
-  if (req.body.name) {
-    currentUser.name = req.body.name
-  }
-  // 프로필 사진 변경
-  // TODO : 프로필 사진 없애고 로컬일 경우 삭제.
-  if (req.file) {
-    if (process.env.NODE_ENV === 'dev') {
-      // @ts-ignore
-      req.file.location = req.file.filename
-    }
-    // @ts-ignore
-    currentUser.s3_profilephoto_img_url = req.file.location
-  }
   try {
+    // 비밀번호 변경
+    if (req.body.password) {
+      const hashedPassword = await bcrypt.hash(req.body.password, 11)
+      currentUser.hashedPassword = hashedPassword
+    }
+
+    // 이름 변경
+    if (req.body.name) {
+      currentUser.name = req.body.name
+    }
+
+    // 프로필 사진 변경
+    if (req.file) {
+      const preProfilePhotoUrl = currentUser.s3_profilephoto_img_url
+      if (preProfilePhotoUrl) {
+        if (process.env.NODE_ENV === 'dev') {
+          fs.unlink(`./uploads/${preProfilePhotoUrl}`, (err) => {
+            if (err) {
+              throw new Error('로컬 파일 삭제 불가')
+            }
+          })
+        } else if (process.env.NODE_NEV === 'production') {
+          const key = `${preProfilePhotoUrl.split('/').slice(3, 4)}/${preProfilePhotoUrl
+            .split('/')
+            .slice(4)}`
+          s3.deleteObject(
+            {
+              Bucket: 'interiorpeople',
+              Key: key,
+            },
+            (err) => {
+              if (err) {
+                throw new Error('s3 파일 삭제 실패')
+              }
+            }
+          )
+        }
+      }
+      if (process.env.NODE_ENV === 'dev') {
+        // @ts-ignore
+        req.file.location = req.file.filename
+      }
+      // @ts-ignore
+      currentUser.s3_profilephoto_img_url = req.file.location
+    }
+
     await currentUser.save()
     res.status(200).json({ succuss: true })
   } catch (err) {

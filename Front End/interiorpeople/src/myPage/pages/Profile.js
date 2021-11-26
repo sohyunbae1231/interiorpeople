@@ -101,6 +101,7 @@ function Profile() {
       </div>
 
       <div className="imageSelect">
+        <h4>프로필사진</h4>
         <form onSubmit={profilePhotoChangeSubmit}>
           {/* type="file"로 할 경우 모든 파일이 전부 가능. 따라서 accept를 사용 */}
           <input

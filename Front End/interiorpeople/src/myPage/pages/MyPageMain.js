@@ -9,7 +9,7 @@ import "../../fonts/MyPageMain.css";
 const MyPageMain = () => {
   const [userName, setUserName] = useState("");
   const [userId, setUserId] = useState("");
-  const [userProfilePhoto, setUserProfilePhoto] = useState(null);
+  const [userProfilePhoto, setUserProfilePhoto] = useState("");
 
   useEffect(() => {
     try {
@@ -21,89 +21,95 @@ const MyPageMain = () => {
     } catch (err) {
       alert("오류가 발생했습니다.");
     }
-  });
+  }, []);
 
   return (
     <div>
-      {userProfilePhoto ? (
-        <img
-          alt=""
-          src={require("../../img/profile.png").default}
-          style={{
-            height: "90px",
-            left: "0",
-            marginLeft: "20%",
-            marginTop: "30px",
-            float: "left",
-          }}
-        />
-      ) : (
-        // 나의 프로필 사진 불러오기
-        <img
-          alt=""
-          src={require("../../img/profile.png").default}
-          style={{
-            height: "90px",
-            left: "0",
-            marginLeft: "20%",
-            marginTop: "30px",
-            float: "left",
-          }}
-        />
-      )}
+      {userName || userId ? (
+        <div>
+          {userProfilePhoto !== "" ? (
+            <img
+              alt=""
+              src={`/uploads/${userProfilePhoto}`}
+              style={{
+                height: "90px",
+                left: "0",
+                marginLeft: "20%",
+                marginTop: "30px",
+                float: "left",
+              }}
+            />
+          ) : (
+            // 나의 프로필 사진 불러오기
+            <img
+              alt=""
+              src={require("../../img/profile.png").default}
+              style={{
+                height: "90px",
+                left: "0",
+                marginLeft: "20%",
+                marginTop: "30px",
+                float: "left",
+              }}
+            />
+          )}
 
-      <div
-        class="explanation-group"
-        style={{ marginTop: "40px", display: "inline-block" }}
-      >
-        <div style={{ marginLeft: "35%" }}>{userName}</div>
-        <div style={{ marginLeft: "35%" }}>{userId}</div>
-        <button
-          class="mypage-button-font"
-          style={{
-            background: "#203864",
-            color: "white",
-            marginLeft: "35%",
-            marginTop: "10px",
-            width: "120%",
-            borderRadius: "5px",
-          }}
-        >
-          <Link to="/mypage/profile">프로필 편집</Link>
-        </button>
-      </div>
-      <ul style={{ width: "90%", margin: "10px auto", marginTop: "60px" }}>
-        <li style={{ float: "left", width: "30%" }}>
-          <Link to="/mypage/myphoto">
-            <img
-              alt=""
-              src={require("../../img/gallery.png").default}
-              style={{ width: "50%", display: "block" }}
-            />
-            나의 사진
-          </Link>
-        </li>
-        <li style={{ float: "left", width: "30%" }}>
-          <Link to="/mypage/bookmark">
-            <img
-              alt=""
-              src={require("../../img/bookmark.png").default}
-              style={{ width: "68%", display: "block" }}
-            />
-            북마크
-          </Link>
-        </li>
-        <li style={{ float: "left", width: "30%" }}>
-          <Link to="/mypage/history">
-            <img
-              alt=""
-              src={require("../../img/records.png").default}
-              style={{ width: "50%", display: "block" }}
-            />
-            추천 기록
-          </Link>
-        </li>
-      </ul>
+          <div
+            class="explanation-group"
+            style={{ marginTop: "40px", display: "inline-block" }}
+          >
+            <div style={{ marginLeft: "35%" }}>{userName}</div>
+            <div style={{ marginLeft: "35%" }}>{userId}</div>
+            <button
+              class="mypage-button-font"
+              style={{
+                background: "#203864",
+                color: "white",
+                marginLeft: "35%",
+                marginTop: "10px",
+                width: "120%",
+                borderRadius: "5px",
+              }}
+            >
+              <Link to="/mypage/profile">프로필 편집</Link>
+            </button>
+          </div>
+          <ul style={{ width: "90%", margin: "10px auto", marginTop: "60px" }}>
+            <li style={{ float: "left", width: "30%" }}>
+              <Link to="/mypage/myphoto">
+                <img
+                  alt=""
+                  src={require("../../img/gallery.png").default}
+                  style={{ width: "50%", display: "block" }}
+                />
+                나의 사진
+              </Link>
+            </li>
+            <li style={{ float: "left", width: "30%" }}>
+              <Link to="/mypage/bookmark">
+                <img
+                  alt=""
+                  src={require("../../img/bookmark.png").default}
+                  style={{ width: "68%", display: "block" }}
+                />
+                북마크
+              </Link>
+            </li>
+            <li style={{ float: "left", width: "30%" }}>
+              <Link to="/mypage/history">
+                <img
+                  alt=""
+                  src={require("../../img/records.png").default}
+                  style={{ width: "50%", display: "block" }}
+                />
+                추천 기록
+              </Link>
+            </li>
+          </ul>
+        </div>
+      ) : (
+        <></>
+      )}
     </div>
   );
 };

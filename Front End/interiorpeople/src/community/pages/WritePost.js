@@ -94,7 +94,6 @@ const WritePost = () => {
 
   return (
     <div>
-      {/* <SimpleSlider /> */}
       <form onSubmit={onSubmit}>
         <div style={{ display: "flex", flexWrap: "wrap", marginTop: "30px" }}>
           {/* 이미지 미리보기 */}
