@@ -1,18 +1,12 @@
 const path = require('path')
 const multer = require('multer')
-const AWS = require('aws-sdk')
 const multers3 = require('multer-s3')
 const { v1: uuid } = require('uuid')
 const mime = require('mime-types') // 파일의 타입을 처리
 const fs = require('fs')
 
-/** 이미지 업로드 관련 */
-/** AWS 설정 */
-const s3 = new AWS.S3({
-  accessKeyId: process.env.S3_ACCESS_KEY_ID,
-  secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
-  region: 'ap-northeast-2',
-})
+/** AWS 관련 */
+const { s3 } = require('../aws')
 
 function multerConfig(imageFolderName) {
   let multerVariable = multer()
@@ -70,4 +64,4 @@ function multerConfig(imageFolderName) {
   }
   return multerVariable
 }
-module.exports = { s3, multerConfig }
+module.exports = { multerConfig }
