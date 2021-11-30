@@ -226,7 +226,7 @@ def run():
         masks = masks[:num_dets_to_consider, :, :, None]
         for i in range(num_dets_to_consider):
             msk = masks[i, :, :, None]
-            mask = msk.view(1, 512, 512, 1)
+            mask = msk.view(1, masks.shape[1],masks.shape[2], masks.shape[3]) # (1, 512, 512, 1)
             img_gpu_masked = img_gpu_copy * (mask.sum(dim=0) >= 1).float().expand(-1, -1, 3)
             img_numpy = img_gpu_masked.byte().cpu().numpy()
             img_background = img.byte().cpu().numpy() - (img_gpu_masked * 255).byte().cpu().numpy()
@@ -1077,62 +1077,62 @@ def run():
 
 
 
-    parse_args()
+  parse_args()
 
-    if args.config is not None:
-        set_cfg(args.config)
+  if args.config is not None:
+      set_cfg(args.config)
 
-    if args.trained_model == 'interrupt':
-        args.trained_model = SavePath.get_interrupt('weights/')
-    elif args.trained_model == 'latest':
-        args.trained_model = SavePath.get_latest('weights/', cfg.name)
+  if args.trained_model == 'interrupt':
+      args.trained_model = SavePath.get_interrupt('weights/')
+  elif args.trained_model == 'latest':
+      args.trained_model = SavePath.get_latest('weights/', cfg.name)
 
-    if args.config is None:
-        model_path = SavePath.from_str(args.trained_model)
-        # TODO: Bad practice? Probably want to do a name lookup instead.
-        args.config = model_path.model_name + '_config'
-        print('Config not specified. Parsed %s from the file name.\n' % args.config)
-        set_cfg(args.config)
+  if args.config is None:
+      model_path = SavePath.from_str(args.trained_model)
+      # TODO: Bad practice? Probably want to do a name lookup instead.
+      args.config = model_path.model_name + '_config'
+      print('Config not specified. Parsed %s from the file name.\n' % args.config)
+      set_cfg(args.config)
 
-    if args.detect:
-        cfg.eval_mask_branch = False
+  if args.detect:
+      cfg.eval_mask_branch = False
 
-    if args.dataset is not None:
-        set_dataset(args.dataset)
+  if args.dataset is not None:
+      set_dataset(args.dataset)
 
-    with torch.no_grad():
-        if not os.path.exists('results'):
-            os.makedirs('results')
+  with torch.no_grad():
+      if not os.path.exists('results'):
+          os.makedirs('results')
 
-        if args.cuda:
-            cudnn.fastest = True
-            torch.set_default_tensor_type('torch.cuda.FloatTensor')
-        else:
-            torch.set_default_tensor_type('torch.FloatTensor')
+      if args.cuda:
+          cudnn.fastest = True
+          torch.set_default_tensor_type('torch.cuda.FloatTensor')
+      else:
+          torch.set_default_tensor_type('torch.FloatTensor')
 
-        if args.resume and not args.display:
-            with open(args.ap_data_file, 'rb') as f:
-                ap_data = pickle.load(f)
-            calc_map(ap_data)
-            exit()
+      if args.resume and not args.display:
+          with open(args.ap_data_file, 'rb') as f:
+              ap_data = pickle.load(f)
+          calc_map(ap_data)
+          exit()
 
-        if args.image is None and args.video is None and args.images is None:
-            dataset = COCODetection(cfg.dataset.valid_images, cfg.dataset.valid_info,
+      if args.image is None and args.video is None and args.images is None:
+          dataset = COCODetection(cfg.dataset.valid_images, cfg.dataset.valid_info,
                                       transform=BaseTransform(), has_gt=cfg.dataset.has_gt)
-            prep_coco_cats()
-        else:
-            dataset = None        
+          prep_coco_cats()
+      else:
+          dataset = None        
 
-        print('Loading model...', end='')
-        net = Yolact()
-        net.load_weights(args.trained_model)
-        net.eval()
-        print(' Done.')
+      print('Loading model...', end='')
+      net = Yolact()
+      net.load_weights(args.trained_model)
+      net.eval()
+      print(' Done.')
 
-        if args.cuda:
-            net = net.cuda()
+      if args.cuda:
+          net = net.cuda()
 
-        evaluate(net, dataset)
+      evaluate(net, dataset)
   print('bbox_label_list : ',bbox_label_list)
   return bbox_label_list
 
