@@ -1,15 +1,20 @@
 import React, { Component, useState, useEffect } from 'react';
 import { confirmAlert } from 'react-confirm-alert';
 
+import "./StyleEdit.css";
+
 class Popup extends Component {
   createPopup = () => {
     const { popup, onChange, onCreate, onUpdate } = this.props
     confirmAlert({
         customUI: ({ onClose }) => {
           return (
-            <div className='custom-ui'>
-            <h1>{popup.type}</h1>
-              <div>
+            <div className='popup-ui'>
+            <button class="close close1" onClick={() => {
+                    onClose()
+                  }}
+                ></button>
+              <div class="popup-text">
                 <h3>가구 카테고리</h3>
                 <input
                   type="checkbox"
@@ -26,11 +31,7 @@ class Popup extends Component {
                   onChange={onChange}
                 />
               </div>
-              <button onClick={() => {
-                  onClose()
-                }}
-              >close</button>
-              <button onClick={() => {
+              <button style={{ background: "#203864", color: "white", marginLeft:"70%", marginTop:"25px", width:"22%", borderRadius: "5px"}} onClick={() => {
                 if (popup.state === 'update') onUpdate()
                 else onCreate()
                 onClose()

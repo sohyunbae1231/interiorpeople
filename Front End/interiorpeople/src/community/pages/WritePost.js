@@ -13,8 +13,8 @@ const WritePost = () => {
 
   const [files, setFiles] = useState(null);
   const [previews, setPreviews] = useState([]);
-  const [title, setTitle] = useState("제목없음");
-  const [content, setContent] = useState("내용없음");
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
 
   const inputRef = useRef();
 
@@ -77,7 +77,7 @@ const WritePost = () => {
     <img
       key={index}
       src={preview.imgSrc}
-      style={{ width: 200, height: 200, objectFit: "cover" }}
+      style={{ width: 300, height: 300, objectFit: "cover" }}
       alt=""
       className={`image-preview ${preview.imgSrc && "image-preview-show"}`}
     />
@@ -86,14 +86,14 @@ const WritePost = () => {
   // 이미지 이름을 하나의 스트링으로 합쳐 나열함
   const fileName =
     previews.length === 0
-      ? "인테리어 분석 결과 사진과 실제 적용 사진을 공유해보세요!"
+      ? "사진을 업로드하여\n인테리어 분석 결과 사진과\n실제 적용 사진을 공유해보세요!"
       : previews.reduce(
           (previous, current) => previous + `${current.filename},`,
           ""
         );
 
   return (
-    <div>
+    <div style={{whiteSpace: "pre-wrap"}}>
       <form onSubmit={onSubmit}>
         <div style={{ display: "flex", flexWrap: "wrap", marginTop: "30px" }}>
           {/* 이미지 미리보기 */}
@@ -116,17 +116,17 @@ const WritePost = () => {
           <div>
             <label>제목</label>
             <input
-              style={{ width: "90%" }}
+              style={{ width: "100%", height: "25px" }}
               value={title}
               onChange={(e) => {
                 setTitle(e.target.value);
               }}
             />
           </div>
-          <div>
+          <div style={{marginTop: "15px"}}>
             <label>내용</label>
             <input
-              style={{ width: "90%" }}
+              style={{ width: "100%", height: "80px" }}
               value={content}
               onChange={(e) => {
                 setContent(e.target.value);
@@ -137,7 +137,7 @@ const WritePost = () => {
           <button
             type="submit"
             style={{
-              width: "93%",
+              width: "102%",
               height: "40px",
               border: 0,
               borderRadius: "10px",
