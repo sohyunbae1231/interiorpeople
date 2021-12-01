@@ -172,19 +172,7 @@ pascal_sbd_dataset = dataset_base.copy({
     'class_names': PASCAL_CLASSES,
 })
 
-cig_indoor_dataset = dataset_base.copy({
-    'name': 'Indoor',
 
-    'train_images': './data/train/images/',
-    'valid_images': './data/train/images/',
-
-    'train_info': './data/train/trainval.json',
-    'valid_info': './data/train/trainval.json',
-
-    'class_names': ('bed', 'pillow', 'plant', 'shelf', 'mirror', 'lamp', 'carpet', 'chandelier', 'curtain', 'window', 'door', 'chair', 'frame', 'sofa', 'table', 'closet', 'vase', 'tv', 'laptop', 'doll', 'air_conditioner', 'clock', 'blanket'
-),
-    'label_map' : {0 : 1, 1 : 2, 2 : 3, 3 : 4, 4 : 5, 5 : 6, 6 : 7, 7 : 8, 8 : 9, 9 : 10, 10 : 11, 11 : 12, 12 : 13, 13 : 14, 14 : 15, 15 : 16, 16 : 17, 17 : 18, 18 : 19, 19 : 20, 20 : 21, 21 : 22, 22 : 23}
-})
 
 
 
@@ -770,23 +758,6 @@ yolact_resnet50_pascal_config = yolact_resnet50_config.copy({
     'dataset': pascal_sbd_dataset,
     'num_classes': len(pascal_sbd_dataset.class_names) + 1,
 
-    'max_iter': 120000,
-    'lr_steps': (60000, 100000),
-    
-    'backbone': yolact_resnet50_config.backbone.copy({
-        'pred_scales': [[32], [64], [128], [256], [512]],
-        'use_square_anchors': False,
-    })
-})
-
-yolact_resnet50_cig_indoor_config = yolact_resnet50_config.copy({
-    'name': 'yolact_plus_resnet50_cig_indoor', # Will default to yolact_resnet50_pascal
-    
-    # Dataset stuff
-    'dataset': cig_indoor_dataset,
-    'num_classes': len(cig_indoor_dataset.class_names) + 1,
-
-    'max_size' : 512,
     'max_iter': 120000,
     'lr_steps': (60000, 100000),
     
