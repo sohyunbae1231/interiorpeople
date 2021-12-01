@@ -63,4 +63,10 @@ imageRouter.get('/seg', async (req, res) => {
   res.status(200).json({})
 })
 
+// image segmentation
+imageRouter.post('/seg', async (req, res) => {})
+
+// local style transfer
+imageRouter.post('/seg', async (req, res) => {})
+
 module.exports = { imageRouter }
