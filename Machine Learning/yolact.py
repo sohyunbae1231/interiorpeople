@@ -21,19 +21,6 @@ from utils.functions import MovingAverage, make_net
 # See the bug report here: https://github.com/pytorch/pytorch/issues/17108
 torch.cuda.current_device()
 
-# GPU setting
-'''
-GPU_NUM = 2
-device = torch.device(f'cuda:{GPU_NUM}' if torch.cuda.is_available() else 'cpu')
-torch.cuda.set_device(device) # change allocation of current GPU
-print ('Current cuda device ', torch.cuda.current_device()) # check
-'''
-'''
-print("torch.cuda.is_available : ", torch.cuda.is_available())
-device = torch.device('cuda:2')
-'''
-print("torch.cuda.is_available : ", torch.cuda.is_available())
-
 # As of March 10, 2019, Pytorch DataParallel still doesn't support JIT Script Modules
 use_jit = torch.cuda.device_count() <= 1
 if not use_jit:
@@ -489,12 +476,7 @@ class Yolact(nn.Module):
     
     def load_weights(self, path):
         """ Loads weights from a compressed save file. """
-        # state_dict = torch.load(path)
-        print("path : ", path)
-        keys_vin = torch.load(path)
-        current_model = self.state_dict()
-        
-        state_dict={k:v if v.size()==current_model[k].size()  else  current_model[k] for k,v in zip(current_model.keys(), keys_vin.values())}       
+        state_dict = torch.load(path)
 
         # For backward compatability, remove these (the new variable is called layers)
         for key in list(state_dict.keys()):
@@ -505,7 +487,7 @@ class Yolact(nn.Module):
             if key.startswith('fpn.downsample_layers.'):
                 if cfg.fpn is not None and int(key.split('.')[2]) >= cfg.fpn.num_downsample:
                     del state_dict[key]
-        self.load_state_dict(state_dict, strict=False)
+        self.load_state_dict(state_dict)
 
     def init_weights(self, backbone_path):
         """ Initialize weights for training. """
@@ -713,7 +695,6 @@ if __name__ == '__main__':
 
     # GPU
     net = net.cuda()
-    # net = net.to(device)
     torch.set_default_tensor_type('torch.cuda.FloatTensor')
 
     x = torch.zeros((1, 3, cfg.max_size, cfg.max_size))

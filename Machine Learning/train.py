@@ -172,8 +172,7 @@ class CustomDataParallel(nn.DataParallel):
 def train():
     if not os.path.exists(args.save_folder):
         os.mkdir(args.save_folder)
-    
-    # print("Image directory : ", cfg.dataset.train_images)
+
     dataset = COCODetection(image_path=cfg.dataset.train_images,
                             info_file=cfg.dataset.train_info,
                             transform=SSDAugmentation(MEANS))
@@ -212,8 +211,6 @@ def train():
     else:
         print('Initializing weights...')
         yolact_net.init_weights(backbone_path=args.save_folder + cfg.backbone.path)
-        # yolact_net.load_weights("./weights/yolact_resnet50_54_800000.pth") # Change model name if using different backbone 
-
 
     optimizer = optim.SGD(net.parameters(), lr=args.lr, momentum=args.momentum,
                           weight_decay=args.decay)
@@ -251,7 +248,7 @@ def train():
 
     data_loader = data.DataLoader(dataset, args.batch_size,
                                   num_workers=args.num_workers,
-                                  shuffle=False, collate_fn=detection_collate,
+                                  shuffle=True, collate_fn=detection_collate,
                                   pin_memory=True)
     
     
@@ -404,11 +401,7 @@ def prepare_data(datum, devices:list=None, allocation:list=None):
         if devices is None:
             devices = ['cuda:0'] if args.cuda else ['cpu']
         if allocation is None:
-            # print('allocation is none')
-            # print('args.batch size  : ',args.batch_size)
-            # print('len(devices) : ', len(devices))
             allocation = [args.batch_size // len(devices)] * (len(devices) - 1)
-            # print('sum(allocation) : ', sum(allocation))
             allocation.append(args.batch_size - sum(allocation)) # The rest might need more/less
         
         images, (targets, masks, num_crowds) = datum
@@ -432,18 +425,8 @@ def prepare_data(datum, devices:list=None, allocation:list=None):
         cur_idx = 0
         split_images, split_targets, split_masks, split_numcrowds \
             = [[None for alloc in allocation] for _ in range(4)]
-        # print('images : ',images)
-        # print('len(images) : ', len(images))
-        # print('allocation : ', allocation)
-        # print('split_images : ', split_images)
-        # print('split_targets : ', split_targets)
-        # print('split_masks: ', split_masks)
-        # print('split_numcrowds : ', split_numcrowds)
+
         for device_idx, alloc in enumerate(allocation):
-            # print('cur_idx : ',cur_idx)
-            # print('alloc : ',alloc)
-            # print('images [0:2] : ',images[0:2])
-            # print('images[cur_idx:cur_idx+alloc] :',images[cur_idx:cur_idx+alloc+args.batch_size])
             split_images[device_idx]    = torch.stack(images[cur_idx:cur_idx+alloc], dim=0)
             split_targets[device_idx]   = targets[cur_idx:cur_idx+alloc]
             split_masks[device_idx]     = masks[cur_idx:cur_idx+alloc]
