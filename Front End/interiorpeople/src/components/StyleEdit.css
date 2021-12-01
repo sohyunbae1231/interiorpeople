@@ -1,0 +1,30 @@
+.popup-ui {
+    width : 260px;
+    height: 270px;
+    margin-left: 15%;
+    border-radius: 5px;
+    border: 1px solid #203864;
+}
+
+.popup-text {
+    margin-left: 7%;
+}
+
+.close {
+    margin-left: 80%;
+    position: relative;
+    display: inline-block;
+    *display: inline;
+    width: 50px;
+    height: 50px;
+    text-align: center;
+    border: 0;
+    outline: 0;
+    background: transparent;
+}
+
+.close1:after {
+    content: "\00d7"; 
+    font-size: 17px;
+    line-height: 17px;
+}

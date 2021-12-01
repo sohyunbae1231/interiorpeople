@@ -416,4 +416,4 @@ def run():
     local_styled_image.save(output_path)
 
     
-    
+run()

@@ -42,7 +42,7 @@ function Upload() {
         <img src={imgSrc} className={`image-preview ${imgSrc && "image-preview-show"}`} style = {{ border: "0", outline: "0", marginTop:"30px"}}/>
       </div>
       <button type="submit" style={{ background: "#203864", color: "white", marginLeft:"5%", marginTop:"30px", width:"90%", height: "45px", borderRadius: "10px"}}>업로드</button>
-      <button style={{ background: "#203864", color: "white", marginLeft:"5%", marginTop:"20px", width:"90%", height: "45px", borderRadius: "10px"}}><Link to="/interior/selectarea">다음으로</Link></button>
+      <button style={{ background: "#203864", color: "white", marginLeft:"5%", marginTop:"20px", width:"90%", height: "45px", borderRadius: "10px"}}><Link to="/interior/selectstyle">다음으로</Link></button>
     </form>
   );
 };
