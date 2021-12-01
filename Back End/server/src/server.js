@@ -24,7 +24,7 @@ const { authRouter } = require('./routes/authRouter') // 유저 정보 관련 �
 const { communityRouter } = require('./routes/communityRouter') // 커뮤니티 기능 관련 라우터
 const { supportRouter } = require('./routes/supportRouter') // 서포트 라우터
 const { myPageRouter } = require('./routes/myPageRouter') // 마이 페이지 라우터
-// const { imageRouter } = require('./routes/imageRouter') // 이미지 처리 라우터
+const { imageRouter } = require('./routes/imageRouter') // 이미지 처리 라우터
 
 const app = express()
 const { PORT, COOKIE_KEY, NODE_ENV } = process.env
@@ -106,6 +106,8 @@ app.use('/api/mypage', myPageRouter)
 
 // * 커뮤니티 라우터
 app.use('/api/community', communityRouter)
+
+app.use('/api/image', imageRouter)
 
 /** 에러 핸들링 라우터 : 페이지가 없을 경우 메인 페이지로 돌아간다. */
 app.use((err, req, res) => {

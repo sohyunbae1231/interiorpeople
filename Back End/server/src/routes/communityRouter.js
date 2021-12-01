@@ -20,7 +20,8 @@ const Comment = require('../schemas/Comment')
 const { isLoggedIn, ifIsLoggedIn } = require('../middlewares/authentication')
 
 /** multer 및 AWS 관련 */
-const { s3, multerConfig } = require('../middlewares/multerConfig')
+const { multerConfig } = require('../middlewares/multerConfig')
+const { s3 } = require('../aws')
 
 const uploadPost = multerConfig('post_img')
 

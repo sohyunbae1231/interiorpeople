@@ -15,7 +15,8 @@ const Bookmark = require('../schemas/Bookmark')
 const { isLoggedIn } = require('../middlewares/authentication')
 
 /** multer 및 AWS 관련 */
-const { s3, multerConfig } = require('../middlewares/multerConfig')
+const { multerConfig } = require('../middlewares/multerConfig')
+const { s3 } = require('../aws')
 
 const uploadProfilePhoto = multerConfig('profilePhoto_img')
 
