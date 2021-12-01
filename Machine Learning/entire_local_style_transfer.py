@@ -6,6 +6,7 @@ import os
 import argparse
 import torch
 import torch.nn as nn
+import cv2
 
 from torchvision import transforms
 from torchvision.utils import save_image
@@ -394,6 +395,13 @@ def run():
 
     save_image(output, args.output_style_path)
 
+    # check if stylized image shape is not same with fg_image
+    fg_image = Image.open(args.fg_image_path)
+    fg_image = np.array(fg_image)
+    if output.shape != fg_image.shape:
+      img = cv2.imread(args.output_style_path)
+      res = cv2.resize(img, dsize=(fg_image.shape[1], fg_image.shape[0]), interpolation=cv2.INTER_CUBIC)
+      cv2.imwrite(args.output_style_path, res)
     
     # ====== local_style_transfer.py ======== #
     fg_image_path = args.fg_image_path
