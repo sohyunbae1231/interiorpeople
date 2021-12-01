@@ -1,4 +1,3 @@
-# %matplotlib inline 
 from data import COCODetection, get_label_map, MEANS, COLORS
 from yolact import Yolact
 from utils.augmentations import BaseTransform, FastBaseTransform, Resize
@@ -27,11 +26,8 @@ from pathlib import Path
 from collections import OrderedDict
 from PIL import Image
 
-
 import matplotlib.pyplot as plt
 import cv2
-
-bbox_label_list = [] # [[x1, x2, y1, y2], label name]
 
 def str2bool(v):
     if v.lower() in ('yes', 'true', 't', 'y', '1'):
@@ -117,8 +113,6 @@ def parse_args(argv=None):
                         help='When displaying / saving video, draw the FPS on the frame')
     parser.add_argument('--emulate_playback', default=False, dest='emulate_playback', action='store_true',
                         help='When saving a video, emulate the framerate that you\'d get running in real-time mode.')
-    parser.add_argument('--class', default = None, type=list,
-                        help='Put name of class that you want to segment')
 
     parser.set_defaults(no_bar=False, display=False, resume=False, output_coco_json=False, output_web_json=False, shuffle=False,
                         benchmark=False, no_sort=False, no_hash=False, mask_proto_debug=False, crop=True, detect=False, display_fps=False,
@@ -163,13 +157,6 @@ def prep_display(dets_out, img, h, w, undo_transform=True, class_color=False, ma
         if cfg.eval_mask_branch:
             # Masks are drawn on the GPU, so don't copy
             masks = t[3][idx]
-            # print('type(masks) : ', type(masks))
-            # print('masks.shape : ', masks.shape)
-            # print('masks : ',masks)
-            # print('masks[0] : ',masks[0])
-            # print('torch nonzero : ',torch.count_nonzero(masks[0]))
-            # np.save('mask_data', masks.cpu().numpy())
-
         classes, scores, boxes = [x[idx].cpu().numpy() for x in t[:3]]
 
     num_dets_to_consider = min(args.top_k, classes.shape[0])
@@ -195,42 +182,32 @@ def prep_display(dets_out, img, h, w, undo_transform=True, class_color=False, ma
                 color = torch.Tensor(color).to(on_gpu).float() / 255.
                 color_cache[on_gpu][color_idx] = color
             return color
-    
-    img_gpu_copy = img_gpu # copy img_gpu initial state to use for bg_image
-    # get fg_image of each class
+
+    # First, draw the masks on the GPU where we can do it really fast
+    # Beware: very fast but possibly unintelligible mask-drawing code ahead
+    # I wish I had access to OpenGL or Vulkan but alas, I guess Pytorch tensor operations will have to suffice
     if args.display_masks and cfg.eval_mask_branch and num_dets_to_consider > 0:
+        # After this, mask is of size [num_dets, h, w, 1]
         masks = masks[:num_dets_to_consider, :, :, None]
-        nzCount = -1
-        for i in range(num_dets_to_consider):
-            temp_class_check = cfg.dataset.class_names[classes[i]]
-            msk = masks[i, :, :, None]
-            mask = msk.view(1, masks.shape[1], masks.shape[2], masks.shape[3])
-            img_gpu = (mask.sum(dim=0) >= 1).float().expand(-1, -1, 3).contiguous()
-            img_numpy_aux = (img_gpu * 255).byte().cpu().numpy()
-            img_numpy_aux = cv2.cvtColor(img_numpy_aux, cv2.COLOR_BGR2GRAY)
-            cv2.imwrite('./fg_bg/fg_'+str(cfg.dataset.class_names[classes[i]])+str(format(i, '02'))+'.jpg', img_numpy_aux)
+        
+        # Prepare the RGB images for each mask given their color (size [num_dets, h, w, 1])
+        colors = torch.cat([get_color(j, on_gpu=img_gpu.device.index).view(1, 1, 1, 3) for j in range(num_dets_to_consider)], dim=0)
+        masks_color = masks.repeat(1, 1, 1, 3) * colors * mask_alpha
 
-            if nzCount == -1:
-                nzCount = 0
-                img_numpy = img_numpy_aux
-            else:
-                if cv2.countNonZero(img_numpy_aux) > cv2.countNonZero(img_numpy):
-                    img_numpy = img_numpy_aux
+        # This is 1 everywhere except for 1-mask_alpha where the mask is
+        inv_alph_masks = masks * (-mask_alpha) + 1
+        
+        # I did the math for this on pen and paper. This whole block should be equivalent to:
+        #    for j in range(num_dets_to_consider):
+        #        img_gpu = img_gpu * inv_alph_masks[j] + masks_color[j]
+        masks_color_summand = masks_color[0]
+        if num_dets_to_consider > 1:
+            inv_alph_cumul = inv_alph_masks[:(num_dets_to_consider-1)].cumprod(dim=0)
+            masks_color_cumul = masks_color[1:] * inv_alph_cumul
+            masks_color_summand += masks_color_cumul.sum(dim=0)
 
-        img_gpu = (masks.sum(dim=0) >= 1).float().expand(-1, -1, 3).contiguous()
-    else:
-        img_gpu *= 0
-    # get bg image
-    if args.display_masks and cfg.eval_mask_branch and num_dets_to_consider > 0:
-      masks = masks[:num_dets_to_consider, :, :, None]
-      for i in range(num_dets_to_consider):
-          msk = masks[i, :, :, None]
-          mask = msk.view(1, 512, 512, 1)
-          img_gpu_masked = img_gpu_copy * (mask.sum(dim=0) >= 1).float().expand(-1, -1, 3)
-          img_numpy = img_gpu_masked.byte().cpu().numpy()
-          img_background = img.byte().cpu().numpy() - (img_gpu_masked * 255).byte().cpu().numpy()
-          cv2.imwrite('./fg_bg/bg_'+str(cfg.dataset.class_names[classes[i]])+str(format(i, '02'))+'.jpg', img_background)
-
+        img_gpu = img_gpu * inv_alph_masks.prod(dim=0) + masks_color_summand
+    
     if args.display_fps:
             # Draw the box for the fps on the GPU
         font_face = cv2.FONT_HERSHEY_DUPLEX
@@ -280,14 +257,8 @@ def prep_display(dets_out, img, h, w, undo_transform=True, class_color=False, ma
 
                 cv2.rectangle(img_numpy, (x1, y1), (x1 + text_w, y1 - text_h - 4), color, -1)
                 cv2.putText(img_numpy, text_str, text_pt, font_face, font_scale, text_color, font_thickness, cv2.LINE_AA)
+            
     
-    #======= make bbox_label_list===========#
-    for j in range(num_dets_to_consider):
-      label = str(cfg.dataset.class_names[classes[j]])+str(format(j, '02')) # label name ex) chair01
-      bbox_label_list.append([boxes[j,:], label]) # append label list and bbox
-    print('bbox_label_list : ',bbox_label_list)
-
-
     return img_numpy
 
 def prep_benchmark(dets_out, h, w):
@@ -621,7 +592,6 @@ def badhash(x):
     x =  ((x >> 16) ^ x) & 0xFFFFFFFF
     return x
 
-    
 def evalimage(net:Yolact, path:str, save_path:str=None):
     frame = torch.from_numpy(cv2.imread(path)).cuda().float()
     batch = FastBaseTransform()(frame.unsqueeze(0))

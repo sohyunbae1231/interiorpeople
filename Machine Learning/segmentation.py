@@ -209,6 +209,11 @@ def run():
               img_gpu = (mask.sum(dim=0) >= 1).float().expand(-1, -1, 3).contiguous()
               img_numpy_aux = (img_gpu * 255).byte().cpu().numpy()
               img_numpy_aux = cv2.cvtColor(img_numpy_aux, cv2.COLOR_BGR2GRAY)
+              ''' img_numpy_aux check '''
+              # image1 = PIL.Image(filename='stock.png')
+              # display(image1)
+              ''''''
+              # print('img_numpy_aux : ',img_numpy_aux.shape)
               cv2.imwrite('./fg_bg/fg_'+str(cfg.dataset.class_names[classes[i]])+str(format(i, '02'))+'.jpg', img_numpy_aux)
 
               if nzCount == -1:
@@ -230,6 +235,7 @@ def run():
             img_gpu_masked = img_gpu_copy * (mask.sum(dim=0) >= 1).float().expand(-1, -1, 3)
             img_numpy = img_gpu_masked.byte().cpu().numpy()
             img_background = img.byte().cpu().numpy() - (img_gpu_masked * 255).byte().cpu().numpy()
+            # print('img_background : ',img_background.shape)
             cv2.imwrite('./fg_bg/bg_'+str(cfg.dataset.class_names[classes[i]])+str(format(i, '02'))+'.jpg', img_background)
 
       if args.display_fps:

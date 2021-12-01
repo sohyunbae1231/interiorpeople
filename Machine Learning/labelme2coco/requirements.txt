@@ -1,3 +1,0 @@
-labelme
-numpy
-pillow
