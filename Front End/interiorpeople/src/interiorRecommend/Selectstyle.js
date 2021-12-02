@@ -4,8 +4,9 @@ import "./Upload.css";
 
 const Selectstyle = () => {
   const [imageId, setImageId] = useState();
-  const [category, setCategory] = useState();
+  const [category, setCategory] = useState([]);
   const [interiorImageUrl, setInteriorImageUrl] = useState();
+  const [buttons, setButtons] = useState();
 
   useEffect(() => {
     // 이미지가 없으면 되돌아감
@@ -29,43 +30,60 @@ const Selectstyle = () => {
   }, []);
 
   // 이미지 위에 버튼 올리기
-  const buttonOnImage = () => {
-    if (!category) {
-      return <></>;
-    }
-    const buttons = category.map((element) => {
-      return (
-        <button
-          style={{
-            left: element[0],
-            top: element[1],
-            width: element[2] - element[0],
-            height: element[3] - element[1],
-            position: "absolute",
-          }}
-        >
-          {element[4].replace(/[0-9]/g, "")}
-        </button>
-      );
-    });
-    return buttons;
-  };
+  const buttonsOnImage = category.map((element) => (
+    <button
+      style={{
+        left: Number(element[0]),
+        top: Number(element[1]),
+        width: Number(element[2]) - Number(element[0]),
+        height: Number(element[3]) - Number(element[1]),
+        position: "absolute",
+      }}
+    >
+      {element[4].replace(/[0-9]/g, "")}
+    </button>
+  ));
 
   return (
     <div>
       {/* 이미지 보여주기 */}
-      <div style={{ marginLeft: 50 }}>
-        <div style={{}}> {buttonOnImage()}</div>
-        <div style={{}}>
-          <img
-            alt=""
-            style={{
-              zIndex: -132,
-              position: "relative",
-            }}
-            src={`/uploads/${interiorImageUrl}`}
-          />
-        </div>
+
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          position: "relative",
+        }}
+      >
+        <img
+          alt=""
+          style={{
+            zIndex: -132,
+          }}
+          src={`/uploads/${interiorImageUrl}`}
+        />
+        <button
+          style={{
+            left: 123,
+            top: 0,
+            width: 52,
+            height: 123,
+            position: "absolute",
+          }}
+        >
+          fdsfasdf
+        </button>
+        <button
+          style={{
+            top: 23,
+            width: 52,
+            height: 123,
+            position: "absolute",
+          }}
+        >
+          fdsfasdf
+        </button>
+        {buttonsOnImage}
       </div>
       {/* 체크박스 보여주기 */}
       {/* 다음으로 버튼 */}
