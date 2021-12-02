@@ -11,6 +11,10 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
 import Cookies from "universal-cookie";
+
+import "./DetailPost.css";
+
+
 const cookies = new Cookies();
 
 const DetailPost = () => {
@@ -209,9 +213,8 @@ const DetailPost = () => {
   const allCommnets = comments.map((comment, index) => (
     <ul>
       {/* <li>{comment._id}</li> */}
-      <li>유저 : {comment.user_id}</li>
-      <li>내용 : {comment.content}</li>
-      <li>작성일 : {comment.createdAt}</li>
+      <li style={{ display: "inline-block", marginLeft: "10%", fontWeight: "bolder" }}>{comment.user_id}</li>
+      <li style={{ marginLeft: "10%" }}>{comment.content}</li>
       {user && comment.user_id === user ? (
         <li>
           <button
@@ -233,7 +236,7 @@ const DetailPost = () => {
     <img
       key={index}
       src={`/uploads/${imageUrl}`}
-      style={{ width: 200, height: 200, objectFit: "cover" }}
+      style={{ width: "70%", height: 270, objectFit: "cover" }}
       alt=""
       className={`image-preview ${imageUrl && "image-preview-show"}`}
     />
@@ -241,12 +244,21 @@ const DetailPost = () => {
 
   return (
     <div>
-      <h3>post </h3>
+      <div class="writer-id" style={{ display: "inline-block", marginLeft: "15%", marginTop: "20px", marginBottom: "20px" }}>@{post.writer_id}</div>
+      {user && post.writer_id === user && (
+        <button class="delete"
+          style={{ marginLeft: "40%" }}
+          onClick={postDeleteSubmit}
+        >
+          삭제
+        </button>
+      )}
       {allImagesInPost}
-      <h2>{post.title}</h2>
-      <h3>{post.writer_id}</h3>
-      <h3>{post.content} </h3>
-      <span>좋아요 {post.like_num}</span>
+      <div class="text">제목</div>
+      <div class="community-title" style={{ marginLeft: "15%" }}>{post.title}</div>
+      <div class="text">내용</div>
+      <div class="community-content" style={{ marginLeft: "15%", marginBottom: "20px"}}>{post.content} </div>
+      <span style={{ marginLeft: "15%" }}>좋아요 {post.like_num}</span>
       {!user || user === post.writer_id ? (
         <></>
       ) : (
@@ -265,35 +277,27 @@ const DetailPost = () => {
           </div>
         </div>
       )}
-      {user && post.writer_id === user && (
-        <button
-          style={{ float: " right", marginLeft: 10 }}
-          onClick={postDeleteSubmit}
-        >
-          삭제
-        </button>
-      )}
+      
       {user ? (
         <form onSubmit={commentCreateSubmit}>
-          <div style={{ margin: "auto", width: "85%" }}>
-            <div>
-              <label>댓글 내용</label>
+          <div style={{ marginLeft: "15%", width: "85%" }}>
+            <div style={{marginTop: "20px"}}>
               <input
-                style={{ width: "90%" }}
+                style={{ width: "65%" }}
                 value={writedComment}
                 onChange={(e) => {
                   setWritedComment(e.target.value);
                 }}
               />
+            <button class="comment-button" type="submit">댓글 달기</button>
             </div>
-            <button type="submit">댓글 달기</button>
           </div>
         </form>
       ) : (
         <></>
       )}
       <div>
-        <h3 style={{ display: "inline-block", marginRight: 10 }}>댓글</h3>
+        <h3 style={{ display: "inline-block", marginLeft: "15%", marginTop: "20px" }}>댓글</h3>
         <div>
           <div>{allCommnets}</div>
         </div>

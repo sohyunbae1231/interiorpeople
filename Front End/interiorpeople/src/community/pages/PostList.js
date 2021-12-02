@@ -79,7 +79,6 @@ const PostList = () => {
 
   return (
     <div>
-      {/* eslint-disable-next-line jsx-a11y/heading-has-content */}
       <h3
         style={{
           display: "inline-block",
@@ -87,7 +86,8 @@ const PostList = () => {
           marginBottom: 0,
           marginLeft: 10,
         }}
-      ></h3>
+      >
+      </h3>
       <div>
         <div class="image-list-container">{imgList}</div>
       </div>
@@ -96,19 +96,7 @@ const PostList = () => {
       {postLoading && <div>loading...</div>}
 
       <div>
-        <Link to="../mypost/write">
-          <img
-            alt=""
-            src={require("../../img/write.png").default}
-            style={{
-              position: "fixed",
-              right: "10px",
-              bottom: "20px",
-              width: "100px",
-              display: "block",
-            }}
-          />
-        </Link>
+          <Link to="../mypost/write"><img src={require("../../img/write.png").default} style={{position: "fixed", right: "10px", bottom:"20px", width:"100px", display:"block"}}/></Link>
       </div>
     </div>
   );

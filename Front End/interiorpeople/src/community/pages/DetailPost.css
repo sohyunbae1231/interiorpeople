@@ -1,0 +1,22 @@
+@import url('https://fonts.googleapis.com/css2?family=Cairo&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nanum+Gothic&display=swap');
+
+.writer-id {
+    font-family: 'Cairo', sans-serif;
+    font-weight: bolder;
+}
+
+.text {
+    margin-left: 15%;
+    margin-bottom: 15px;
+    font-family: 'Nanum Gothic', sans-serif;
+    font-weight: bolder;
+}
+
+.delete {
+
+}
+
+.comment-button {
+    
+}
