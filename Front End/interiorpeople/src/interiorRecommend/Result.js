@@ -1,34 +1,32 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
- 
-function Login() {
-    const [inputId, setInputId] = useState('')
-    const [inputPw, setInputPw] = useState('')
- 
-    const handleInputId = (e) => {
-        setInputId(e.target.value)
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+
+function Result() {
+  const [pocessedImageUrl, setProcessedImageUrl] = useState();
+
+  useEffect(() => {
+    try {
+      // 변환된 이미지 불러오기
+      axios.post("/api/image/local-style-transfer").then((result) => {
+        setProcessedImageUrl(result.data.processedImage);
+      });
+    } catch (err) {
+      alert("에러가 발생했습니다. 메인으로 돌아갑니다.");
+      window.location.replace("/");
     }
- 
-    const handleInputPw = (e) => {
-        setInputPw(e.target.value)
-    }
- 
-    const onClickLogin = () => {
-        console.log('click login')
-    }
- 
-    useEffect(() => {
-        axios.get('/user_inform/login')
-        .then(res => console.log(res))
-        .catch()
-    },
-    [])
- 
-    return(
-        <div>
-            <h2>결과</h2>
-        </div>
-    )
+  }, []);
+
+  // 이미지 보이기
+  return (
+    <div>
+      <h2>결과</h2>
+      <img
+        alt=""
+        src={`/uploads/${pocessedImageUrl}`}
+        style={{ width: 200, height: 200, objectFit: "cover" }}
+      ></img>
+    </div>
+  );
 }
- 
-export default Login;
+
+export default Result;

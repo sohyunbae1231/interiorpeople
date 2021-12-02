@@ -62,7 +62,7 @@ const redisClient = redis.createClient({
 // 세션 및 쿠키 설정
 app.use(cookieParser(COOKIE_KEY))
 const sessionOption = {
-  key: 'loginData',
+  key: 'sid',
   proxy: true,
   resave: true,
   httpOnly: false,

@@ -24,19 +24,19 @@ function Themeupload() {
   const onSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData();
-
-    formData.append("theme", file, file.name);
-    try {
-      await axios
-        .post("/api/image/upload-theme", formData, {
-          Headers: { "Content-Type": "multipart/form-data" },
-        })
-        .then((res) => {
-          navigate("/interior/selectstyle");
-        });
-    } catch (err) {
-      alert(err);
+    if (file) {
+      formData.append("theme", file, file.name);
+      try {
+        await axios
+          .post("/api/image/upload-theme", formData, {
+            Headers: { "Content-Type": "multipart/result" },
+          })
+          .then((res) => {});
+      } catch (err) {
+        alert(err);
+      }
     }
+    navigate("/interior/result");
   };
 
   return (
