@@ -106,9 +106,10 @@ imageRouter.post('/segmetantion', ifIsLoggedIn, uploadImage.single('image'), asy
       const reg = /[()'".\{\}\[\]\\\/ ]/gim
       const step5 = step4.map((element) => element.replace(reg, ''))
       const listResult = step5.map((element) => element.split(','))
+      res.cookie('bbox_label_list', listResult, { maxAge: 1000 * 60 * 10 })
+      console.log(listResult)
       return res.status(200).json({
         segmentation: true,
-        bbox_label_list: listResult,
       })
     }
   })

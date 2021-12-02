@@ -21,12 +21,12 @@ import Bookmark from "./myPage/pages/Bookmark";
 import History from "./myPage/pages/History";
 
 // 인테리어 추천 - 사진 업로드, 영역 선택, 스타일 선택, 스타일 편집, 원하는 사진 추가 업로드, 분석 완료
-import Upload from "./Upload";
-import Selectarea from "./Selectarea";
-import Selectstyle from "./Selectstyle";
-//import Editstyle from "./Editstyle"; // 팝업으로 구현하기
-import Themeupload from "./Themeupload";
-import Result from "./Result";
+import InteriorRecommendPage from "./interiorRecommend/InteriorRecommend";
+import Upload from "./interiorRecommend/Upload";
+import Selectarea from "./interiorRecommend/Selectarea";
+import Selectstyle from "./interiorRecommend/Selectstyle";
+import Themeupload from "./interiorRecommend/Themeupload";
+import Result from "./interiorRecommend/Result";
 
 // 커뮤니티 메인, 나의 글 상세, 포스트 상세화면, 글 작성
 import CommunityPage from "./community/pages/CommunityPage";
@@ -67,12 +67,13 @@ function App() {
           </Route>
 
           {/* 인테리어 추천 페이지 관련 */}
-          <Route path="/interior/upload" element={<Upload />} />
-          <Route path="/interior/selectarea" element={<Selectarea />} />
-          <Route path="/interior/selectstyle" element={<Selectstyle />} />
-          <Route path="/interior/themeupload" element={<Themeupload />} />
-          <Route path="/interior/result" element={<Result />} />
-
+          <Route path="/interior/*" element={<InteriorRecommendPage />}>
+            <Route path="upload" element={<Upload />} />
+            <Route path="selectarea" element={<Selectarea />} />
+            <Route path="selectstyle" element={<Selectstyle />} />
+            <Route path="themeupload" element={<Themeupload />} />
+            <Route path="result" element={<Result />} />
+          </Route>
           {/* 커뮤니티 관련 */}
           <Route path="/community/*" element={<CommunityPage />}>
             <Route path="" element={<CommunityMain />} />

@@ -107,6 +107,7 @@ app.use('/api/mypage', myPageRouter)
 // * 커뮤니티 라우터
 app.use('/api/community', communityRouter)
 
+// * 이미지 프로세싱 라우터
 app.use('/api/image', imageRouter)
 
 /** 에러 핸들링 라우터 : 페이지가 없을 경우 메인 페이지로 돌아간다. */
