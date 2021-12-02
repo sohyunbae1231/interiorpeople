@@ -22,21 +22,19 @@ const uploadTheme = multerConfig('ml_theme_img')
 const imageRouter = Router()
 
 /** 사진 업로드 */
-// TODO : segmentation을 여기서 진행
-imageRouter.post('/segmetantion', ifIsLoggedIn, async (req, res) => {
-  // , uploadImage.single('image')
+imageRouter.post('/segmetantion', ifIsLoggedIn, uploadImage.single('image'), async (req, res) => {
   // @ts-ignore
   // const userId = req.user.id
+  // @ts-ignore
+  const imageName = req.file.filename
   if (process.env.NODE_ENV === 'dev') {
     // @ts-ignore
-    // req.file.location = req.file.filename
+    req.file.location = imageName
   }
   // * 쿠키에 파일 경로를 저장
-  // @ts-ignore
-  // res.cookie('image', req.file.filename, { maxAge: 1000 * 60 * 10 })
+  res.cookie('imageName', imageName, { maxAge: 1000 * 60 * 10 })
   // * segmetation 진행
-  // TODO : 이미지 경로 변경
-  const imagePath = `data/train/images/kor_bedroom1.jpg:data/eval_result/kor_bedroom1.jpg`
+  const imagePath = `../Back End/server/uploads/${imageName}`
   const command = [
     `../../../../Machine Learning`,
     `&&`,
@@ -57,26 +55,72 @@ imageRouter.post('/segmetantion', ifIsLoggedIn, async (req, res) => {
     cwd: __dirname,
   })
 
-  let result
+  let resultOfSeg
+  let checkSeg = true
+  // * 쉘 명령어 에러
   segmentation.stderr.on('data', (data) => {
-    result = data
-    // eslint-disable-next-line no-console
-    console.log(`stderr: ${data.toString()}`)
+    // ! 바꾸기
+    // checkSeg = false
+    // return res.status(200).json({
+    //   segmentation: 'false',
+    //   bbox_label_list: [],
+    // })
+    console.log(data.toString())
   })
+
   segmentation.stdout.on('data', (data) => {
-    result = data
-    // eslint-disable-next-line no-console
-    console.log(`stdout: ${data.toString()}`)
+    console.log(data.toString())
+    resultOfSeg = data
   })
-  res.status(200).json({ result })
+
+  // * 쉘 명령어 종료
+  // eslint-disable-next-line consistent-return
+  segmentation.on('exit', () => {
+    if (checkSeg === true) {
+      // ! 삭제
+      resultOfSeg = `Config not specified. Parsed yolact_base_config from the file name.
+    /usr/local/lib/python3.7/dist-packages/torch/jit/_recursive.py:235: UserWarning: 'lat_layers' was found in ScriptModule constants,  but it is a non-constant submodule. Consider removing it.
+      " but it is a non-constant {}. Consider removing it.".format(name, hint))
+    /usr/local/lib/python3.7/dist-packages/torch/jit/_recursive.py:235: UserWarning: 'downsample_layers' was found in ScriptModule constants,  but it is a non-constant submodule. Consider removing it.
+      " but it is a non-constant {}. Consider removing it.".format(name, hint))
+    /usr/local/lib/python3.7/dist-packages/torch/jit/_recursive.py:235: UserWarning: 'pred_layers' was found in ScriptModule constants,  but it is a non-constant submodule. Consider removing it.
+      " but it is a non-constant {}. Consider removing it.".format(name, hint))
+    Loading model... Done.
+    bbox_label_list :  [[array([340, 195, 845, 460]), 'bed00'], [array([ 31, 198, 220, 438]), 'chair01'], [array([383,  23, 591, 302]), 'potted plant02'], [array([251, 218, 443, 333]), 'couch03'], [array([217, 269, 240, 291]), 'vase04'], [array([188, 238, 221, 290]), 'vase05'], [array([350, 173, 806, 459]), 'couch06'], [array([159, 167, 255, 301]), 'potted plant07'], [array([217, 269, 240, 291]), 'cup08']]`
+
+      // 결과에서 bbox_label_list 추출
+      const bboxLabelListExistence = resultOfSeg.indexOf('bbox_label_list') // 존재하지 않으면 -1을 반환
+      // 세그멘테이션이 잘 안된 경우
+      if (bboxLabelListExistence === -1) {
+        return res.status(200).json({
+          segmentation: false,
+          bbox_label_list: [],
+        })
+      }
+      // 세그멘테이션이 되면 결과를 발신
+      const step1 = resultOfSeg.slice(bboxLabelListExistence + 'bbox_label_list'.length + 4)
+      const step2 = step1.replace(/array/g, '')
+      const step3 = step2.split('],')
+      const step4 = step3.map((el) => el.replace(/ /g, ''))
+      // eslint-disable-next-line no-useless-escape
+      const reg = /[()'".\{\}\[\]\\\/ ]/gim
+      const step5 = step4.map((element) => element.replace(reg, ''))
+      const listResult = step5.map((element) => element.split(','))
+      return res.status(200).json({
+        segmentation: true,
+        bbox_label_list: listResult,
+      })
+    }
+  })
 })
 
 /** 스타일 편집(선택) */
-// TODO : 어떤 것을 어떻게 편집할 것인지
-// imageRouter.post('/select-style', ifIsLoggedIn, async (req, res) => {})
+imageRouter.post('/select-style', ifIsLoggedIn, async (req, res) => {
+  const { furnitureCategory, style, color } = req.body
+})
 
 /** 원하는 테마 이미지 업로드 */
-imageRouter.post('/upload-style', ifIsLoggedIn, uploadTheme.single('theme'), async (req, res) => {
+imageRouter.post('/upload-theme', ifIsLoggedIn, uploadTheme.single('theme'), async (req, res) => {
   // @ts-ignore
   // const userId = req.user.id
   if (process.env.NODE_ENV === 'dev') {
@@ -85,7 +129,7 @@ imageRouter.post('/upload-style', ifIsLoggedIn, uploadTheme.single('theme'), asy
   }
   // * 쿠키에 테마 이미지 경로를 저장
   // @ts-ignore
-  res.cookie('theme', req.file.filename, { maxAge: 1000 * 60 * 10 })
+  res.cookie('themeName', req.file.filename, { maxAge: 1000 * 60 * 10 })
   res.status(200).json({ message: 'upload theme succuss' })
 })
 
@@ -95,8 +139,8 @@ imageRouter.get('/local-style-transfer', ifIsLoggedIn, (req, res) => {
   if (!fs.existsSync(`./uploads/${imageProcessedFolderName}`)) {
     fs.mkdirSync(`./uploads/${imageProcessedFolderName}`, { recursive: true }) // ? package.json 기준 상대 경로
   }
-  // const iamgeName = req.cookies.image
-  // res.clearCookie('image')
+  const { imageName, themeName } = req.cookies
+  res.clearCookie('imageName')
   const targets = `"tv01, tv02, tv03, pillow00"`
   const contentImage = `"./data/train/images/kor_bedroom1.jpg"`
   const styleImage = '"./data/style/modern/blue.jpg"'
@@ -154,6 +198,7 @@ imageRouter.get('/local-style-transfer', ifIsLoggedIn, (req, res) => {
 
 module.exports = { imageRouter }
 
+// ! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ! //
 // * package.json 기준
 // ! 이렇게 하면 띄어쓰기 인식을 못함
 // ! 두번쨰 인자 사용해서 하나씩 넣어줘야 함 ㅠㅠ
@@ -196,3 +241,4 @@ module.exports = { imageRouter }
 //   '--output_local_style_path',
 //   '"./local_stylized.jpg"',
 // ])
+// ! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ! //
