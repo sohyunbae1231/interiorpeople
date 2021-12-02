@@ -135,6 +135,20 @@ imageRouter.post('/seg', ifIsLoggedIn, preTransferImage.single('image'), async (
   })
 })
 
+/** 이미지 및 카테고리 가져오기 */
+imageRouter.post('/pre-image', ifIsLoggedIn, async (req, res) => {
+  // @ts-ignore
+  const userId = req.user ? req.user.id : 'testUser'
+  try {
+    // @ts-ignore
+    const interiorImage = await InteriorImage.findOne({ _id: req.body.imageId, user_id: userId })
+    res.status(200).json(interiorImage)
+  } catch (err) {
+    // @ts-ignore
+    res.status(400).json({ message: err.message })
+  }
+})
+
 /** 스타일 편집(선택) */
 // TODO
 imageRouter.post('/select-style', ifIsLoggedIn, async (req, res) => {
