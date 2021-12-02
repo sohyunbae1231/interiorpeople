@@ -89,10 +89,6 @@ imageRouter.post('/upload-style', ifIsLoggedIn, uploadTheme.single('theme'), asy
   res.status(200).json({ message: 'upload theme succuss' })
 })
 
-/** 영역 설정 */
-// ! 일단 보류
-// imageRouter.post('/select-area', ifIsLoggedIn, async (req, res) => {})
-
 /** 결과 보기 */
 imageRouter.get('/local-style-transfer', ifIsLoggedIn, (req, res) => {
   const imageProcessedFolderName = `imageProcessed`
