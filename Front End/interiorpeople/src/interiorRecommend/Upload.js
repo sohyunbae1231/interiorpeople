@@ -8,6 +8,7 @@ function Upload() {
   const [file, setFile] = useState("");
   const [imgSrc, setImgSrc] = useState("");
   const navigate = useNavigate();
+
   // onChange역할
   const handleFileChange = (event) => {
     const imageFile = event.target.files[0];
@@ -21,18 +22,22 @@ function Upload() {
   const onSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData();
-
-    formData.append("image", file, file.name);
-    try {
-      await axios
-        .post("/api/image/segmetantion", formData, {
-          Headers: { "Content-Type": "multipart/form-data" },
-        })
-        .then((res) => {
-          navigate("/interior/selectstyle");
-        });
-    } catch (err) {
-      alert(err);
+    if (!file) {
+      alert("이미지를 업로드해주세요.");
+    } else {
+      formData.append("image", file, file.name);
+      try {
+        await axios
+          .post("/api/image/seg", formData, {
+            Headers: { "Content-Type": "multipart/form-data" },
+          })
+          .then((res) => {
+            sessionStorage.setItem("imageId", res.data.imageId);
+            navigate("/interior/selectstyle");
+          });
+      } catch (err) {
+        alert(err);
+      }
     }
   };
 
@@ -43,8 +48,8 @@ function Upload() {
           인테리어 분석을 하고 싶은 방 사진을 등록해주세요
         </div>
 
-        {/* eslint-disable-next-line jsx-a11y/alt-text */}
         <img
+          alt=""
           src={imgSrc}
           className={`image-preview ${imgSrc && "image-preview-show"}`}
           style={{ border: "0", outline: "0", marginTop: "30px" }}

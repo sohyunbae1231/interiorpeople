@@ -1,40 +1,53 @@
 // @ts-check
 // cSpell:disable
 
+/**
+ * TODO : 로그인으로 바꾸기
+ * TODO : s3 연결
+ * TODO :
+ * TODO :
+ * TODO :
+ * TODO :
+ */
+
 /** 모듈 */
 const { Router } = require('express')
 const { spawn } = require('child_process')
 const fs = require('fs')
 
+/** 데이터베이스 관련 */
+const InteriorImage = require('../schemas/interiorImage')
+
 /** 로그인 관련 */
-// eslint-disable-next-line no-unused-vars
-const { isLoggedIn, ifIsLoggedIn } = require('../middlewares/authentication')
+const { ifIsLoggedIn } = require('../middlewares/authentication')
 
 /** multer 및 AWS 관련 */
 const { multerConfig } = require('../middlewares/multerConfig')
 // eslint-disable-next-line no-unused-vars
 const { s3 } = require('../aws')
 
-const uploadImage = multerConfig('ml_image_img')
-const uploadTheme = multerConfig('ml_theme_img')
+const preTransferImage = multerConfig('ml_pre_transfer_image_img')
+const postTransferImage = multerConfig('ml_post_transfer_image_img')
+
+const themeImage = multerConfig('ml_theme_img')
 
 /** 라우터 */
 const imageRouter = Router()
 
 /** 사진 업로드 */
-imageRouter.post('/segmetantion', ifIsLoggedIn, uploadImage.single('image'), async (req, res) => {
+imageRouter.post('/seg', ifIsLoggedIn, preTransferImage.single('image'), async (req, res) => {
   // @ts-ignore
-  // const userId = req.user.id
-  // @ts-ignore
-  const imageName = req.file.filename
+  const userId = req.user ? req.user.id : 'testUser'
+
   if (process.env.NODE_ENV === 'dev') {
     // @ts-ignore
-    req.file.location = imageName
+    req.file.location = req.file.filename
   }
-  // * 쿠키에 파일 경로를 저장
-  res.cookie('imageName', imageName, { maxAge: 1000 * 60 * 10 })
-  // * segmetation 진행
-  const imagePath = `../Back End/server/uploads/${imageName}`
+  // @ts-ignore
+  const imgUrl = req.file.location
+
+  // segmetation 진행
+  const imagePath = `../Back End/server/uploads/${imgUrl}`
   const command = [
     `../../../../Machine Learning`,
     `&&`,
@@ -75,7 +88,7 @@ imageRouter.post('/segmetantion', ifIsLoggedIn, uploadImage.single('image'), asy
 
   // * 쉘 명령어 종료
   // eslint-disable-next-line consistent-return
-  segmentation.on('exit', () => {
+  segmentation.on('exit', async () => {
     if (checkSeg === true) {
       // ! 삭제
       resultOfSeg = `Config not specified. Parsed yolact_base_config from the file name.
@@ -94,7 +107,6 @@ imageRouter.post('/segmetantion', ifIsLoggedIn, uploadImage.single('image'), asy
       if (bboxLabelListExistence === -1) {
         return res.status(200).json({
           segmentation: false,
-          bbox_label_list: [],
         })
       }
       // 세그멘테이션이 되면 결과를 발신
@@ -105,23 +117,46 @@ imageRouter.post('/segmetantion', ifIsLoggedIn, uploadImage.single('image'), asy
       // eslint-disable-next-line no-useless-escape
       const reg = /[()'".\{\}\[\]\\\/ ]/gim
       const step5 = step4.map((element) => element.replace(reg, ''))
-      const listResult = step5.map((element) => element.split(','))
-      res.cookie('bbox_label_list', listResult, { maxAge: 1000 * 60 * 10 })
-      console.log(listResult)
+      const listSegCategory = step5.map((element) => element.split(','))
+      res.cookie('bbox_label_list', listSegCategory, { maxAge: 1000 * 60 * 10 })
+      console.log(listSegCategory)
+      const newInteriorImage = await new InteriorImage({
+        user_id: userId,
+        s3_pre_transfer_img_url: imgUrl,
+        category_in_img: listSegCategory,
+      }).save()
+      console.log(newInteriorImage)
       return res.status(200).json({
         segmentation: true,
+        // eslint-disable-next-line no-underscore-dangle
+        imageId: newInteriorImage._id,
       })
     }
   })
 })
 
+/** 이미지 및 카테고리 가져오기 */
+imageRouter.post('/pre-image', ifIsLoggedIn, async (req, res) => {
+  // @ts-ignore
+  const userId = req.user ? req.user.id : 'testUser'
+  try {
+    // @ts-ignore
+    const interiorImage = await InteriorImage.findOne({ _id: req.body.imageId, user_id: userId })
+    res.status(200).json(interiorImage)
+  } catch (err) {
+    // @ts-ignore
+    res.status(400).json({ message: err.message })
+  }
+})
+
 /** 스타일 편집(선택) */
+// TODO
 imageRouter.post('/select-style', ifIsLoggedIn, async (req, res) => {
   const { furnitureCategory, style, color } = req.body
 })
 
 /** 원하는 테마 이미지 업로드 */
-imageRouter.post('/upload-theme', ifIsLoggedIn, uploadTheme.single('theme'), async (req, res) => {
+imageRouter.post('/upload-theme', ifIsLoggedIn, themeImage.single('theme'), async (req, res) => {
   // @ts-ignore
   // const userId = req.user.id
   if (process.env.NODE_ENV === 'dev') {
@@ -141,11 +176,14 @@ imageRouter.get('/local-style-transfer', ifIsLoggedIn, (req, res) => {
     fs.mkdirSync(`./uploads/${imageProcessedFolderName}`, { recursive: true }) // ? package.json 기준 상대 경로
   }
   const { imageName, themeName } = req.cookies
+  console.log(themeName)
+
   res.clearCookie('imageName')
   const targets = `"tv01, tv02, tv03, pillow00"`
   const contentImage = `"./data/train/images/kor_bedroom1.jpg"`
   const styleImage = '"./data/style/modern/blue.jpg"'
-  const outputLocalStylePath = `"../Back End/server/upload/local_stylized.jpg"` // imageName
+  // const outputLocalStylePath = `"../Back End/server/upload/local_stylized.jpg"` // imageName
+  const outputLocalStylePath = `"./upload/local_stylized.jpg"` // imageName
   const command = [
     `../../../../Machine Learning`,
     `&&`,
@@ -179,7 +217,7 @@ imageRouter.get('/local-style-transfer', ifIsLoggedIn, (req, res) => {
     outputLocalStylePath,
   ]
   // 만들어 지는 시간이 걸림
-  // await는 무쓸모
+
   const localStyleTransfer = spawn(`cd`, command, {
     shell: true,
     cwd: __dirname,
@@ -188,13 +226,17 @@ imageRouter.get('/local-style-transfer', ifIsLoggedIn, (req, res) => {
   // TODO : 사진 보내기
   localStyleTransfer.stdout.on('data', (data) => {
     console.log(data.toString())
-    res.status(200).json({})
+    res.status(200).json({ themeName })
   }) // 실행 결과
 
   localStyleTransfer.stderr.on('data', (data) => {
     console.error(data.toString())
   }) // 실행 >에러
-  res.status(200).json({})
+
+  // 이미지 변환 후 이미지 송신
+  localStyleTransfer.on('exit', () => {
+    res.status(200).json({ localStyleTransfer: true, processedImage: outputLocalStylePath })
+  })
 })
 
 module.exports = { imageRouter }
