@@ -1,7 +1,9 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@500&display=swap');
+
 .popup-ui {
-    width : 260px;
-    height: 270px;
-    margin-left: 15%;
+    width : 90%;
+    height: 570px;
+    margin-left: 5%;
     border-radius: 5px;
     border: 1px solid #203864;
 }
@@ -10,8 +12,15 @@
     margin-left: 7%;
 }
 
+.style-text {
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 14px;
+    margin-top: 5px;
+    margin-bottom: 2px;
+}
+
 .close {
-    margin-left: 80%;
+    margin-left: 85%;
     position: relative;
     display: inline-block;
     *display: inline;
