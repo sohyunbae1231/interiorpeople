@@ -15,6 +15,8 @@ function Result() {
   const [originalImageUrl, setOriginalImageUrl] = useState();
   const [pocessedImageUrl, setProcessedImageUrl] = useState();
   const [loading, setLoading] = useState(true);
+  const [style, setStyle] = useState(undefined);
+  const [color, setColor] = useState(undefined);
 
   useEffect(() => {
     try {
@@ -26,6 +28,11 @@ function Result() {
           console.log(result);
           setProcessedImageUrl(result.data.transferedImage);
           setOriginalImageUrl(result.data.originalImage);
+          if (result.data.colorStyle) {
+            setStyle(result.data.color === "red" ? "빨강색" : "");
+            setColor(result.data.style === "nrt" ? "북유럽풍" : "");
+            console.log(style, color);
+          }
         });
     } catch (err) {
       alert("에러가 발생했습니다. 메인으로 돌아갑니다.");
@@ -56,13 +63,30 @@ function Result() {
         >
           <h2 style={{ alignContent: "center", width: "90%" }}>변환 결과</h2>
           <h3>원본 사진</h3>
+          <br />
           <img
             alt=""
             src={`/uploads/${originalImageUrl}`}
             style={{ width: 200, height: 200, objectFit: "cover" }}
           ></img>
           <br />
-          <h3>변환된 사진</h3>
+          {style && color ? (
+            <div style={{ textAlign: "center" }}>
+              <h3 style={{ display: "inline" }}>업로드하신 </h3>
+              <h3 style={{ display: "inline" }}>{style}</h3>
+              <h3 style={{ display: "inline" }}>과</h3>{" "}
+              <h3 style={{ display: "inline" }}>{color}</h3>
+              <h3 style={{ display: "inline" }}>
+                으로 <br />
+                변환된 결과를 알려드려요
+              </h3>
+            </div>
+          ) : (
+            <h3 style={{ textAlign: "center" }}>
+              업로드하신 테마로 변환된 결과를 알려드려요
+            </h3>
+          )}
+          <br />
           <img
             alt=""
             src={`/uploads/${pocessedImageUrl}`}

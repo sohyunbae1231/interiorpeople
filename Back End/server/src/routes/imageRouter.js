@@ -268,14 +268,18 @@ imageRouter.post('/local-style-transfer', ifIsLoggedIn, async (req, res) => {
     if (interiorImage.s3_theme_img_url !== 'none') {
       return res.status(200).json({
         localStyleTransfer: true,
+        colorStyle: false,
         originalImage: interiorImage.s3_pre_transfer_img_url,
         transferedImage: themProcessedImage,
       })
     }
     return res.status(200).json({
       localStyleTransfer: true,
+      colorStyle: true,
       originalImage: interiorImage.s3_pre_transfer_img_url,
       transferedImage: colorstyleImage,
+      color: 'red',
+      style: 'nrt',
     })
   })
 })
