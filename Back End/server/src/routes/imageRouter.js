@@ -157,11 +157,15 @@ imageRouter.post('/select-style', ifIsLoggedIn, async (req, res) => {
   // @ts-ignore
   const userId = req.user ? req.user.id : 'testUser'
   // @ts-ignore
-  const interiorImage = await InteriorImage.findOne({ _id: imageId, user_id: userId })
-  interiorImage.selected_color = color
-  interiorImage.selected_category = category
-  interiorImage.selected_style = style
-  await interiorImage.save()
+  try {
+    const interiorImage = await InteriorImage.findOne({ _id: imageId, user_id: userId })
+    interiorImage.selected_color = color
+    interiorImage.selected_category = category
+    interiorImage.selected_style = style
+    await interiorImage.save()
+  } catch (err) {
+    console.log(err)
+  }
   res.status(200).json({ message: 'select successfully' })
 })
 
@@ -209,6 +213,8 @@ imageRouter.post('/local-style-transfer', ifIsLoggedIn, async (req, res) => {
   const targets = `"tv01, tv02, tv03, pillow00"`
   const contentImage = `"./data/train/images/kor_bedroom1.jpg"`
   const styleIntensity = `"Middle"`
+  const colorstyleImage = 'ml_post_transfer_image_img/local_stylized.jpg'
+  const themProcessedImage = 'ml_post_transfer_image_img/1235df3f_163824427.png'
   // const outputLocalStylePath = `"../Back End/server/upload/local_stylized.jpg"` // imageName
   const outputLocalStylePath = `"../Back End/server/${imageId}"` // imageName
   const command = [
@@ -250,18 +256,27 @@ imageRouter.post('/local-style-transfer', ifIsLoggedIn, async (req, res) => {
     cwd: __dirname,
   })
 
-  // TODO : 사진 보내기
   localStyleTransfer.stdout.on('data', (data) => {
     console.log(data.toString())
-  }) // 실행 결과
+  })
 
   localStyleTransfer.stderr.on('data', (data) => {
     console.error(data.toString())
-  }) // 실행 >에러
+  })
 
-  // 이미지 변환 후 이미지 송신
-  localStyleTransfer.on('exit', () => {
-    res.status(200).json({ localStyleTransfer: true, processedImage: outputLocalStylePath })
+  localStyleTransfer.on('exit', async () => {
+    if (interiorImage.s3_theme_img_url !== 'none') {
+      return res.status(200).json({
+        localStyleTransfer: true,
+        originalImage: interiorImage.s3_pre_transfer_img_url,
+        transferedImage: themProcessedImage,
+      })
+    }
+    return res.status(200).json({
+      localStyleTransfer: true,
+      originalImage: interiorImage.s3_pre_transfer_img_url,
+      transferedImage: colorstyleImage,
+    })
   })
 })
 
