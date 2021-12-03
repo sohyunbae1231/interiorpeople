@@ -5,6 +5,8 @@ import axios from "axios";
 /** 유저 인증 관련 컨텍스트 */
 // import { AuthContext } from "../../context/AuthContext";
 
+import "./Profile.css";
+
 function Profile() {
   const [password, setPassword] = useState(null);
   const [name, setName] = useState(null);
@@ -70,7 +72,7 @@ function Profile() {
 
   return (
     <div>
-      <div className="name">
+      <div className="name" style={{marginLeft: "15%", marginTop: "30px"}}>
         <form onSubmit={nameChangeSubmit}>
           <h4>이름</h4>
           <input
@@ -81,11 +83,11 @@ function Profile() {
             }}
             placeholder=""
           />
-          <button type="submit">변경하기</button>
+          <button class="change-btn" type="submit">변경하기</button>
         </form>
       </div>
 
-      <div className="password">
+      <div className="password" style={{marginLeft: "15%", marginTop: "12px"}}>
         <form onSubmit={passwordChangeSubmit}>
           <h4>비밀번호</h4>
           <input
@@ -96,22 +98,22 @@ function Profile() {
             }}
             placeholder=""
           />
-          <button type="submit">변경하기</button>
+          <button class="change-btn" type="submit">변경하기</button>
         </form>
       </div>
 
-      <div className="imageSelect">
+      <div className="imageSelect" style={{marginLeft: "10%", marginTop: "40px"}}>
         <h4>프로필사진</h4>
-        <form onSubmit={profilePhotoChangeSubmit}>
+        <form onSubmit={profilePhotoChangeSubmit} >
           {/* type="file"로 할 경우 모든 파일이 전부 가능. 따라서 accept를 사용 */}
-          <input
+          <input 
             id="image"
             type="file"
             multiple={false}
             accept="image/*" // 오직 이미지만
             onChange={imageSelectHandler}
           />
-          <button type="submit">변경하기</button>
+          <button class="change-btn" type="submit">변경하기</button>
         </form>
       </div>
     </div>

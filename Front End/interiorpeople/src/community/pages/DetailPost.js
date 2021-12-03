@@ -211,18 +211,18 @@ const DetailPost = () => {
 
   /** 모든 댓글을 보여줌 */
   const allCommnets = comments.map((comment, index) => (
-    <ul>
+    <ul style={{marginLeft: "5%"}}>
       {/* <li>{comment._id}</li> */}
-      <li style={{ display: "inline-block", marginLeft: "10%", fontWeight: "bolder" }}>{comment.user_id}</li>
-      <li style={{ marginLeft: "10%" }}>{comment.content}</li>
+      <li style={{ fontSize: "14px", fontWeight: "bolder" }}>{comment.user_id}</li>
+      <li style={{fontSize: "14px"}}>{comment.content}</li>
       {user && comment.user_id === user ? (
         <li>
-          <button
+          <button style = {{ fontSize: "14px", background: "white", color: "gray", border: "none", borderRadius: "5px"}} 
             onClick={() => {
               commentDeleteSubmit(comment._id);
             }}
           >
-            댓글 삭제
+            삭제
           </button>
         </li>
       ) : (
@@ -246,11 +246,10 @@ const DetailPost = () => {
     <div>
       <div class="writer-id" style={{ display: "inline-block", marginLeft: "15%", marginTop: "20px", marginBottom: "20px" }}>@{post.writer_id}</div>
       {user && post.writer_id === user && (
-        <button class="delete"
+        <button class="close close1"
           style={{ marginLeft: "40%" }}
           onClick={postDeleteSubmit}
         >
-          삭제
         </button>
       )}
       {allImagesInPost}
@@ -264,13 +263,13 @@ const DetailPost = () => {
       ) : (
         <div>
           <div>
-            <button style={{ float: "right" }} onClick={followSubmit}>
+            <button style={{ marginTop: "20px", marginLeft: "15%", background: "#203864", color: "white", borderRadius: "5px", border: 0, outline: 0 }} onClick={followSubmit}>
               {hasFollowed !== null && (hasFollowed ? "팔로잉 취소" : "팔로우")}
             </button>
-            <button style={{ float: "right" }} onClick={likeSubmit}>
+            <button style={{ marginLeft: "2px", background: "#203864", color: "white", borderRadius: "5px", border: 0, outline: 0 }} onClick={likeSubmit}>
               {hasLiked !== null && (hasLiked ? "좋아요 취소" : "좋아요")}
             </button>
-            <button style={{ float: "right" }} onClick={bookmarkSubmit}>
+            <button style={{ marginLeft: "2px", background: "#203864", color: "white", borderRadius: "5px", border: 0, outline: 0 }} onClick={bookmarkSubmit}>
               {hasBookmarked !== null &&
                 (hasBookmarked ? "북마크 취소" : "북마크")}
             </button>
@@ -278,7 +277,10 @@ const DetailPost = () => {
         </div>
       )}
       
-      {user ? (
+      
+      <div>
+        <h3 style={{ display: "inline-block", marginLeft: "15%", marginTop: "20px" }}>댓글</h3>
+        {user ? (
         <form onSubmit={commentCreateSubmit}>
           <div style={{ marginLeft: "15%", width: "85%" }}>
             <div style={{marginTop: "20px"}}>
@@ -289,15 +291,13 @@ const DetailPost = () => {
                   setWritedComment(e.target.value);
                 }}
               />
-            <button class="comment-button" type="submit">댓글 달기</button>
+            <button class="comment-button" type="submit">등록</button>
             </div>
           </div>
         </form>
       ) : (
         <></>
       )}
-      <div>
-        <h3 style={{ display: "inline-block", marginLeft: "15%", marginTop: "20px" }}>댓글</h3>
         <div>
           <div>{allCommnets}</div>
         </div>
