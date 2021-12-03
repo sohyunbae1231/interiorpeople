@@ -48,7 +48,7 @@ function Themeupload() {
       }
     }
     setLoading(true);
-    setTimeout(() => navigate("/interior/result"), 5000);
+    setTimeout(() => navigate("/interior/result"), 0);
   };
 
   return (
