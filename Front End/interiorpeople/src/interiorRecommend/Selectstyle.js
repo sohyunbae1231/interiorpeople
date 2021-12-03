@@ -39,7 +39,8 @@ const Selectstyle = () => {
         axios
           .post("/api/image/pre-image", { imageId: imageIdTemp })
           .then((result) => {
-            setInteriorImageUrl(result.data.s3_pre_transfer_img_url);
+            //setInteriorImageUrl(result.data.s3_pre_transfer_img_url);
+            setInteriorImageUrl("syle_transfer_img/54g4tga4ty687e5u4.png");
             setCategory(result.data.category_in_img);
           });
       } catch (err) {
@@ -163,30 +164,40 @@ const Selectstyle = () => {
     <div>
       <form onSubmit={onSubmit}>
         {/* 이미지 보여주기 */}
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            float: "center",
-          }}
-        >
-          <div
-            style={{
-              display: "flex",
-              position: "relative",
-            }}
-          >
+        {loadAll === false ? (
+          <div>
             <img
               alt=""
-              style={{
-                zIndex: -1,
-              }}
+              style={{ marginLeft: "5%", marginTop: "20px", width: "90%" }}
               src={`/uploads/${interiorImageUrl}`}
             />
-
-            {buttonsOnImage}
           </div>
-        </div>
+        ) : (
+          <div
+            style={{
+              marginTop: "10px",
+              display: "flex",
+              justifyContent: "center",
+              float: "center",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                position: "relative",
+              }}
+            >
+              <img
+                alt=""
+                style={{
+                  zIndex: -1,
+                }}
+                src={`/uploads/${interiorImageUrl}`}
+              />
+              {buttonsOnImage}
+            </div>
+          </div>
+        )}
         {/* 체크박스 보여주기 */}
         <div>
           <div>
