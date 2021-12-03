@@ -39,15 +39,18 @@ function Result() {
       window.location.replace("/");
     }
     setTimeout(() => setLoading(false), 4000);
-  }, []);
+  }, [color, style]);
 
   // 이미지 보이기
   return (
     <div>
       {loading ? (
         <div>
-          <Flex>
-            <h2>이미지를 변환하고 있습니다...</h2>
+          <Flex style={{ textAlign: "center" }}>
+            <h2>
+              이미지를 변환하고
+              <br /> 있습니다...
+            </h2>
             <br />
             <PuffLoader size="300" color="black" radius="8" />
           </Flex>
@@ -62,7 +65,7 @@ function Result() {
           }}
         >
           <h2 style={{ alignContent: "center", width: "90%" }}>변환 결과</h2>
-          <h3>원본 사진</h3>
+          {style === undefined ? <></> : <h3>원본 사진</h3>}
           <br />
           <img
             alt=""
@@ -70,12 +73,22 @@ function Result() {
             style={{ width: 200, height: 200, objectFit: "cover" }}
           ></img>
           <br />
-          {style && color ? (
+          {style === undefined ? (
+            <></>
+          ) : style ? (
             <div style={{ textAlign: "center" }}>
               <h3 style={{ display: "inline" }}>업로드하신 </h3>
-              <h3 style={{ display: "inline" }}>{style}</h3>
+              <h3
+                style={{ display: "inline", color: "blue", fontWeight: "bold" }}
+              >
+                {style}
+              </h3>
               <h3 style={{ display: "inline" }}>과</h3>{" "}
-              <h3 style={{ display: "inline" }}>{color}</h3>
+              <h3
+                style={{ display: "inline", color: "blue", fontWeight: "bold" }}
+              >
+                {color}
+              </h3>
               <h3 style={{ display: "inline" }}>
                 으로 <br />
                 변환된 결과를 알려드려요
