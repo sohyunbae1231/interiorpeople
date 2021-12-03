@@ -1,11 +1,31 @@
 import axios from "axios";
 import React, { useEffect, useRef, useState } from "react";
 import "./Upload.css";
+import { useNavigate } from "react-router-dom";
+import { Checkbox } from "antd";
 
 const Selectstyle = () => {
   const [imageId, setImageId] = useState();
-  const [category, setCategory] = useState();
+  const [category, setCategory] = useState([]);
   const [interiorImageUrl, setInteriorImageUrl] = useState();
+  const [buttons, setButtons] = useState([]);
+  // 사용자가 스타일과 컬러는 하나만 선택할 수 있도록 하고
+  // 선택한 스타일과 컬러 하나씩만 저장
+  const [styles, setStyles] = useState(undefined);
+  const [color, setColor] = useState(undefined);
+  const navigate = useNavigate();
+
+  const [style1, setStyle1] = useState(false);
+  const [style2, setStyle2] = useState(false);
+  const [style3, setStyle3] = useState(false);
+  const [style4, setStyle4] = useState(false);
+  const [style5, setStyle5] = useState(false);
+
+  const [color1, setColor1] = useState(false);
+  const [color2, setColor2] = useState(false);
+  const [color3, setColor3] = useState(false);
+  const [color4, setColor4] = useState(false);
+  const [color5, setColor5] = useState(false);
 
   useEffect(() => {
     // 이미지가 없으면 되돌아감
@@ -29,45 +49,216 @@ const Selectstyle = () => {
   }, []);
 
   // 이미지 위에 버튼 올리기
-  const buttonOnImage = () => {
-    if (!category) {
-      return <></>;
+  const buttonsOnImage = category.map((element) => (
+    <button
+      style={{
+        marginLeft: Number(element[0]),
+        marginTop: Number(element[1]),
+        width: Number(element[2]) - Number(element[0]),
+        height: Number(element[3]) - Number(element[1]),
+        backgroundColor: "transparent",
+        position: "absolute",
+        border: "5px solid skyblue",
+      }}
+    >
+      {element[4].replace(/[0-9]/g, "")}
+    </button>
+  ));
+
+  // formData라는 instance에 담아 보냄
+  const onSubmit = async (e) => {
+    e.preventDefault();
+    const formData = new FormData();
+    if (category) {
+      formData.append("category", category);
+      formData.append("imageId", imageId);
+      formData.append("color", color);
+      try {
+        await axios
+          .post("/api/image/select-style", formData, {
+            Headers: { "Content-Type": "multipart/result" },
+          })
+          .then((res) => {});
+      } catch (err) {
+        alert(err);
+      }
     }
-    const buttons = category.map((element) => {
-      return (
-        <button
-          style={{
-            left: element[0],
-            top: element[1],
-            width: element[2] - element[0],
-            height: element[3] - element[1],
-            position: "absolute",
-          }}
-        >
-          {element[4].replace(/[0-9]/g, "")}
-        </button>
-      );
-    });
-    return buttons;
+    navigate("/interior/result");
   };
+
+  function onChangeStyle1(element) {
+    setStyle1(true);
+    setStyle2(false);
+    setStyle3(false);
+    setStyle4(false);
+    setStyle5(false);
+  }
+  function onChangeStyle2(element) {
+    setStyle1(false);
+    setStyle2(true);
+    setStyle3(false);
+    setStyle4(false);
+    setStyle5(false);
+  }
+  function onChangeStyle3(element) {
+    setStyle1(false);
+    setStyle2(false);
+    setStyle3(true);
+    setStyle4(false);
+    setStyle5(false);
+  }
+  function onChangeStyle4(element) {
+    setStyle1(false);
+    setStyle2(false);
+    setStyle3(false);
+    setStyle4(true);
+    setStyle5(false);
+  }
+  function onChangeStyle5(element) {
+    setStyle1(false);
+    setStyle2(false);
+    setStyle3(false);
+    setStyle4(false);
+    setStyle5(true);
+  }
+
+  function onChangeColor1(element) {
+    setColor1(true);
+    setColor2(false);
+    setColor3(false);
+    setColor4(false);
+    setColor5(false);
+  }
+  function onChangeColor2(element) {
+    setColor1(false);
+    setColor2(true);
+    setColor3(false);
+    setColor4(false);
+    setColor5(false);
+  }
+  function onChangeColor3(element) {
+    setColor1(false);
+    setColor2(false);
+    setColor3(true);
+    setColor4(false);
+    setColor5(false);
+  }
+  function onChangeColor4(element) {
+    setColor1(false);
+    setColor2(false);
+    setColor3(false);
+    setColor4(true);
+    setColor5(false);
+  }
+  function onChangeColor5(element) {
+    setColor1(false);
+    setColor2(false);
+    setColor3(false);
+    setColor4(false);
+    setColor5(true);
+    console.log(element.value);
+  }
 
   return (
     <div>
       {/* 이미지 보여주기 */}
-      <div style={{ marginLeft: 50 }}>
-        <div style={{}}> {buttonOnImage()}</div>
-        <div style={{}}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          float: "center",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            position: "relative",
+          }}
+        >
           <img
             alt=""
             style={{
-              zIndex: -132,
-              position: "relative",
+              zIndex: -1,
             }}
             src={`/uploads/${interiorImageUrl}`}
           />
+
+          {buttonsOnImage}
         </div>
       </div>
       {/* 체크박스 보여주기 */}
+      <div>
+        <div>
+          <h2>인식된 가구 카테고리 선택하기</h2>
+        </div>
+        <div>
+          <h2>스타일 선택</h2>
+          <button
+            onClick={onChangeStyle1}
+            style={{ color: style1 ? `blue` : "black" }}
+          >
+            고풍스러움
+          </button>
+          <button
+            onClick={onChangeStyle2}
+            style={{ color: style2 ? `blue` : "black" }}
+          >
+            컬러풀
+          </button>
+          <button
+            onClick={onChangeStyle3}
+            style={{ color: style3 ? `blue` : "black" }}
+          >
+            북유럽풍
+          </button>
+          <button
+            onClick={onChangeStyle4}
+            style={{ color: style4 ? `blue` : "black" }}
+          >
+            심플
+          </button>
+          <button
+            onClick={onChangeStyle5}
+            style={{ color: style5 ? `blue` : "black" }}
+          >
+            빈티지
+          </button>
+        </div>
+        <div>
+          <h2>컬러 선택</h2>
+          <button
+            onClick={onChangeColor1}
+            style={{ color: color1 ? `blue` : "black" }}
+          >
+            블랙
+          </button>
+          <button
+            onClick={onChangeColor2}
+            style={{ color: color2 ? `blue` : "black" }}
+          >
+            블루
+          </button>
+          <button
+            onClick={onChangeColor3}
+            style={{ color: color3 ? `blue` : "black" }}
+          >
+            브라운
+          </button>
+          <button
+            onClick={onChangeColor4}
+            style={{ color: color4 ? `blue` : "black" }}
+          >
+            그레이
+          </button>
+          <button
+            onClick={onChangeColor5}
+            value="fdasfd"
+            style={{ color: color5 ? `blue` : "black" }}
+          >
+            레드
+          </button>
+        </div>
+      </div>
       {/* 다음으로 버튼 */}
       <button
         type="submit"
@@ -89,53 +280,3 @@ const Selectstyle = () => {
 };
 
 export default Selectstyle;
-
-// const formData = [
-//   { id: 1, name: "딸기" },
-//   { id: 2, name: "바나나" },
-//   { id: 3, name: "피자" },
-//   { id: 4, name: "불고기" },
-//   { id: 5, name: "김치" },
-//   { id: 6, name: "볶음밥" },
-//   { id: 7, name: "쌀국수" },
-//   { id: 8, name: "육개장" },
-//   { id: 9, name: "커피" },
-// ];
-
-// const [isChecked, setIsChecked] = useState(false); //체크 여부
-// const [checkedItems, setCheckedItems] = useState(new Set()); //체크된 요소들
-
-// const checkHandler = ({ target }) => {
-//   setIsChecked(!isChecked);
-//   checkedItemHandler(target.parentNode, target.value, target.checked);
-// };
-
-// const checkedItemHandler = (box, id, isChecked) => {
-//   if (isChecked) {
-//     //체크 되었을때
-//     checkedItems.add(id); //체크시 삽입
-//     setCheckedItems(checkedItems); //체크 요소 넣어주기
-//     box.style.backgroundColor = "#F6CB44"; //스타일 변경
-//   } else if (!isChecked && checkedItems.has(id)) {
-//     //체크가 안되었고, id가 있을때(클릭 2번시)
-//     checkedItems.delete(id); //체크 두번시 삭제
-//     setCheckedItems(checkedItems);
-//     box.style.backgroundColor = "#fff";
-//   }
-//   return checkedItems;
-// };
-
-// return (
-//   <div className="contStyle">
-//     {formData.map((item) => (
-//       <label key={item.id} className="innerBox">
-//         <input
-//           type="checkbox"
-//           value={item.name}
-//           onChange={(e) => checkHandler(e)}
-//         />
-//         <div>{item.name}</div>
-//       </label>
-//     ))}
-//   </div>
-// );
