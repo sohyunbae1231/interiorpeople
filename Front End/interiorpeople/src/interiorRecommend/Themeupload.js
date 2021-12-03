@@ -26,6 +26,8 @@ function Themeupload() {
     const formData = new FormData();
     if (file) {
       formData.append("theme", file, file.name);
+      const imageId = sessionStorage.getItem("imageId");
+      formData.append("imageId", imageId);
       try {
         await axios
           .post("/api/image/upload-theme", formData, {

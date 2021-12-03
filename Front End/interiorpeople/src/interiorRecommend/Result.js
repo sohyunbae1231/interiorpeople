@@ -6,10 +6,13 @@ function Result() {
 
   useEffect(() => {
     try {
+      const imageId = sessionStorage.getItem("imageId");
       // 변환된 이미지 불러오기
-      axios.post("/api/image/local-style-transfer").then((result) => {
-        setProcessedImageUrl(result.data.processedImage);
-      });
+      axios
+        .post("/api/image/local-style-transfer", { imageId: imageId })
+        .then((result) => {
+          setProcessedImageUrl(result.data.processedImage);
+        });
     } catch (err) {
       alert("에러가 발생했습니다. 메인으로 돌아갑니다.");
       window.location.replace("/");

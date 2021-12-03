@@ -92,14 +92,15 @@ imageRouter.post('/seg', ifIsLoggedIn, preTransferImage.single('image'), async (
     if (checkSeg === true) {
       // ! 삭제
       resultOfSeg = `Config not specified. Parsed yolact_base_config from the file name.
-    /usr/local/lib/python3.7/dist-packages/torch/jit/_recursive.py:235: UserWarning: 'lat_layers' was found in ScriptModule constants,  but it is a non-constant submodule. Consider removing it.
-      " but it is a non-constant {}. Consider removing it.".format(name, hint))
-    /usr/local/lib/python3.7/dist-packages/torch/jit/_recursive.py:235: UserWarning: 'downsample_layers' was found in ScriptModule constants,  but it is a non-constant submodule. Consider removing it.
-      " but it is a non-constant {}. Consider removing it.".format(name, hint))
-    /usr/local/lib/python3.7/dist-packages/torch/jit/_recursive.py:235: UserWarning: 'pred_layers' was found in ScriptModule constants,  but it is a non-constant submodule. Consider removing it.
-      " but it is a non-constant {}. Consider removing it.".format(name, hint))
-    Loading model... Done.
-    bbox_label_list :  [[array([340, 195, 845, 460]), 'bed00'], [array([ 31, 198, 220, 438]), 'chair01'], [array([383,  23, 591, 302]), 'potted plant02'], [array([251, 218, 443, 333]), 'couch03'], [array([217, 269, 240, 291]), 'vase04'], [array([188, 238, 221, 290]), 'vase05'], [array([350, 173, 806, 459]), 'couch06'], [array([159, 167, 255, 301]), 'potted plant07'], [array([217, 269, 240, 291]), 'cup08']]`
+
+      /usr/local/lib/python3.7/dist-packages/torch/jit/_recursive.py:235: UserWarning: 'pred_layers' was found in ScriptModule constants,  but it is a non-constant submodule. Consider removing it.
+        " but it is a non-constant {}. Consider removing it.".format(name, hint))
+      /usr/local/lib/python3.7/dist-packages/torch/jit/_recursive.py:235: UserWarning: 'downsample_layers' was found in ScriptModule constants,  but it is a non-constant submodule. Consider removing it.
+        " but it is a non-constant {}. Consider removing it.".format(name, hint))
+      /usr/local/lib/python3.7/dist-packages/torch/jit/_recursive.py:235: UserWarning: 'lat_layers' was found in ScriptModule constants,  but it is a non-constant submodule. Consider removing it.
+        " but it is a non-constant {}. Consider removing it.".format(name, hint))
+      Loading model... Done.
+      bbox_label_list :  [[array([340, 195, 845, 460]), 'bed00'], [array([ 31, 198, 220, 438]), 'chair01'], [array([383,  23, 591, 302]), 'potted plant02'], [array([251, 218, 443, 333]), 'couch03'], [array([217, 269, 240, 291]), 'vase04'], [array([188, 238, 221, 290]), 'vase05'], [array([350, 173, 806, 459]), 'couch06'], [array([159, 167, 255, 301]), 'potted plant07'], [array([217, 269, 240, 291]), 'cup08']]`
 
       // 결과에서 bbox_label_list 추출
       const bboxLabelListExistence = resultOfSeg.indexOf('bbox_label_list') // 존재하지 않으면 -1을 반환
@@ -152,38 +153,64 @@ imageRouter.post('/pre-image', ifIsLoggedIn, async (req, res) => {
 /** 스타일 편집(선택) */
 // TODO
 imageRouter.post('/select-style', ifIsLoggedIn, async (req, res) => {
-  const { furnitureCategory, style, color } = req.body
+  const { category, style, color, imageId } = req.body
+  // @ts-ignore
+  const userId = req.user ? req.user.id : 'testUser'
+  // @ts-ignore
+  const interiorImage = await InteriorImage.findOne({ _id: imageId, user_id: userId })
+  interiorImage.selected_color = color
+  interiorImage.selected_category = category
+  interiorImage.selected_style = style
+  await interiorImage.save()
+  res.status(200).json({ message: 'select successfully' })
 })
 
 /** 원하는 테마 이미지 업로드 */
 imageRouter.post('/upload-theme', ifIsLoggedIn, themeImage.single('theme'), async (req, res) => {
   // @ts-ignore
-  // const userId = req.user.id
+  const userId = req.user ? req.user.id : 'testUser'
   if (process.env.NODE_ENV === 'dev') {
     // @ts-ignore
     req.file.location = req.file.filename
   }
-  // * 쿠키에 테마 이미지 경로를 저장
   // @ts-ignore
-  res.cookie('themeName', req.file.filename, { maxAge: 1000 * 60 * 10 })
+  const interiorImage = await InteriorImage.findOne({ _id: req.body.imageId, user_id: userId })
+  // @ts-ignore
+  interiorImage.s3_theme_img_url = req.file.location
+  await interiorImage.save()
   res.status(200).json({ message: 'upload theme succuss' })
 })
 
 /** 결과 보기 */
-imageRouter.get('/local-style-transfer', ifIsLoggedIn, (req, res) => {
-  const imageProcessedFolderName = `imageProcessed`
+imageRouter.post('/local-style-transfer', ifIsLoggedIn, async (req, res) => {
+  const imageProcessedFolderName = `syle_transfer_img`
   if (!fs.existsSync(`./uploads/${imageProcessedFolderName}`)) {
     fs.mkdirSync(`./uploads/${imageProcessedFolderName}`, { recursive: true }) // ? package.json 기준 상대 경로
   }
-  const { imageName, themeName } = req.cookies
-  console.log(themeName)
+  // @ts-ignore
+  const userId = req.user ? req.user.id : 'testUser'
+  const { imageId } = req.body
+  // @ts-ignore
+  const interiorImage = await InteriorImage.findOne({ _id: imageId, user_id: userId })
+  console.log(interiorImage)
 
-  res.clearCookie('imageName')
+  let styleImage
+  // 테마 이미지가 있는 경우
+  if (interiorImage.s3_theme_img_url && interiorImage.s3_theme_img_url !== 'none') {
+    // ! 머신 러닝 폴더 기준
+    styleImage = `../Back End/server/uploads/${interiorImage.s3_theme_img_url}`
+  } else {
+    // 테마 이미지가 없는 경우 스타일과 컬러를 고려
+    // 스타일
+    // 컬러
+    styleImage = '"./data/style/modern/blue.jpg"'
+  }
+
   const targets = `"tv01, tv02, tv03, pillow00"`
   const contentImage = `"./data/train/images/kor_bedroom1.jpg"`
-  const styleImage = '"./data/style/modern/blue.jpg"'
+  const styleIntensity = `"Middle"`
   // const outputLocalStylePath = `"../Back End/server/upload/local_stylized.jpg"` // imageName
-  const outputLocalStylePath = `"./upload/local_stylized.jpg"` // imageName
+  const outputLocalStylePath = `"../Back End/server/${imageId}"` // imageName
   const command = [
     `../../../../Machine Learning`,
     `&&`,
@@ -196,9 +223,9 @@ imageRouter.get('/local-style-transfer', ifIsLoggedIn, (req, res) => {
     `--targets`,
     targets,
     `--vgg_path`,
-    `"./pth/style_transfer/vgg_normalised.pth"`,
+    `"./weights/style_transfer/vgg_normalised.pth"`,
     `--decoder_path`,
-    `"./pth/style_transfer/decoder.pth"`,
+    `"./weights/style_transfer/decoder.pth"`,
     `--content_image`,
     contentImage,
     `--style_image`,
@@ -206,7 +233,7 @@ imageRouter.get('/local-style-transfer', ifIsLoggedIn, (req, res) => {
     `--output_style_path`,
     `"./fg_bg/stylized.jpg"`,
     `--style_intensity`,
-    `"Middle"`,
+    styleIntensity,
     `--fg_image_path`,
     `"./fg_bg/fg_result.jpg"`,
     `--bg_image_path`,
@@ -226,7 +253,6 @@ imageRouter.get('/local-style-transfer', ifIsLoggedIn, (req, res) => {
   // TODO : 사진 보내기
   localStyleTransfer.stdout.on('data', (data) => {
     console.log(data.toString())
-    res.status(200).json({ themeName })
   }) // 실행 결과
 
   localStyleTransfer.stderr.on('data', (data) => {
@@ -240,48 +266,3 @@ imageRouter.get('/local-style-transfer', ifIsLoggedIn, (req, res) => {
 })
 
 module.exports = { imageRouter }
-
-// ! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ! //
-// * package.json 기준
-// ! 이렇게 하면 띄어쓰기 인식을 못함
-// ! 두번쨰 인자 사용해서 하나씩 넣어줘야 함 ㅠㅠ
-// const process = spawn('python', ['./src/routes/test11.py', '--print-number', '5'])
-// const process = spawn('python', [
-//   '../../Machine Learning/segmentation.py',
-//   '--trained_model=weights/yolact_plus_resnet50_cig_indoor_78_869_interrupt.pth',
-//   '--config=yolact_resnet50_cig_indoor_config',
-//   '--score_threshold=0.3',
-//   '--top_k=15',
-//   '--image=data/train/images/kor_bedroom1.jpg:data/eval_result/kor_bedroom1.jpg',
-//   '--display_bbox=False',
-//   '--display_text=False',
-// ])
-
-// const process = spawn('python', [
-//   '../../Machine Learning/local_style_transfer.py',
-//   '--image_path',
-//   "'./fg_bg/'",
-//   '--targets',
-//   '"tv01, tv02, tv03, pillow00"',
-//   '--vgg_path',
-//   "'./pth/style_transfer/vgg_normalised.pth'",
-//   '--decoder_path',
-//   "'./pth/style_transfer/decoder.pth'",
-//   '--content_image',
-//   "'./data/train/images/kor_bedroom1.jpg'",
-//   '--style_image',
-//   "'./data/style/modern/blue.jpg'",
-//   '--output_style_path',
-//   "'./fg_bg/stylized.jpg'",
-//   '--style_intensity',
-//   "'Middle'",
-//   '--fg_image_path',
-//   '"./fg_bg/fg_result.jpg"',
-//   '--bg_image_path',
-//   '"./fg_bg/bg_result.jpg"',
-//   '--stylized_image_path',
-//   '"./fg_bg/stylized.jpg"',
-//   '--output_local_style_path',
-//   '"./local_stylized.jpg"',
-// ])
-// ! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ! //
