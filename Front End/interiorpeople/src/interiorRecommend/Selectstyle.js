@@ -13,6 +13,7 @@ const Selectstyle = () => {
   const [styles, setStyles] = useState(undefined);
   const [color, setColor] = useState(undefined);
   const navigate = useNavigate();
+  const [loadAll, setLoadAll] = useState(false);
 
   const [style1, setStyle1] = useState(false);
   const [style2, setStyle2] = useState(false);
@@ -79,10 +80,10 @@ const Selectstyle = () => {
           })
           .then((res) => {});
       } catch (err) {
-        alert(err);
+        //alert(err);
       }
     }
-    navigate("/interior/result");
+    navigate("/interior/themeupload");
   };
 
   function onChangeStyle1(element) {
@@ -160,120 +161,122 @@ const Selectstyle = () => {
 
   return (
     <div>
-      {/* 이미지 보여주기 */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          float: "center",
-        }}
-      >
+      <form onSubmit={onSubmit}>
+        {/* 이미지 보여주기 */}
         <div
           style={{
             display: "flex",
-            position: "relative",
+            justifyContent: "center",
+            float: "center",
           }}
         >
-          <img
-            alt=""
+          <div
             style={{
-              zIndex: -1,
+              display: "flex",
+              position: "relative",
             }}
-            src={`/uploads/${interiorImageUrl}`}
-          />
+          >
+            <img
+              alt=""
+              style={{
+                zIndex: -1,
+              }}
+              src={`/uploads/${interiorImageUrl}`}
+            />
 
-          {buttonsOnImage}
+            {buttonsOnImage}
+          </div>
         </div>
-      </div>
-      {/* 체크박스 보여주기 */}
-      <div>
+        {/* 체크박스 보여주기 */}
         <div>
-          <h2>인식된 가구 카테고리 선택하기</h2>
+          <div>
+            <h2>인식된 가구 카테고리 선택하기</h2>
+          </div>
+          <div>
+            <h2>스타일 선택</h2>
+            <button
+              onClick={onChangeStyle1}
+              style={{ color: style1 ? `blue` : "black" }}
+            >
+              고풍스러움
+            </button>
+            <button
+              onClick={onChangeStyle2}
+              style={{ color: style2 ? `blue` : "black" }}
+            >
+              컬러풀
+            </button>
+            <button
+              onClick={onChangeStyle3}
+              style={{ color: style3 ? `blue` : "black" }}
+            >
+              북유럽풍
+            </button>
+            <button
+              onClick={onChangeStyle4}
+              style={{ color: style4 ? `blue` : "black" }}
+            >
+              심플
+            </button>
+            <button
+              onClick={onChangeStyle5}
+              style={{ color: style5 ? `blue` : "black" }}
+            >
+              빈티지
+            </button>
+          </div>
+          <div>
+            <h2>컬러 선택</h2>
+            <button
+              onClick={onChangeColor1}
+              style={{ color: color1 ? `blue` : "black" }}
+            >
+              블랙
+            </button>
+            <button
+              onClick={onChangeColor2}
+              style={{ color: color2 ? `blue` : "black" }}
+            >
+              블루
+            </button>
+            <button
+              onClick={onChangeColor3}
+              style={{ color: color3 ? `blue` : "black" }}
+            >
+              브라운
+            </button>
+            <button
+              onClick={onChangeColor4}
+              style={{ color: color4 ? `blue` : "black" }}
+            >
+              그레이
+            </button>
+            <button
+              onClick={onChangeColor5}
+              value="fdasfd"
+              style={{ color: color5 ? `blue` : "black" }}
+            >
+              레드
+            </button>
+          </div>
         </div>
-        <div>
-          <h2>스타일 선택</h2>
-          <button
-            onClick={onChangeStyle1}
-            style={{ color: style1 ? `blue` : "black" }}
-          >
-            고풍스러움
-          </button>
-          <button
-            onClick={onChangeStyle2}
-            style={{ color: style2 ? `blue` : "black" }}
-          >
-            컬러풀
-          </button>
-          <button
-            onClick={onChangeStyle3}
-            style={{ color: style3 ? `blue` : "black" }}
-          >
-            북유럽풍
-          </button>
-          <button
-            onClick={onChangeStyle4}
-            style={{ color: style4 ? `blue` : "black" }}
-          >
-            심플
-          </button>
-          <button
-            onClick={onChangeStyle5}
-            style={{ color: style5 ? `blue` : "black" }}
-          >
-            빈티지
-          </button>
-        </div>
-        <div>
-          <h2>컬러 선택</h2>
-          <button
-            onClick={onChangeColor1}
-            style={{ color: color1 ? `blue` : "black" }}
-          >
-            블랙
-          </button>
-          <button
-            onClick={onChangeColor2}
-            style={{ color: color2 ? `blue` : "black" }}
-          >
-            블루
-          </button>
-          <button
-            onClick={onChangeColor3}
-            style={{ color: color3 ? `blue` : "black" }}
-          >
-            브라운
-          </button>
-          <button
-            onClick={onChangeColor4}
-            style={{ color: color4 ? `blue` : "black" }}
-          >
-            그레이
-          </button>
-          <button
-            onClick={onChangeColor5}
-            value="fdasfd"
-            style={{ color: color5 ? `blue` : "black" }}
-          >
-            레드
-          </button>
-        </div>
-      </div>
-      {/* 다음으로 버튼 */}
-      <button
-        type="submit"
-        className="input-file-button"
-        style={{
-          background: "#203864",
-          color: "white",
-          marginLeft: "5%",
-          marginTop: "20px",
-          width: "90%",
-          height: "45px",
-          borderRadius: "10px",
-        }}
-      >
-        다음으로
-      </button>
+        {/* 다음으로 버튼 */}
+        <button
+          type="submit"
+          className="input-file-button"
+          style={{
+            background: "#203864",
+            color: "white",
+            marginLeft: "5%",
+            marginTop: "20px",
+            width: "90%",
+            height: "45px",
+            borderRadius: "10px",
+          }}
+        >
+          다음으로
+        </button>
+      </form>
     </div>
   );
 };

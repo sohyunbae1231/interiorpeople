@@ -53,69 +53,59 @@ function Themeupload() {
 
   return (
     <div>
-      {loading ? (
-        <div>
-          <Flex>
-            <h2>이미지를 변환하고 있습니다...</h2>
+      <form onSubmit={onSubmit}>
+        <div class="explanation-group" style={{ marginTop: "20px" }}>
+          <div class="small-black-text">
+            원하는 테마 이미지를 업로드해주세요
             <br />
-            <PuffLoader size="300" color="black" radius="8" />
-          </Flex>
-        </div>
-      ) : (
-        <form onSubmit={onSubmit}>
-          <div class="explanation-group" style={{ marginTop: "20px" }}>
-            <div class="small-black-text">
-              원하는 테마 이미지를 업로드해주세요
-              <br />
-              (이미지가 없을 시 다음으로 넘어가주세요)
-            </div>
-
-            {/* eslint-disable-next-line jsx-a11y/alt-text */}
-            <img
-              src={imgSrc}
-              className={`image-preview ${imgSrc && "image-preview-show"}`}
-            />
+            (이미지가 없을 시 다음으로 넘어가주세요)
           </div>
-          <input
-            id="input-file"
-            type="file"
-            onChange={handleFileChange}
-            accept="image/*"
-            style={{ display: "none" }}
+
+          {/* eslint-disable-next-line jsx-a11y/alt-text */}
+          <img
+            src={imgSrc}
+            className={`image-preview ${imgSrc && "image-preview-show"}`}
           />
-          <label
-            className="input-file-button"
-            for="input-file"
-            style={{
-              background: "#203864",
-              color: "white",
-              // alignItems: "center",
-              marginLeft: "5%",
-              marginTop: "30px",
-              // width: "90%",
-              height: "45px",
-              borderRadius: "10px",
-            }}
-          >
-            테마 이미지 업로드
-          </label>
-          <button
-            type="submit"
-            className="input-file-button"
-            style={{
-              background: "#203864",
-              color: "white",
-              marginLeft: "5%",
-              marginTop: "20px",
-              width: "90%",
-              height: "45px",
-              borderRadius: "10px",
-            }}
-          >
-            결과 보기
-          </button>
-        </form>
-      )}
+        </div>
+        <input
+          id="input-file"
+          type="file"
+          onChange={handleFileChange}
+          accept="image/*"
+          style={{ display: "none" }}
+        />
+        <label
+          className="input-file-button"
+          for="input-file"
+          style={{
+            background: "#203864",
+            color: "white",
+            // alignItems: "center",
+            marginLeft: "5%",
+            marginTop: "30px",
+            // width: "90%",
+            height: "45px",
+            borderRadius: "10px",
+          }}
+        >
+          테마 이미지 업로드
+        </label>
+        <button
+          type="submit"
+          className="input-file-button"
+          style={{
+            background: "#203864",
+            color: "white",
+            marginLeft: "5%",
+            marginTop: "20px",
+            width: "90%",
+            height: "45px",
+            borderRadius: "10px",
+          }}
+        >
+          결과 보기
+        </button>
+      </form>
     </div>
   );
 }
