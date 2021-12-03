@@ -2,7 +2,6 @@ import axios from "axios";
 import React, { useEffect, useRef, useState } from "react";
 import "./Upload.css";
 import { useNavigate } from "react-router-dom";
-import { Checkbox } from "antd";
 
 const Selectstyle = () => {
   const [imageId, setImageId] = useState();
@@ -156,7 +155,7 @@ const Selectstyle = () => {
     setColor3(false);
     setColor4(false);
     setColor5(true);
-    console.log(element.value);
+    console.log(element);
   }
 
   return (
