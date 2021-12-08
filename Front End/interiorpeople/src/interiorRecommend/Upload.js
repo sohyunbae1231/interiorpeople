@@ -44,8 +44,15 @@ function Upload() {
             Headers: { "Content-Type": "multipart/form-data" },
           })
           .then((res) => {
-            sessionStorage.setItem("imageId", res.data.imageId);
-            setTimeout(() => navigate("/interior/selectstyle"), 5000);
+            if (res.data.segmentation === false) {
+              alert(
+                "해당 이미지에서 가구가 인식되지 않습니다. 다른 이미지를 업로드해주세요."
+              );
+              window.location.replace("/interior/upload");
+            } else {
+              sessionStorage.setItem("imageId", res.data.imageId);
+              setTimeout(() => navigate("/interior/selectstyle"), 5000);
+            }
           });
       } catch (err) {
         alert(err);
@@ -58,7 +65,7 @@ function Upload() {
       {loading ? (
         <div>
           <Flex>
-            <h3>이미지 분석중입니다...</h3>
+            <h2>이미지 분석중입니다...</h2>
             <br />
             <PuffLoader size="300" color="black" radius="8" />
           </Flex>

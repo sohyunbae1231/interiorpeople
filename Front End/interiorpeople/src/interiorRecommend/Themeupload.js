@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import axios from "axios";
 import {} from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import PuffLoader from "react-spinners/PuffLoader";
 import styled from "styled-components";
 
 const Flex = styled.div`
@@ -34,6 +33,7 @@ function Themeupload() {
     e.preventDefault();
     const formData = new FormData();
     if (file) {
+      console.log("file is on");
       formData.append("theme", file, file.name);
       const imageId = sessionStorage.getItem("imageId");
       formData.append("imageId", imageId);
@@ -55,7 +55,7 @@ function Themeupload() {
     <div>
       <form onSubmit={onSubmit}>
         <div class="explanation-group" style={{ marginTop: "20px" }}>
-          <div class="small-black-text" style={{ marginBottom : "20px"}}>
+          <div class="small-black-text">
             원하는 테마 이미지를 업로드해주세요
             <br />
             (이미지가 없을 시 다음으로 넘어가주세요)

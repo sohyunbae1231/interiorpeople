@@ -2,9 +2,8 @@
 // cSpell:disable
 
 /**
- * TODO : 로그인으로 바꾸기
  * TODO : s3 연결
- * TODO :
+ * TODO : 세그멘테이션이 안되었을 경우 어떻게 할 것인가?
  * TODO :
  * TODO :
  * TODO :
@@ -47,7 +46,20 @@ imageRouter.post('/seg', ifIsLoggedIn, preTransferImage.single('image'), async (
   const imgUrl = req.file.location
 
   // segmetation 진행
-  const imagePath = `../Back End/server/uploads/${imgUrl}`
+  // ! machine learning 폴더 기준
+  const imagePath = `../Back End/server/uploads/${imgUrl}` // ml_pre_transfer_image/~.~
+  // eslint-disable-next-line camelcase
+  const fg_bg_path_in_server = `./uploads/fg_bg/${userId}`
+
+  // 폴더를 지우고 다시 생성
+  if (fs.existsSync(fg_bg_path_in_server)) {
+    fs.rmdirSync(fg_bg_path_in_server, { recursive: true })
+  }
+  fs.mkdirSync(fg_bg_path_in_server, { recursive: true })
+
+  // eslint-disable-next-line camelcase
+  const fg_bg_path = `../Back End/${fg_bg_path_in_server}/`
+
   const command = [
     `../../../../Machine Learning`,
     `&&`,
@@ -62,6 +74,8 @@ imageRouter.post('/seg', ifIsLoggedIn, preTransferImage.single('image'), async (
     `--image=${imagePath}`,
     `--display_bbox=False`,
     `--display_text=False`,
+    // eslint-disable-next-line camelcase
+    `--fg_bg=${fg_bg_path}`,
   ]
   const segmentation = spawn(`cd`, command, {
     shell: true,
@@ -71,19 +85,15 @@ imageRouter.post('/seg', ifIsLoggedIn, preTransferImage.single('image'), async (
   let resultOfSeg
   let checkSeg = true
   // * 쉘 명령어 에러
-  segmentation.stderr.on('data', (data) => {
-    // ! 바꾸기
+  segmentation.stderr.on('data', () => {
+    // ! 주석 처리 하지 않아야 함
     // checkSeg = false
-    // return res.status(200).json({
-    //   segmentation: 'false',
-    //   bbox_label_list: [],
-    // })
-    console.log(data.toString())
   })
 
+  // * 쉘 명령어 실행 중
   segmentation.stdout.on('data', (data) => {
-    console.log(data.toString())
     resultOfSeg = data
+    console.log(resultOfSeg.toString())
   })
 
   // * 쉘 명령어 종료
@@ -92,7 +102,6 @@ imageRouter.post('/seg', ifIsLoggedIn, preTransferImage.single('image'), async (
     if (checkSeg === true) {
       // ! 삭제
       resultOfSeg = `Config not specified. Parsed yolact_base_config from the file name.
-
       /usr/local/lib/python3.7/dist-packages/torch/jit/_recursive.py:235: UserWarning: 'pred_layers' was found in ScriptModule constants,  but it is a non-constant submodule. Consider removing it.
         " but it is a non-constant {}. Consider removing it.".format(name, hint))
       /usr/local/lib/python3.7/dist-packages/torch/jit/_recursive.py:235: UserWarning: 'downsample_layers' was found in ScriptModule constants,  but it is a non-constant submodule. Consider removing it.
@@ -101,13 +110,14 @@ imageRouter.post('/seg', ifIsLoggedIn, preTransferImage.single('image'), async (
         " but it is a non-constant {}. Consider removing it.".format(name, hint))
       Loading model... Done.
       bbox_label_list :  [[array([340, 195, 845, 460]), 'bed00'], [array([ 31, 198, 220, 438]), 'chair01'], [array([383,  23, 591, 302]), 'potted plant02'], [array([251, 218, 443, 333]), 'couch03'], [array([217, 269, 240, 291]), 'vase04'], [array([188, 238, 221, 290]), 'vase05'], [array([350, 173, 806, 459]), 'couch06'], [array([159, 167, 255, 301]), 'potted plant07'], [array([217, 269, 240, 291]), 'cup08']]`
-
+      // !
       // 결과에서 bbox_label_list 추출
       const bboxLabelListExistence = resultOfSeg.indexOf('bbox_label_list') // 존재하지 않으면 -1을 반환
       // 세그멘테이션이 잘 안된 경우
       if (bboxLabelListExistence === -1) {
         return res.status(200).json({
           segmentation: false,
+          bbox_label_list: [],
         })
       }
       // 세그멘테이션이 되면 결과를 발신
@@ -120,19 +130,23 @@ imageRouter.post('/seg', ifIsLoggedIn, preTransferImage.single('image'), async (
       const step5 = step4.map((element) => element.replace(reg, ''))
       const listSegCategory = step5.map((element) => element.split(','))
       res.cookie('bbox_label_list', listSegCategory, { maxAge: 1000 * 60 * 10 })
-      console.log(listSegCategory)
+      // console.log(listSegCategory)
       const newInteriorImage = await new InteriorImage({
         user_id: userId,
         s3_pre_transfer_img_url: imgUrl,
         category_in_img: listSegCategory,
       }).save()
-      console.log(newInteriorImage)
+      // console.log(newInteriorImage)
       return res.status(200).json({
         segmentation: true,
         // eslint-disable-next-line no-underscore-dangle
         imageId: newInteriorImage._id,
       })
     }
+    return res.status(200).json({
+      segmentation: false,
+      bbox_label_list: [],
+    })
   })
 })
 
@@ -185,7 +199,8 @@ imageRouter.post('/upload-theme', ifIsLoggedIn, themeImage.single('theme'), asyn
   res.status(200).json({ message: 'upload theme succuss' })
 })
 
-/** 결과 보기 */
+// TODO :
+/** local-style-transfer 결과 보기 */
 imageRouter.post('/local-style-transfer', ifIsLoggedIn, async (req, res) => {
   const imageProcessedFolderName = `syle_transfer_img`
   if (!fs.existsSync(`./uploads/${imageProcessedFolderName}`)) {
