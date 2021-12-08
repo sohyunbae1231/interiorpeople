@@ -29,8 +29,8 @@ function Result() {
           setProcessedImageUrl(result.data.transferedImage);
           setOriginalImageUrl(result.data.originalImage);
           if (result.data.colorStyle) {
-            setStyle(result.data.color === "red" ? "빨강색" : "");
-            setColor(result.data.style === "nrt" ? "북유럽풍" : "");
+            setStyle(result.data.color);
+            setColor(result.data.style);
             console.log(style, color);
           }
         });

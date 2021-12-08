@@ -10,7 +10,7 @@ const Selectstyle = () => {
   const [buttons, setButtons] = useState([]);
   // 사용자가 스타일과 컬러는 하나만 선택할 수 있도록 하고
   // 선택한 스타일과 컬러 하나씩만 저장
-  const [styles, setStyles] = useState(undefined);
+  const [style, setStyle] = useState(undefined);
   const [color, setColor] = useState(undefined);
   const navigate = useNavigate();
   const [loadAll, setLoadAll] = useState(false);
@@ -34,6 +34,7 @@ const Selectstyle = () => {
   const [color4, setColor4] = useState(false);
   const [color5, setColor5] = useState(false);
 
+  // 처음 페이지를 보여줄 때
   useEffect(() => {
     // 이미지가 없으면 되돌아감
     const imageIdTemp = sessionStorage.getItem("imageId");
@@ -45,11 +46,7 @@ const Selectstyle = () => {
       try {
         axios
           .post("/api/image/pre-image", { imageId: imageIdTemp })
-          .then((result) => {
-            //setInteriorImageUrl(result.data.s3_pre_transfer_img_url);
-            setInteriorImageUrl("syle_transfer_img/54g4tga4ty687e5u4.png");
-            setCategory(result.data.category_in_img);
-          });
+          .then((result) => {});
       } catch (err) {
         console.error(err);
       }
@@ -74,6 +71,7 @@ const Selectstyle = () => {
   ));
 
   // formData라는 instance에 담아 보냄
+  // 다음 버튼 누르기
   const onSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData();
@@ -81,6 +79,7 @@ const Selectstyle = () => {
       formData.append("category", category);
       formData.append("imageId", imageId);
       formData.append("color", color);
+      formData.append("style", style);
       try {
         await axios
           .post("/api/image/select-style", formData, {
@@ -119,6 +118,7 @@ const Selectstyle = () => {
   }
 
   function onChangeStyle1(element) {
+    setStyle("classic");
     setStyle1(true);
     setStyle2(false);
     setStyle3(false);
@@ -126,6 +126,7 @@ const Selectstyle = () => {
     setStyle5(false);
   }
   function onChangeStyle2(element) {
+    setStyle("natural");
     setStyle1(false);
     setStyle2(true);
     setStyle3(false);
@@ -133,6 +134,7 @@ const Selectstyle = () => {
     setStyle5(false);
   }
   function onChangeStyle3(element) {
+    setStyle("northern_europe");
     setStyle1(false);
     setStyle2(false);
     setStyle3(true);
@@ -140,6 +142,7 @@ const Selectstyle = () => {
     setStyle5(false);
   }
   function onChangeStyle4(element) {
+    setStyle("modern");
     setStyle1(false);
     setStyle2(false);
     setStyle3(false);
@@ -147,6 +150,7 @@ const Selectstyle = () => {
     setStyle5(false);
   }
   function onChangeStyle5(element) {
+    setStyle("vintage");
     setStyle1(false);
     setStyle2(false);
     setStyle3(false);
@@ -155,6 +159,7 @@ const Selectstyle = () => {
   }
 
   function onChangeColor1(element) {
+    setColor("black");
     setColor1(true);
     setColor2(false);
     setColor3(false);
@@ -162,6 +167,7 @@ const Selectstyle = () => {
     setColor5(false);
   }
   function onChangeColor2(element) {
+    setColor("blue");
     setColor1(false);
     setColor2(true);
     setColor3(false);
@@ -169,6 +175,7 @@ const Selectstyle = () => {
     setColor5(false);
   }
   function onChangeColor3(element) {
+    setColor("brown");
     setColor1(false);
     setColor2(false);
     setColor3(true);
@@ -176,6 +183,7 @@ const Selectstyle = () => {
     setColor5(false);
   }
   function onChangeColor4(element) {
+    setColor("grey");
     setColor1(false);
     setColor2(false);
     setColor3(false);
@@ -183,12 +191,12 @@ const Selectstyle = () => {
     setColor5(false);
   }
   function onChangeColor5(element) {
+    setColor("red");
     setColor1(false);
     setColor2(false);
     setColor3(false);
     setColor4(false);
     setColor5(true);
-    console.log(element);
   }
 
   return (
