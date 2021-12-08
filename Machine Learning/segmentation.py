@@ -120,6 +120,7 @@ def run():
                           help='When saving a video, emulate the framerate that you\'d get running in real-time mode.')
       parser.add_argument('--class', default = None, type=list,
                           help='Put name of class that you want to segment')
+      parser.add_argument('--fg_bg',default='./fg_bg',type=str,help='')
 
       parser.set_defaults(no_bar=False, display=False, resume=False, output_coco_json=False, output_web_json=False, shuffle=False,
                           benchmark=False, no_sort=False, no_hash=False, mask_proto_debug=False, crop=True, detect=False, display_fps=False,
@@ -214,7 +215,7 @@ def run():
               # display(image1)
               ''''''
               # print('img_numpy_aux : ',img_numpy_aux.shape)
-              cv2.imwrite('./fg_bg/fg_'+str(cfg.dataset.class_names[classes[i]])+str(format(i, '02'))+'.jpg', img_numpy_aux)
+              cv2.imwrite(args.fg_bg+'/fg_'+str(cfg.dataset.class_names[classes[i]])+str(format(i, '02'))+'.jpg', img_numpy_aux)
 
               if nzCount == -1:
                   nzCount = 0
@@ -236,7 +237,7 @@ def run():
             img_numpy = img_gpu_masked.byte().cpu().numpy()
             img_background = img.byte().cpu().numpy() - (img_gpu_masked * 255).byte().cpu().numpy()
             # print('img_background : ',img_background.shape)
-            cv2.imwrite('./fg_bg/bg_'+str(cfg.dataset.class_names[classes[i]])+str(format(i, '02'))+'.jpg', img_background)
+            cv2.imwrite(args.fg_bg+'/bg_'+str(cfg.dataset.class_names[classes[i]])+str(format(i, '02'))+'.jpg', img_background)
 
       if args.display_fps:
               # Draw the box for the fps on the GPU

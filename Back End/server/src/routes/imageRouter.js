@@ -3,7 +3,6 @@
 
 /**
  * TODO : s3 연결
- * TODO : 세그멘테이션이 안되었을 경우 어떻게 할 것인가?
  * TODO :
  * TODO :
  * TODO :
@@ -131,6 +130,7 @@ imageRouter.post('/seg', ifIsLoggedIn, preTransferImage.single('image'), async (
       const listSegCategory = step5.map((element) => element.split(','))
       res.cookie('bbox_label_list', listSegCategory, { maxAge: 1000 * 60 * 10 })
       // console.log(listSegCategory)
+      // 세그멘테이션의 결과를 몽고디비에 저장
       const newInteriorImage = await new InteriorImage({
         user_id: userId,
         s3_pre_transfer_img_url: imgUrl,
@@ -225,6 +225,20 @@ imageRouter.post('/local-style-transfer', ifIsLoggedIn, async (req, res) => {
     styleImage = '"./data/style/modern/blue.jpg"'
   }
 
+  // ! machine learning 폴더 기준
+  const imagePath = `../Back End/server/uploads/${imgUrl}` // ml_pre_transfer_image/~.~
+  // eslint-disable-next-line camelcase
+  const fg_bg_path_in_server = `./uploads/fg_bg/${userId}`
+
+  // 폴더를 지우고 다시 생성
+  if (fs.existsSync(fg_bg_path_in_server)) {
+    fs.rmdirSync(fg_bg_path_in_server, { recursive: true })
+  }
+  fs.mkdirSync(fg_bg_path_in_server, { recursive: true })
+
+  // eslint-disable-next-line camelcase
+  const fg_bg_path = `../Back End/${fg_bg_path_in_server}/`
+
   const targets = `"tv01, tv02, tv03, pillow00"`
   const contentImage = `"./data/train/images/kor_bedroom1.jpg"`
   const styleIntensity = `"Middle"`
@@ -300,3 +314,5 @@ imageRouter.post('/local-style-transfer', ifIsLoggedIn, async (req, res) => {
 })
 
 module.exports = { imageRouter }
+
+// TODO : 선택한 이미지를 통해 검색
