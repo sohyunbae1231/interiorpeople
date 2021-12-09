@@ -23,7 +23,6 @@ import History from "./myPage/pages/History";
 // 인테리어 추천 - 사진 업로드, 영역 선택, 스타일 선택, 스타일 편집, 원하는 사진 추가 업로드, 분석 완료
 import InteriorRecommendPage from "./interiorRecommend/InteriorRecommend";
 import Upload from "./interiorRecommend/Upload";
-import Selectarea from "./interiorRecommend/Selectarea";
 import Selectstyle from "./interiorRecommend/Selectstyle";
 import Themeupload from "./interiorRecommend/Themeupload";
 import Result from "./interiorRecommend/Result";
@@ -69,7 +68,6 @@ function App() {
           {/* 인테리어 추천 페이지 관련 */}
           <Route path="/interior/*" element={<InteriorRecommendPage />}>
             <Route path="upload" element={<Upload />} />
-            <Route path="selectarea" element={<Selectarea />} />
             <Route path="selectstyle" element={<Selectstyle />} />
             <Route path="themeupload" element={<Themeupload />} />
             <Route path="result" element={<Result />} />

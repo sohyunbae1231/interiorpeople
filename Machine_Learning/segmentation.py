@@ -28,7 +28,6 @@ from collections import OrderedDict
 from PIL import Image
 
 
-import matplotlib.pyplot as plt
 import cv2
 
 def run():
@@ -120,7 +119,8 @@ def run():
                           help='When saving a video, emulate the framerate that you\'d get running in real-time mode.')
       parser.add_argument('--class', default = None, type=list,
                           help='Put name of class that you want to segment')
-
+      parser.add_argument('--fg_bg', default = None, type=str,)
+      
       parser.set_defaults(no_bar=False, display=False, resume=False, output_coco_json=False, output_web_json=False, shuffle=False,
                           benchmark=False, no_sort=False, no_hash=False, mask_proto_debug=False, crop=True, detect=False, display_fps=False,
                           emulate_playback=False)
@@ -221,7 +221,7 @@ def run():
               # display(image1)
               ''''''
               # print('img_numpy_aux : ',img_numpy_aux.shape)
-              cv2.imwrite('./fg_bg/fg_'+str(cfg.dataset.class_names[classes[i]])+str(format(i, '02'))+'.jpg', img_numpy_aux)
+              cv2.imwrite(args.fg_bg+'/fg_'+str(cfg.dataset.class_names[classes[i]])+str(format(i, '02'))+'.jpg', img_numpy_aux)
 
               if nzCount == -1:
                   nzCount = 0
@@ -242,7 +242,7 @@ def run():
             img_gpu_masked = img_gpu_copy * (mask.sum(dim=0) >= 1).float().expand(-1, -1, 3)
             img_numpy = img_gpu_masked.byte().cpu().numpy()
             img_background = img.byte().cpu().numpy() - (img_gpu_masked * 255).byte().cpu().numpy()
-            cv2.imwrite('./fg_bg/bg_'+str(cfg.dataset.class_names[classes[i]])+str(format(i, '02'))+'.jpg', img_background)
+            cv2.imwrite(args.fg_bg+'/bg_'+str(cfg.dataset.class_names[classes[i]])+str(format(i, '02'))+'.jpg', img_background)
       
       # make ordinary image_gpu
       if args.display_masks and cfg.eval_mask_branch and num_dets_to_consider > 0:
@@ -669,9 +669,7 @@ def run():
           img_numpy = img_numpy[:, :, (2, 1, 0)]
 
       if save_path is None:
-          plt.imshow(img_numpy)
-          plt.title(path)
-          plt.show()
+          pass
       else:
           cv2.imwrite(save_path, img_numpy)
 
@@ -1029,9 +1027,7 @@ def run():
               if args.display:
                   if it > 1:
                       print('Avg FPS: %.4f' % (1 / frame_times.get_avg()))
-                  plt.imshow(img_numpy)
-                  plt.title(str(dataset.ids[image_idx]))
-                  plt.show()
+                  pass
               elif not args.no_bar:
                   if it > 1: fps = 1 / frame_times.get_avg()
                   else: fps = 0
