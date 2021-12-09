@@ -313,6 +313,63 @@ imageRouter.post('/local-style-transfer', ifIsLoggedIn, async (req, res) => {
   })
 })
 
-module.exports = { imageRouter }
+/** 유사 이미지 검색 후 아마존 링크 보내기 */
+// TODO : 어떤 상품?
+imageRouter.post('/onlineshop', ifIsLoggedIn, async (req, res) => {
+  const userId = req.user ? req.user.id : 'testUser'
+  const { imageId } = req.body
+  const interiorImage = await InteriorImage.findOne({ _id: imageId, user_id: userId })
 
-// TODO : 선택한 이미지를 통해 검색
+  // 이미지 이름 가져오기
+  const temp1 = interiorImage.s3_pre_transfer_img_url.split('/')
+  const temp2 = temp1[temp1.length - 1]
+  const temp3 = temp2.split('.')
+  const realImageName = temp3[0]
+
+  const fg_bg_path = `./fg_bg/${realImageName}`
+  const crawling_img_path = '../Back End/server/uploads/crawling/realImageName/'
+  fs.mkdirSync(crawling_img_path, { recursive: true })
+
+  const command = [
+    `../../../../Machine Learning`,
+    `&&`,
+    `dir`, // TODO : 제거
+    '&&',
+    `python`,
+    `item_recommend.py`,
+    `--targets`, // 무엇을 찾을 것인지 : 전부
+    `"${interiorImage.selected_category}"`,
+    `--search_img_path`, // 어떤 이미지에서 찾을 것인지
+    `"${fg_bg_path}/stylized.jpg"`,
+    `--crawling_img_path`, // 크롤링해서 얻은 이미지를 어디에 저장할 것인지
+    `${crawling_img_path}`,
+    `--color`, // 어떤 색깔로 할 것인지
+    `"blue"`, // ! 수정
+  ]
+  // 만들어 지는 시간이 걸림
+
+  let resultOfCrawling = ''
+
+  const crawlingImage = spawn(`cd`, command, {
+    shell: true,
+    cwd: __dirname,
+  })
+
+  crawlingImage.stderr.on('data', (data) => {
+    // eslint-disable-next-line no-console
+    console.error('error : ', data.toString())
+  })
+
+  crawlingImage.stdout.on('data', (data) => {
+    resultOfCrawling = data
+    // eslint-disable-next-line no-console
+    console.log('crawling : ', resultOfCrawling.toString())
+  })
+
+  crawlingImage.on('exit', async () => {
+    console.error(resultOfCrawling)
+  })
+  res.json({})
+})
+
+module.exports = { imageRouter }
