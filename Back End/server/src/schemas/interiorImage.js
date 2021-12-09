@@ -9,6 +9,7 @@ const InteriorImageSchema = new mongoose.Schema(
     category_in_img: { type: mongoose.Schema.Types.Mixed },
     selected_category: { type: mongoose.Schema.Types.Mixed },
     selected_color: { type: mongoose.Schema.Types.Mixed },
+    intensity: { type: String },
   },
   { timestamps: true }
 )
