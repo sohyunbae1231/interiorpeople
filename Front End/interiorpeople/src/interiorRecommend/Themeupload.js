@@ -32,10 +32,10 @@ function Themeupload() {
   const onSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData();
+    const imageId = sessionStorage.getItem("imageId");
+
     if (file) {
-      console.log("file is on");
       formData.append("theme", file, file.name);
-      const imageId = sessionStorage.getItem("imageId");
       formData.append("imageId", imageId);
       try {
         await axios
@@ -47,8 +47,25 @@ function Themeupload() {
         alert(err);
       }
     }
-    setLoading(true);
-    setTimeout(() => navigate("/interior/result"), 0);
+    try {
+      await axios
+        .post("/api/image/pre-image", { imageId: imageId })
+        .then((result) => {
+          console.log(result);
+          if (
+            result.data.s3_theme_img_url === "none" &&
+            (result.data.selected_style === "none" ||
+              result.data.selected_color === "none")
+          ) {
+            throw new Error();
+          }
+          setLoading(true);
+          setTimeout(() => navigate("/interior/result"), 0);
+        });
+    } catch (err) {
+      alert("테마 이미지를 업로드해야 합니다.");
+      window.location.replace("/interior/themeupload");
+    }
   };
 
   return (

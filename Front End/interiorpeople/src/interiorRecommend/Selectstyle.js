@@ -179,7 +179,7 @@ const Selectstyle = () => {
     setColor5(false);
   }
   function onChangeColor4(element) {
-    setColor("grey");
+    setColor("gray");
     setColor1(false);
     setColor2(false);
     setColor3(false);

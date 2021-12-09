@@ -91,7 +91,7 @@ function Upload() {
             id="input-file"
             type="file"
             onChange={handleFileChange}
-            accept="image/*"
+            accept="image/jpg,image/jpeg"
             style={{ display: "none" }}
           />
           <label

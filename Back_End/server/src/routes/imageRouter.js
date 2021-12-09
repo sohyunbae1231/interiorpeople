@@ -128,14 +128,20 @@ imageRouter.post('/seg', ifIsLoggedIn, preTransferImage.single('image'), async (
       const step1 = resultOfSeg.slice(bboxLabelListExistence + 'bbox_label_list'.length + 4)
       console.log('step1', step1)
       const step2 = step1.replace(/array/g, '')
-      const step3 = step2.split('],')
+      const step2Temp = step2.replace(/\n/g, '')
+
+      console.log('step2', step2Temp)
+      const step3 = step2Temp.split('],')
+      console.log('step3', step3)
       const step4 = step3.map((el) => el.replace(/ /g, ''))
+      console.log('step4', step4)
       // eslint-disable-next-line no-useless-escape
       const reg = /[()'".\{\}\[\]\\\/ ]/gim
       const step5 = step4.map((element) => element.replace(reg, ''))
+      console.log('step5', step5)
       const listSegCategory = step5.map((element) => element.split(','))
-      res.cookie('bbox_label_list', listSegCategory, { maxAge: 1000 * 60 * 10 })
-      // console.log(listSegCategory)
+      // res.cookie('bbox_label_list', listSegCategory, { maxAge: 1000 * 60 * 10 })
+      console.log(listSegCategory)
       // 세그멘테이션의 결과를 몽고디비에 저장
       const newInteriorImage = await new InteriorImage({
         user_id: userId,
@@ -177,7 +183,7 @@ imageRouter.post('/select-style', ifIsLoggedIn, async (req, res) => {
   const { selectedCategory, style, color, imageId, intensity } = req.body
   const userId = req.user ? req.user.id : 'testUser'
   let categoryString = ''
-
+  console.log('category : ', selectedCategory)
   // eslint-disable-next-line no-restricted-syntax
   for (const key in selectedCategory) {
     if (selectedCategory[key] === true) {
@@ -186,10 +192,12 @@ imageRouter.post('/select-style', ifIsLoggedIn, async (req, res) => {
         categoryString = key
       } else {
         // eslint-disable-next-line prefer-template
-        categoryString += categoryString + ',' + key
+        categoryString += ',' + key
       }
+      console.log('categoryString : ', categoryString)
     }
   }
+  console.log('categoryString : ', categoryString)
 
   try {
     const interiorImage = await InteriorImage.findOne({ _id: imageId, user_id: userId })
@@ -245,8 +253,9 @@ imageRouter.post('/local-style-transfer', ifIsLoggedIn, async (req, res) => {
   const imagePath = `../Back_End/server/uploads/${imgUrl}` // ml_pre_transfer_image/~.~
 
   const fg_bg_path = `./fg_bg/${realImageName}`
-  const targets = `"bed00"` // ! 수정
-
+  let targets = `${interiorImage.selected_category}` // ! 수정
+  targets = targets.replace(/,/g, ', ')
+  console.log(targets)
   if (!fs.existsSync(`./uploads/ml_post_transfer_image_img`)) {
     fs.mkdirSync(`./uploads/ml_post_transfer_image_img`, { recursive: true })
   }
