@@ -164,13 +164,14 @@ imageRouter.post('/pre-image', ifIsLoggedIn, async (req, res) => {
  * color : black, blue, brown, grey, red
  */
 imageRouter.post('/select-style', ifIsLoggedIn, async (req, res) => {
-  const { category, style, color, imageId } = req.body
+  const { category, style, color, imageId, intensity } = req.body
   const userId = req.user ? req.user.id : 'testUser'
   try {
     const interiorImage = await InteriorImage.findOne({ _id: imageId, user_id: userId })
     interiorImage.selected_color = color
     interiorImage.selected_category = category
     interiorImage.selected_style = style
+    interiorImage.intensity = intensity
     await interiorImage.save()
   } catch (err) {
     res.status(400).json({ result: false })

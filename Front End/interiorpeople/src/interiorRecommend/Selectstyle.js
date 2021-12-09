@@ -21,6 +21,9 @@ const Selectstyle = () => {
   const [style, setStyle] = useState(undefined);
   const [color, setColor] = useState(undefined);
 
+  // 어떤 강도로 할지
+  const [intensity, setIntensity] = useState(undefined);
+
   // 버튼 처리를 위해 만듦
   const [style1, setStyle1] = useState(false);
   const [style2, setStyle2] = useState(false);
@@ -68,12 +71,28 @@ const Selectstyle = () => {
   // 다음 버튼 누르기
   const onSubmit = async (e) => {
     e.preventDefault();
+    let checkSelectCotegory = false;
+    if (!intensity) {
+      alert("변환 강도를 설정해야 합니다.");
+      return;
+    }
+    for (const key in selectedCategory) {
+      if (selectedCategory[key] === true) {
+        checkSelectCotegory = true;
+      }
+    }
+    if (!checkSelectCotegory) {
+      alert("변환할 카테고리를 설정해야 합니다.");
+      return;
+    }
+
     const formData = new FormData();
     if (category) {
       formData.append("category", category);
       formData.append("imageId", imageId);
       formData.append("color", color);
       formData.append("style", style);
+      formData.append("intensity", intensity);
       try {
         await axios
           .post("/api/image/select-style", formData, {
@@ -215,22 +234,10 @@ const Selectstyle = () => {
     setSelectedCategory(newSelectedCategory);
   };
 
-  // 이미지 위에 버튼 올리기
-  const buttonsOnImage = category.map((element) => (
-    <div
-      style={{
-        marginLeft: `${Number(element[0]) / 100}%`,
-        marginTop: `${Number(element[1]) / 100}%`,
-        width: Number(element[2]) - Number(element[0]),
-        height: Number(element[3]) - Number(element[1]),
-        backgroundColor: "transparent",
-        position: "absolute",
-        border: "5px solid skyblue",
-      }}
-    >
-      {element[4].replace(/[0-9]/g, "")}
-    </div>
-  ));
+  //변환 강도 버튼 클릭이벤트
+  const intensityUttonOnClick = (e) => {
+    setIntensity(e.target.value);
+  };
 
   // 페이지 보이기
   return (
@@ -238,8 +245,6 @@ const Selectstyle = () => {
       {/* 이미지 보여주기 */}
       <div style={{ width: "90%" }}>
         <div className="image-container" style={{ position: "relative" }}>
-          {buttonsOnImage}
-
           <img
             alt=""
             style={{
@@ -264,7 +269,10 @@ const Selectstyle = () => {
         </div>
         {/* 스타일 컬러 버튼 보여주기 */}
         <div style={{ marginTop: "10px", width: "95%" }}>
-          <h3 style={{ marginBottom: "5px" }}>스타일 선택</h3>
+          <h3 style={{ marginBottom: "5px" }}>
+            스타일 선택 (테마 이미지를 업로드하지 않을 경우 선택하지 않으셔도
+            됩니다)
+          </h3>
           <button
             onClick={onChangeStyle1}
             style={{
@@ -362,7 +370,10 @@ const Selectstyle = () => {
           </button>
         </div>
         <div style={{ marginTop: "10px" }}>
-          <h3 style={{ marginBottom: "5px" }}>컬러 선택</h3>
+          <h3 style={{ marginBottom: "5px" }}>
+            컬러 선택 (테마 이미지를 업로드하지 않을 경우 선택하지 않으셔도
+            됩니다)
+          </h3>
           <button
             onClick={onChangeColor1}
             style={{
@@ -458,6 +469,72 @@ const Selectstyle = () => {
           >
             레드
           </button>
+          <div>
+            {/* 스타일 컬러 버튼 보여주기 */}
+            <div style={{ marginTop: "10px", width: "95%" }}>
+              <h3 style={{ marginBottom: "5px" }}>변환 강도 선택</h3>
+              <button
+                onClick={intensityUttonOnClick}
+                style={{
+                  color: intensity === "Low" ? "white" : `black`,
+                  backgroundColor: intensity === "Low" ? "black" : "white",
+                  fontSize: "14px",
+                  borderRadius: "4px",
+                  textAlign: "center",
+                  fontWeight: "bold",
+                  borderColor: intensity === "Low" ? "black" : "#e7e7e7",
+                  width: "70px",
+                  height: "35px",
+                  marginRight: "10px",
+                  marginBottom: "10px",
+                  cursor: "pointer",
+                }}
+                value="Low"
+              >
+                약함
+              </button>
+              <button
+                onClick={intensityUttonOnClick}
+                style={{
+                  color: intensity === "Middle" ? "white" : `black`,
+                  backgroundColor: intensity === "Middle" ? "black" : "white",
+                  fontSize: "14px",
+                  borderRadius: "4px",
+                  textAlign: "center",
+                  fontWeight: "bold",
+                  borderColor: intensity === "Middle" ? "black" : "#e7e7e7",
+                  width: "70px",
+                  height: "35px",
+                  marginRight: "10px",
+                  marginBottom: "10px",
+                  cursor: "pointer",
+                }}
+                value="Middle"
+              >
+                중간
+              </button>
+              <button
+                onClick={intensityUttonOnClick}
+                style={{
+                  color: intensity === "High" ? "white" : `black`,
+                  backgroundColor: intensity === "High" ? "black" : "white",
+                  fontSize: "14px",
+                  borderRadius: "4px",
+                  textAlign: "center",
+                  fontWeight: "bold",
+                  borderColor: intensity === "High" ? "black" : "#e7e7e7",
+                  width: "70px",
+                  height: "35px",
+                  marginRight: "10px",
+                  marginBottom: "10px",
+                  cursor: "pointer",
+                }}
+                value="High"
+              >
+                강함
+              </button>
+            </div>
+          </div>
         </div>
       </div>
       <form onSubmit={onSubmit}>
