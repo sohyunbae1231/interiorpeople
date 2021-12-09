@@ -1,27 +1,27 @@
 import axios from "axios";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./Upload.css";
 import { useNavigate } from "react-router-dom";
 
 const Selectstyle = () => {
+  const navigate = useNavigate();
+
+  // 이미지 아이디를 저장
   const [imageId, setImageId] = useState();
+  // 백엔드에서 어떤 카테고리를 보냈는지를 저장함, 이미지 좌표 정보가 저장되어 있음
   const [category, setCategory] = useState([]);
+  // 어떤 카테고리를 선택하였느지를 저장함
+  // 카테고리의 각 이름과 선택여부(false, true)가 저장되어 있음
+  const [selectedCategory, setSelectedCategory] = useState({});
+  // 불러오는 이미지의 url을 저장
   const [interiorImageUrl, setInteriorImageUrl] = useState();
-  const [buttons, setButtons] = useState([]);
+
   // 사용자가 스타일과 컬러는 하나만 선택할 수 있도록 하고
   // 선택한 스타일과 컬러 하나씩만 저장
   const [style, setStyle] = useState(undefined);
   const [color, setColor] = useState(undefined);
-  const navigate = useNavigate();
-  const [loadAll, setLoadAll] = useState(false);
 
-  const [component1, setComponent1] = useState(false);
-  const [component2, setComponent2] = useState(false);
-  const [component3, setComponent3] = useState(false);
-  const [component4, setComponent4] = useState(false);
-  const [component5, setComponent5] = useState(false);
-  const [component6, setComponent6] = useState(false);
-
+  // 버튼 처리를 위해 만듦
   const [style1, setStyle1] = useState(false);
   const [style2, setStyle2] = useState(false);
   const [style3, setStyle3] = useState(false);
@@ -46,29 +46,23 @@ const Selectstyle = () => {
       try {
         axios
           .post("/api/image/pre-image", { imageId: imageIdTemp })
-          .then((result) => {});
+          .then((result) => {
+            setInteriorImageUrl(result.data.s3_pre_transfer_img_url);
+            setCategory(result.data.category_in_img);
+            const tempCategory = result.data.category_in_img.reduce(
+              (newObj, element) => {
+                newObj[element[element.length - 1]] = false;
+                return newObj;
+              },
+              {}
+            );
+            setSelectedCategory(tempCategory);
+          });
       } catch (err) {
         console.error(err);
       }
     }
   }, []);
-
-  // 이미지 위에 버튼 올리기
-  const buttonsOnImage = category.map((element) => (
-    <button
-      style={{
-        marginLeft: Number(element[0]),
-        marginTop: Number(element[1]),
-        width: Number(element[2]) - Number(element[0]),
-        height: Number(element[3]) - Number(element[1]),
-        backgroundColor: "transparent",
-        position: "absolute",
-        border: "5px solid skyblue",
-      }}
-    >
-      {element[4].replace(/[0-9]/g, "")}
-    </button>
-  ));
 
   // formData라는 instance에 담아 보냄
   // 다음 버튼 누르기
@@ -93,30 +87,7 @@ const Selectstyle = () => {
     navigate("/interior/themeupload");
   };
 
-  function onChangeComponent1(element) {
-    setComponent1(!component1);
-  }
-
-  function onChangeComponent2(element) {
-    setComponent2(!component2);
-  }
-
-  function onChangeComponent3(element) {
-    setComponent3(!component3);
-  }
-
-  function onChangeComponent4(element) {
-    setComponent4(!component4);
-  }
-
-  function onChangeComponent5(element) {
-    setComponent5(!component5);
-  }
-
-  function onChangeComponent6(element) {
-    setComponent6(!component6);
-  }
-
+  // 스타일 버튼 관련
   function onChangeStyle1(element) {
     setStyle("classic");
     setStyle1(true);
@@ -158,6 +129,7 @@ const Selectstyle = () => {
     setStyle5(true);
   }
 
+  // 컬러 버튼 관련
   function onChangeColor1(element) {
     setColor("black");
     setColor1(true);
@@ -199,156 +171,98 @@ const Selectstyle = () => {
     setColor5(true);
   }
 
+  // 카테고리 버튼 만들기
+  const butotnCategory = () => {
+    const buttonOfCategory = [];
+    for (const key in selectedCategory) {
+      buttonOfCategory.push(
+        <button
+          onClick={categoryButtonOnClick}
+          style={{
+            color: selectedCategory[key] ? "white" : `black`,
+            backgroundColor: selectedCategory[key] ? "black" : "white",
+            fontSize: "14px",
+            borderRadius: "4px",
+            textAlign: "center",
+            fontWeight: "bold",
+            borderColor: selectedCategory[key] ? "black" : "#e7e7e7",
+            width: "150px",
+            height: "35px",
+            marginRight: "10px",
+            marginBottom: "10px",
+            cursor: "pointer",
+          }}
+          value={key}
+        >
+          {key}
+        </button>
+      );
+    }
+
+    return buttonOfCategory;
+  };
+
+  // 카테고리 버튼 클릭 이벤트
+  const categoryButtonOnClick = (e) => {
+    const newSelectedCategory = {};
+    for (const key in selectedCategory) {
+      if (key === e.target.value) {
+        newSelectedCategory[key] = !selectedCategory[key];
+      } else {
+        newSelectedCategory[key] = selectedCategory[key];
+      }
+    }
+    setSelectedCategory(newSelectedCategory);
+  };
+
+  // 이미지 위에 버튼 올리기
+  const buttonsOnImage = category.map((element) => (
+    <div
+      style={{
+        marginLeft: `${Number(element[0]) / 100}%`,
+        marginTop: `${Number(element[1]) / 100}%`,
+        width: Number(element[2]) - Number(element[0]),
+        height: Number(element[3]) - Number(element[1]),
+        backgroundColor: "transparent",
+        position: "absolute",
+        border: "5px solid skyblue",
+      }}
+    >
+      {element[4].replace(/[0-9]/g, "")}
+    </div>
+  ));
+
+  // 페이지 보이기
   return (
     <div style={{ width: "90%", marginLeft: "5%", marginTop: "20px" }}>
       {/* 이미지 보여주기 */}
-      {loadAll === false ? (
-        <div>
+      <div style={{ width: "90%" }}>
+        <div className="image-container" style={{ position: "relative" }}>
+          {buttonsOnImage}
+
           <img
             alt=""
-            style={{ marginLeft: "5%", marginTop: "20px", width: "90%" }}
+            style={{
+              zIndex: -1,
+              marginLeft: "5%",
+              marginRight: "5%",
+              marginTop: "20px",
+              maxWidth: "100%",
+              maxHeight: "100%",
+              width: "auto",
+              height: "auto",
+            }}
             src={`/uploads/${interiorImageUrl}`}
           />
         </div>
-      ) : (
-        <div
-          style={{
-            marginTop: "10px",
-            display: "flex",
-            justifyContent: "center",
-            float: "center",
-          }}
-        >
-          <div
-            style={{
-              display: "flex",
-              position: "relative",
-            }}
-          >
-            <img
-              alt=""
-              style={{
-                zIndex: -1,
-              }}
-              src={`/uploads/${interiorImageUrl}`}
-            />
-            {buttonsOnImage}
-          </div>
-        </div>
-      )}
-      {/* 체크박스 보여주기 */}
+      </div>
+      {/* 카테고리 버튼 보여주기  */}
       <div>
         <div style={{ marginTop: "10px" }}>
           <h3 style={{ marginBottom: "5px" }}>인식된 가구 카테고리 선택</h3>
-          <button
-            onClick={onChangeComponent1}
-            style={{
-              color: component1 ? "white" : `black`,
-              backgroundColor: component1 ? "black" : "white",
-              fontSize: "14px",
-              borderRadius: "4px",
-              textAlign: "center",
-              fontWeight: "bold",
-              borderColor: component1 ? "black" : "#e7e7e7",
-              width: "70px",
-              height: "35px",
-              marginRight: "10px",
-              marginBottom: "10px",
-            }}
-          >
-            침대
-          </button>
-          <button
-            onClick={onChangeComponent2}
-            style={{
-              color: component2 ? "white" : `black`,
-              backgroundColor: component2 ? "black" : "white",
-              fontSize: "14px",
-              borderRadius: "4px",
-              textAlign: "center",
-              fontWeight: "bold",
-              borderColor: component2 ? "black" : "#e7e7e7",
-              width: "70px",
-              height: "35px",
-              marginRight: "10px",
-              marginBottom: "10px",
-            }}
-          >
-            의자
-          </button>
-          <button
-            onClick={onChangeComponent3}
-            style={{
-              color: component3 ? "white" : `black`,
-              backgroundColor: component3 ? "black" : "white",
-              fontSize: "14px",
-              borderRadius: "4px",
-              textAlign: "center",
-              fontWeight: "bold",
-              borderColor: component3 ? "black" : "#e7e7e7",
-              width: "70px",
-              height: "35px",
-              marginRight: "10px",
-              marginBottom: "10px",
-            }}
-          >
-            화분
-          </button>
-          <button
-            onClick={onChangeComponent4}
-            style={{
-              color: component4 ? "white" : `black`,
-              backgroundColor: component4 ? "black" : "white",
-              fontSize: "14px",
-              borderRadius: "4px",
-              textAlign: "center",
-              fontWeight: "bold",
-              borderColor: component4 ? "black" : "#e7e7e7",
-              width: "70px",
-              height: "35px",
-              marginRight: "10px",
-              marginBottom: "10px",
-            }}
-          >
-            꽃병
-          </button>
-          <button
-            onClick={onChangeComponent5}
-            style={{
-              color: component5 ? "white" : `black`,
-              backgroundColor: component5 ? "black" : "white",
-              fontSize: "14px",
-              borderRadius: "4px",
-              textAlign: "center",
-              fontWeight: "bold",
-              borderColor: component5 ? "black" : "#e7e7e7",
-              width: "70px",
-              height: "35px",
-              marginRight: "10px",
-              marginBottom: "10px",
-            }}
-          >
-            소파
-          </button>
-          <button
-            onClick={onChangeComponent6}
-            style={{
-              color: component6 ? "white" : `black`,
-              backgroundColor: component6 ? "black" : "white",
-              fontSize: "14px",
-              borderRadius: "4px",
-              textAlign: "center",
-              fontWeight: "bold",
-              borderColor: component6 ? "black" : "#e7e7e7",
-              width: "70px",
-              height: "35px",
-              marginRight: "10px",
-              marginBottom: "10px",
-            }}
-          >
-            컵
-          </button>
+          {butotnCategory()}
         </div>
+        {/* 스타일 컬러 버튼 보여주기 */}
         <div style={{ marginTop: "10px", width: "95%" }}>
           <h3 style={{ marginBottom: "5px" }}>스타일 선택</h3>
           <button
@@ -365,6 +279,7 @@ const Selectstyle = () => {
               height: "35px",
               marginRight: "10px",
               marginBottom: "10px",
+              cursor: "pointer",
             }}
           >
             고풍스러운
@@ -383,6 +298,7 @@ const Selectstyle = () => {
               height: "35px",
               marginRight: "10px",
               marginBottom: "10px",
+              cursor: "pointer",
             }}
           >
             컬러풀
@@ -401,6 +317,7 @@ const Selectstyle = () => {
               height: "35px",
               marginRight: "10px",
               marginBottom: "10px",
+              cursor: "pointer",
             }}
           >
             북유럽풍
@@ -419,6 +336,7 @@ const Selectstyle = () => {
               height: "35px",
               marginRight: "10px",
               marginBottom: "10px",
+              cursor: "pointer",
             }}
           >
             심플
@@ -437,6 +355,7 @@ const Selectstyle = () => {
               height: "35px",
               marginRight: "10px",
               marginBottom: "10px",
+              cursor: "pointer",
             }}
           >
             빈티지
@@ -458,6 +377,7 @@ const Selectstyle = () => {
               height: "35px",
               marginRight: "10px",
               marginBottom: "10px",
+              cursor: "pointer",
             }}
           >
             블랙
@@ -476,6 +396,7 @@ const Selectstyle = () => {
               height: "35px",
               marginRight: "10px",
               marginBottom: "10px",
+              cursor: "pointer",
             }}
           >
             블루
@@ -494,6 +415,7 @@ const Selectstyle = () => {
               height: "35px",
               marginRight: "10px",
               marginBottom: "10px",
+              cursor: "pointer",
             }}
           >
             브라운
@@ -512,6 +434,7 @@ const Selectstyle = () => {
               height: "35px",
               marginRight: "10px",
               marginBottom: "10px",
+              cursor: "pointer",
             }}
           >
             그레이
@@ -530,6 +453,7 @@ const Selectstyle = () => {
               height: "35px",
               marginRight: "10px",
               marginBottom: "10px",
+              cursor: "pointer",
             }}
           >
             레드

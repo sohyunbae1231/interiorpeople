@@ -3,23 +3,27 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import "../../fonts/MyPageMain.css";
-
-// <ul></ul> 부분 고치기!! -> 깨져서 나옴
+import Cookies from "universal-cookie";
 
 const MyPageMain = () => {
   const [userName, setUserName] = useState("");
   const [userId, setUserId] = useState("");
   const [userProfilePhoto, setUserProfilePhoto] = useState("");
+  const cookies = new Cookies();
 
   useEffect(() => {
-    try {
-      axios.get(`/api/mypage`).then((result) => {
-        setUserName(result.data.name);
-        setUserId(result.data.id);
-        setUserProfilePhoto(result.data.s3_profilephoto_img_url);
-      });
-    } catch (err) {
-      alert("오류가 발생했습니다.");
+    if (!cookies.get("sid")) {
+      window.location.replace("/login");
+    } else {
+      try {
+        axios.get(`/api/mypage`).then((result) => {
+          setUserName(result.data.name);
+          setUserId(result.data.id);
+          setUserProfilePhoto(result.data.s3_profilephoto_img_url);
+        });
+      } catch (err) {
+        alert("오류가 발생했습니다.");
+      }
     }
   }, []);
 
@@ -74,14 +78,18 @@ const MyPageMain = () => {
               <Link to="/mypage/profile">프로필 편집</Link>
             </button>
           </div>
-          <div style={{marginTop: "70px"}}>
+          <div style={{ marginTop: "70px" }}>
             <ul class="icon-wrapper">
               <li class="icon">
                 <Link to="/mypage/myphoto">
                   <img
                     alt=""
                     src={require("../../img/gallery.png").default}
-                    style={{ marginLeft: "20%", width: "55%", display: "block" }}
+                    style={{
+                      marginLeft: "20%",
+                      width: "55%",
+                      display: "block",
+                    }}
                   />
                   나의 사진
                 </Link>
@@ -91,7 +99,11 @@ const MyPageMain = () => {
                   <img
                     alt=""
                     src={require("../../img/bookmark.png").default}
-                    style={{ marginLeft: "20%", width: "60%", display: "block" }}
+                    style={{
+                      marginLeft: "20%",
+                      width: "60%",
+                      display: "block",
+                    }}
                   />
                   북마크
                 </Link>
@@ -101,7 +113,11 @@ const MyPageMain = () => {
                   <img
                     alt=""
                     src={require("../../img/records.png").default}
-                    style={{ marginLeft: "20%", width: "53%", display: "block" }}
+                    style={{
+                      marginLeft: "20%",
+                      width: "53%",
+                      display: "block",
+                    }}
                   />
                   추천 기록
                 </Link>

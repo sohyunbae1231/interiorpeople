@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
 
 /** 유저 인증 관련 컨텍스트 */
@@ -7,6 +7,7 @@ import axios from "axios";
 // import SimpleSlider from "../components/ImageCarousel";
 
 import "./WritePost.css";
+import Cookies from "universal-cookie";
 
 const WritePost = () => {
   // const { setMyImages, setImages } = useContext(ImageContext);
@@ -15,8 +16,15 @@ const WritePost = () => {
   const [previews, setPreviews] = useState([]);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const cookies = new Cookies();
 
   const inputRef = useRef();
+
+  useEffect(() => {
+    if (!cookies.get("sid")) {
+      window.location.replace("/login");
+    }
+  }, []);
 
   const imageSelectHandler = async (event) => {
     /** 이미지 파일의 정보를 읽어와서 file변수에 저장 */
@@ -93,7 +101,7 @@ const WritePost = () => {
         );
 
   return (
-    <div style={{whiteSpace: "pre-wrap"}}>
+    <div style={{ whiteSpace: "pre-wrap" }}>
       <form onSubmit={onSubmit}>
         <div style={{ display: "flex", flexWrap: "wrap", marginTop: "30px" }}>
           {/* 이미지 미리보기 */}
@@ -123,7 +131,7 @@ const WritePost = () => {
               }}
             />
           </div>
-          <div style={{marginTop: "15px"}}>
+          <div style={{ marginTop: "15px" }}>
             <label>내용</label>
             <input
               style={{ width: "100%", height: "80px" }}

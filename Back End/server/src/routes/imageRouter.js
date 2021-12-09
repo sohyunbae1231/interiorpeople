@@ -78,6 +78,7 @@ imageRouter.post('/seg', ifIsLoggedIn, preTransferImage.single('image'), async (
   })
 
   let resultOfSeg
+  // eslint-disable-next-line prefer-const
   let checkSeg = true
   // * 쉘 명령어 에러
   segmentation.stderr.on('data', () => {
@@ -160,7 +161,7 @@ imageRouter.post('/pre-image', ifIsLoggedIn, async (req, res) => {
 /** 스타일 편집(선택) */
 /**
  * style : classic, natural, northern_europe, modern, vintage
- * color : black, blue, brwon, grey, red
+ * color : black, blue, brown, grey, red
  */
 imageRouter.post('/select-style', ifIsLoggedIn, async (req, res) => {
   const { category, style, color, imageId } = req.body
