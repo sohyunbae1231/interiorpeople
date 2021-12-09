@@ -87,7 +87,8 @@ imageRouter.post('/seg', ifIsLoggedIn, preTransferImage.single('image'), async (
   let checkSeg = true
   // * 쉘 명령어 에러
   segmentation.stderr.on('data', () => {
-    // checkSeg = false
+    checkSeg = false
+    console.log(data)
   })
 
   // * 쉘 명령어 실행 중
@@ -102,15 +103,15 @@ imageRouter.post('/seg', ifIsLoggedIn, preTransferImage.single('image'), async (
   segmentation.on('exit', async () => {
     if (checkSeg === true) {
       // ! 삭제
-      resultOfSeg = `Config not specified. Parsed yolact_base_config from the file name.
-      /usr/local/lib/python3.7/dist-packages/torch/jit/_recursive.py:235: UserWarning: 'pred_layers' was found in ScriptModule constants,  but it is a non-constant submodule. Consider removing it.
-        " but it is a non-constant {}. Consider removing it.".format(name, hint))
-      /usr/local/lib/python3.7/dist-packages/torch/jit/_recursive.py:235: UserWarning: 'downsample_layers' was found in ScriptModule constants,  but it is a non-constant submodule. Consider removing it.
-        " but it is a non-constant {}. Consider removing it.".format(name, hint))
-      /usr/local/lib/python3.7/dist-packages/torch/jit/_recursive.py:235: UserWarning: 'lat_layers' was found in ScriptModule constants,  but it is a non-constant submodule. Consider removing it.
-        " but it is a non-constant {}. Consider removing it.".format(name, hint))
-      Loading model... Done.
-      bbox_label_list :  [[array([340, 195, 845, 460]), 'bed00'], [array([ 31, 198, 220, 438]), 'chair01'], [array([383,  23, 591, 302]), 'potted plant02'], [array([251, 218, 443, 333]), 'couch03'], [array([217, 269, 240, 291]), 'vase04'], [array([188, 238, 221, 290]), 'vase05'], [array([350, 173, 806, 459]), 'couch06'], [array([159, 167, 255, 301]), 'potted plant07'], [array([217, 269, 240, 291]), 'cup08']]`
+      // resultOfSeg = `Config not specified. Parsed yolact_base_config from the file name.
+      // /usr/local/lib/python3.7/dist-packages/torch/jit/_recursive.py:235: UserWarning: 'pred_layers' was found in ScriptModule constants,  but it is a non-constant submodule. Consider removing it.
+      //   " but it is a non-constant {}. Consider removing it.".format(name, hint))
+      // /usr/local/lib/python3.7/dist-packages/torch/jit/_recursive.py:235: UserWarning: 'downsample_layers' was found in ScriptModule constants,  but it is a non-constant submodule. Consider removing it.
+      //   " but it is a non-constant {}. Consider removing it.".format(name, hint))
+      // /usr/local/lib/python3.7/dist-packages/torch/jit/_recursive.py:235: UserWarning: 'lat_layers' was found in ScriptModule constants,  but it is a non-constant submodule. Consider removing it.
+      //   " but it is a non-constant {}. Consider removing it.".format(name, hint))
+      // Loading model... Done.
+      // bbox_label_list :  [[array([340, 195, 845, 460]), 'bed00'], [array([ 31, 198, 220, 438]), 'chair01'], [array([383,  23, 591, 302]), 'potted plant02'], [array([251, 218, 443, 333]), 'couch03'], [array([217, 269, 240, 291]), 'vase04'], [array([188, 238, 221, 290]), 'vase05'], [array([350, 173, 806, 459]), 'couch06'], [array([159, 167, 255, 301]), 'potted plant07'], [array([217, 269, 240, 291]), 'cup08']]`
       // // !
       // 결과에서 bbox_label_list 추출
       const bboxLabelListExistence = resultOfSeg.indexOf('bbox_label_list') // 존재하지 않으면 -1을 반환
