@@ -14,7 +14,7 @@ const Selectstyle = () => {
   // 카테고리의 각 이름과 선택여부(false, true)가 저장되어 있음
   const [selectedCategory, setSelectedCategory] = useState({});
   // 불러오는 이미지의 url을 저장
-  const [interiorImageUrl, setInteriorImageUrl] = useState();
+  const [interiorImageUrl, setInteriorImageUrl] = useState(undefined);
 
   // 사용자가 스타일과 컬러는 하나만 선택할 수 있도록 하고
   // 선택한 스타일과 컬러 하나씩만 저장
@@ -50,7 +50,7 @@ const Selectstyle = () => {
         axios
           .post("/api/image/pre-image", { imageId: imageIdTemp })
           .then((result) => {
-            setInteriorImageUrl(result.data.s3_pre_transfer_img_url);
+            setInteriorImageUrl(result.data.s3_box_img_url);
             setCategory(result.data.category_in_img);
             const tempCategory = result.data.category_in_img.reduce(
               (newObj, element) => {
@@ -86,17 +86,15 @@ const Selectstyle = () => {
       return;
     }
 
-    const formData = new FormData();
     if (category) {
-      formData.append("category", category);
-      formData.append("imageId", imageId);
-      formData.append("color", color);
-      formData.append("style", style);
-      formData.append("intensity", intensity);
       try {
         await axios
-          .post("/api/image/select-style", formData, {
-            Headers: { "Content-Type": "multipart/result" },
+          .post("/api/image/select-style", {
+            selectedCategory: selectedCategory,
+            imageId: imageId,
+            color: color ? color : "none",
+            style: style ? style : "none",
+            intensity: intensity,
           })
           .then((res) => {});
       } catch (err) {
@@ -245,20 +243,24 @@ const Selectstyle = () => {
       {/* 이미지 보여주기 */}
       <div style={{ width: "90%" }}>
         <div className="image-container" style={{ position: "relative" }}>
-          <img
-            alt=""
-            style={{
-              zIndex: -1,
-              marginLeft: "5%",
-              marginRight: "5%",
-              marginTop: "20px",
-              maxWidth: "100%",
-              maxHeight: "100%",
-              width: "auto",
-              height: "auto",
-            }}
-            src={`/uploads/${interiorImageUrl}`}
-          />
+          {interiorImageUrl ? (
+            <img
+              alt=""
+              style={{
+                zIndex: -1,
+                marginLeft: "5%",
+                marginRight: "5%",
+                marginTop: "20px",
+                maxWidth: "100%",
+                maxHeight: "100%",
+                width: "auto",
+                height: "auto",
+              }}
+              src={`/uploads/${interiorImageUrl}`}
+            />
+          ) : (
+            <></>
+          )}
         </div>
       </div>
       {/* 카테고리 버튼 보여주기  */}

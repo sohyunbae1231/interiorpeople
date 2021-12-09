@@ -40,8 +40,6 @@ imageRouter.post('/seg', ifIsLoggedIn, preTransferImage.single('image'), async (
   const imgUrl = req.file.location
 
   // segmetation 진행
-  // ! machine learning 폴더 기준
-  const imagePath = `../Back End/server/uploads/${imgUrl}` // ml_pre_transfer_image/~.~
 
   // 이미지 이름에 해당하는 폴더를 머신러닝 폴더 안에 만들기
   const temp1 = req.file.filename.split('/')
@@ -52,6 +50,13 @@ imageRouter.post('/seg', ifIsLoggedIn, preTransferImage.single('image'), async (
   // eslint-disable-next-line camelcase
   const fg_bg_folder = `../../Machine Learning/fg_bg/${realImageName}`
   fs.mkdirSync(fg_bg_folder, { recursive: true })
+
+  const boxImagePath = `box/${realImageName}`
+  fs.mkdirSync(`./uploads/${boxImagePath}`, { recursive: true })
+
+  // ! machine learning 폴더 기준
+  // ! 뒤에는 박스 쳐진 사진
+  const imagePath = `../Back End/server/uploads/${imgUrl}:../Back End/server/uploads/${boxImagePath}/box.jpg` // ml_pre_transfer_image/~.~
 
   // fg_bg 폴더 경로
   // eslint-disable-next-line camelcase
@@ -131,6 +136,7 @@ imageRouter.post('/seg', ifIsLoggedIn, preTransferImage.single('image'), async (
       const newInteriorImage = await new InteriorImage({
         user_id: userId,
         s3_pre_transfer_img_url: imgUrl,
+        s3_box_img_url: `${boxImagePath}/box.jpg`,
         category_in_img: listSegCategory,
       }).save()
       // console.log(newInteriorImage)
@@ -164,12 +170,27 @@ imageRouter.post('/pre-image', ifIsLoggedIn, async (req, res) => {
  * color : black, blue, brown, grey, red
  */
 imageRouter.post('/select-style', ifIsLoggedIn, async (req, res) => {
-  const { category, style, color, imageId, intensity } = req.body
+  const { selectedCategory, style, color, imageId, intensity } = req.body
   const userId = req.user ? req.user.id : 'testUser'
+  let categoryString = ''
+
+  // eslint-disable-next-line no-restricted-syntax
+  for (const key in selectedCategory) {
+    if (selectedCategory[key] === true) {
+      // eslint-disable-next-line prefer-template
+      if (categoryString === '') {
+        categoryString = key
+      } else {
+        // eslint-disable-next-line prefer-template
+        categoryString += categoryString + ',' + key
+      }
+    }
+  }
+
   try {
     const interiorImage = await InteriorImage.findOne({ _id: imageId, user_id: userId })
     interiorImage.selected_color = color
-    interiorImage.selected_category = category
+    interiorImage.selected_category = categoryString
     interiorImage.selected_style = style
     interiorImage.intensity = intensity
     await interiorImage.save()
@@ -245,7 +266,7 @@ imageRouter.post('/local-style-transfer', ifIsLoggedIn, async (req, res) => {
     `--output_style_path`,
     `"${fg_bg_path}/stylized.jpg"`,
     `--style_intensity`, // 강도를 어느 정도로 할지
-    'Middle', // ! 추가
+    `${interiorImage.intensity}`,
     `--output_local_style_path`, // 어디에 결과를 저장할지
     `"${resultOfTransferImagePath}"`,
     `--fg_image_path`,

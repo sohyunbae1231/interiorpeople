@@ -70,7 +70,7 @@ function Result() {
           <img
             alt=""
             src={`/uploads/${originalImageUrl}`}
-            style={{ width: 200, height: 200, objectFit: "cover" }}
+            style={{ width: "80%", height: "auto", objectFit: "cover" }}
           ></img>
           <br />
           {style === undefined ? (
@@ -103,7 +103,7 @@ function Result() {
           <img
             alt=""
             src={`/uploads/${pocessedImageUrl}`}
-            style={{ width: 200, height: 200, objectFit: "cover" }}
+            style={{ width: "80%", height: "auto", objectFit: "cover" }}
           ></img>
         </div>
       )}

@@ -10,6 +10,7 @@ const InteriorImageSchema = new mongoose.Schema(
     selected_category: { type: mongoose.Schema.Types.Mixed },
     selected_color: { type: mongoose.Schema.Types.Mixed },
     intensity: { type: String },
+    s3_box_img_url: { type: String, default: '' },
   },
   { timestamps: true }
 )
