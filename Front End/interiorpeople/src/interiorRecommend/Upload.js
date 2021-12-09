@@ -30,6 +30,7 @@ function Upload() {
   };
 
   // formData라는 instance에 담아 보냄
+  // 다음 버튼 누르기
   const onSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData();
@@ -44,8 +45,17 @@ function Upload() {
             Headers: { "Content-Type": "multipart/form-data" },
           })
           .then((res) => {
-            sessionStorage.setItem("imageId", res.data.imageId);
-            setTimeout(() => navigate("/interior/selectstyle"), 5000);
+            // 세그멘테이션 되지 않았을 경우
+            if (res.data.segmentation === false) {
+              alert(
+                "해당 이미지에서 가구가 인식되지 않습니다. 다른 이미지를 업로드해주세요."
+              );
+              window.location.replace("/interior/upload");
+            } else {
+              // 세그멘테이션이 된 경우
+              sessionStorage.setItem("imageId", res.data.imageId);
+              setTimeout(() => navigate("/interior/selectstyle"), 5000);
+            }
           });
       } catch (err) {
         alert(err);
@@ -58,7 +68,7 @@ function Upload() {
       {loading ? (
         <div>
           <Flex>
-            <h3>이미지 분석중입니다...</h3>
+            <h2>이미지 분석중입니다...</h2>
             <br />
             <PuffLoader size="300" color="black" radius="8" />
           </Flex>

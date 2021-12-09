@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 /** 컴포넌트 임포트 */
 // import PostList from "../components/PostList";
 // import UploadForm from "../components/UploadForm";
+import Cookies from "universal-cookie";
 
 import "./PostList.css";
 
@@ -16,6 +17,13 @@ const MyPost = () => {
   const [imageError, setImageError] = useState(false);
   const pastPostUrlRef = useRef();
   const elementRef = useRef(null); // 무한 스크롤 적용에 필요
+  const cookies = new Cookies();
+
+  useEffect(() => {
+    if (!cookies.get("sid")) {
+      window.location.replace("/login");
+    }
+  }, []);
 
   // 스크롤링을 위함
   useEffect(() => {
@@ -82,14 +90,16 @@ const MyPost = () => {
 
   return (
     <div>
-      <h3 class="title"
+      <h3
+        class="title"
         style={{
           display: "inline-block",
           marginTop: 10,
           marginBottom: 10,
           marginLeft: 20,
         }}
-      >나의 글
+      >
+        나의 글
       </h3>
       <div>
         <div class="image-list-container">{imgList}</div>
