@@ -120,7 +120,6 @@ def run():
                           help='When saving a video, emulate the framerate that you\'d get running in real-time mode.')
       parser.add_argument('--class', default = None, type=list,
                           help='Put name of class that you want to segment')
-      parser.add_argument('--fg_bg',default='./fg_bg',type=str,help='')
 
       parser.set_defaults(no_bar=False, display=False, resume=False, output_coco_json=False, output_web_json=False, shuffle=False,
                           benchmark=False, no_sort=False, no_hash=False, mask_proto_debug=False, crop=True, detect=False, display_fps=False,
@@ -138,6 +137,7 @@ def run():
   iou_thresholds = [x / 100 for x in range(50, 100, 5)]
   coco_cats = {} # Call prep_coco_cats to fill this
   coco_cats_inv = {}
+  global color_cache
   color_cache = defaultdict(lambda: {})
 
   def prep_display(dets_out, img, h, w, undo_transform=True, class_color=False, mask_alpha=0.45, fps_str=''):
@@ -185,7 +185,8 @@ def run():
       def get_color(j, on_gpu=None):
           global color_cache
           color_idx = (classes[j] * 5 if class_color else j * 5) % len(COLORS)
-          
+          # print('color_cache in function : ',color_cahce) 
+
           if on_gpu is not None and color_idx in color_cache[on_gpu]:
               return color_cache[on_gpu][color_idx]
           else:
@@ -199,6 +200,11 @@ def run():
               return color
       
       img_gpu_copy = img_gpu # copy img_gpu initial state to use for bg_image
+      img_gpu_copy2 = img_gpu # copy img_gpu initial state to use for ordinary image
+      masks_copy = masks # copy masks to use for ordinary image
+      mask_alpha_copy = mask_alpha # copy mask alpha to use for ordinary image
+
+      
       # get fg_image of each class
       if args.display_masks and cfg.eval_mask_branch and num_dets_to_consider > 0:
           masks = masks[:num_dets_to_consider, :, :, None]
@@ -215,7 +221,7 @@ def run():
               # display(image1)
               ''''''
               # print('img_numpy_aux : ',img_numpy_aux.shape)
-              cv2.imwrite(args.fg_bg+'/fg_'+str(cfg.dataset.class_names[classes[i]])+str(format(i, '02'))+'.jpg', img_numpy_aux)
+              cv2.imwrite('./fg_bg/fg_'+str(cfg.dataset.class_names[classes[i]])+str(format(i, '02'))+'.jpg', img_numpy_aux)
 
               if nzCount == -1:
                   nzCount = 0
@@ -236,8 +242,30 @@ def run():
             img_gpu_masked = img_gpu_copy * (mask.sum(dim=0) >= 1).float().expand(-1, -1, 3)
             img_numpy = img_gpu_masked.byte().cpu().numpy()
             img_background = img.byte().cpu().numpy() - (img_gpu_masked * 255).byte().cpu().numpy()
-            # print('img_background : ',img_background.shape)
-            cv2.imwrite(args.fg_bg+'/bg_'+str(cfg.dataset.class_names[classes[i]])+str(format(i, '02'))+'.jpg', img_background)
+            cv2.imwrite('./fg_bg/bg_'+str(cfg.dataset.class_names[classes[i]])+str(format(i, '02'))+'.jpg', img_background)
+      
+      # make ordinary image_gpu
+      if args.display_masks and cfg.eval_mask_branch and num_dets_to_consider > 0:
+        # After this, mask is of size [num_dets, h, w, 1]
+        masks = masks_copy[:num_dets_to_consider, :, :, None]
+        
+        # Prepare the RGB images for each mask given their color (size [num_dets, h, w, 1])
+        colors = torch.cat([get_color(j, on_gpu=img_gpu_copy2.device.index).view(1, 1, 1, 3) for j in range(num_dets_to_consider)], dim=0)
+        masks_color = masks.repeat(1, 1, 1, 3) * colors * mask_alpha_copy
+
+        # This is 1 everywhere except for 1-mask_alpha where the mask is
+        inv_alph_masks = masks * (-mask_alpha_copy) + 1
+        
+        # I did the math for this on pen and paper. This whole block should be equivalent to:
+        #    for j in range(num_dets_to_consider):
+        #        img_gpu = img_gpu * inv_alph_masks[j] + masks_color[j]
+        masks_color_summand = masks_color[0]
+        if num_dets_to_consider > 1:
+            inv_alph_cumul = inv_alph_masks[:(num_dets_to_consider-1)].cumprod(dim=0)
+            masks_color_cumul = masks_color[1:] * inv_alph_cumul
+            masks_color_summand += masks_color_cumul.sum(dim=0)
+
+        img_gpu = img_gpu_copy2 * inv_alph_masks.prod(dim=0) + masks_color_summand
 
       if args.display_fps:
               # Draw the box for the fps on the GPU
@@ -271,11 +299,11 @@ def run():
               score = scores[j]
 
               if args.display_bboxes:
-                  cv2.rectangle(img_numpy, (x1, y1), (x2, y2), color, 1)
+                  cv2.rectangle(img_numpy, (x1, y1), (x2, y2), color, 3)
 
               if args.display_text:
                   _class = cfg.dataset.class_names[classes[j]]
-                  text_str = '%s: %.2f' % (_class, score) if args.display_scores else _class
+                  text_str = '%s%02d' % (_class,j) if args.display_scores else _class
 
                   font_face = cv2.FONT_HERSHEY_DUPLEX
                   font_scale = 0.6
