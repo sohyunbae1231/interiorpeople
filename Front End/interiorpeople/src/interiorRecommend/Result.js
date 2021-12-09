@@ -12,11 +12,12 @@ const Flex = styled.div`
 `;
 
 function Result() {
-  const [originalImageUrl, setOriginalImageUrl] = useState();
-  const [pocessedImageUrl, setProcessedImageUrl] = useState();
+  const [originalImageUrl, setOriginalImageUrl] = useState(undefined);
+  const [pocessedImageUrl, setProcessedImageUrl] = useState(undefined);
   const [loading, setLoading] = useState(true);
   const [style, setStyle] = useState(undefined);
   const [color, setColor] = useState(undefined);
+  const [colorStyle, setColorStyle] = useState(undefined);
 
   useEffect(() => {
     try {
@@ -31,15 +32,15 @@ function Result() {
           if (result.data.colorStyle) {
             setStyle(result.data.color);
             setColor(result.data.style);
-            console.log(style, color);
           }
+          setColorStyle(result.data.colorStyle);
         });
     } catch (err) {
       alert("에러가 발생했습니다. 메인으로 돌아갑니다.");
       window.location.replace("/");
     }
     setTimeout(() => setLoading(false), 4000);
-  }, [color, style]);
+  }, []);
 
   // 이미지 보이기
   return (
@@ -67,15 +68,20 @@ function Result() {
           <h2 style={{ alignContent: "center", width: "90%" }}>변환 결과</h2>
           {style === undefined ? <></> : <h3>원본 사진</h3>}
           <br />
-          <img
-            alt=""
-            src={`/uploads/${originalImageUrl}`}
-            style={{ width: "80%", height: "auto", objectFit: "cover" }}
-          ></img>
-          <br />
-          {style === undefined ? (
+          {originalImageUrl !== undefined ? (
+            <img
+              alt=""
+              src={`/uploads/${originalImageUrl}`}
+              style={{ width: "80%", height: "auto", objectFit: "cover" }}
+            ></img>
+          ) : (
             <></>
-          ) : style ? (
+          )}
+
+          <br />
+          {colorStyle === undefined ? (
+            <></>
+          ) : colorStyle ? (
             <div style={{ textAlign: "center" }}>
               <h3 style={{ display: "inline" }}>업로드하신 </h3>
               <h3
@@ -100,11 +106,15 @@ function Result() {
             </h3>
           )}
           <br />
-          <img
-            alt=""
-            src={`/uploads/${pocessedImageUrl}`}
-            style={{ width: "80%", height: "auto", objectFit: "cover" }}
-          ></img>
+          {pocessedImageUrl !== undefined ? (
+            <img
+              alt=""
+              src={`/uploads/${pocessedImageUrl}`}
+              style={{ width: "80%", height: "auto", objectFit: "cover" }}
+            ></img>
+          ) : (
+            <></>
+          )}
         </div>
       )}
     </div>

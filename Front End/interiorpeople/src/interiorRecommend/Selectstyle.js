@@ -18,8 +18,8 @@ const Selectstyle = () => {
 
   // 사용자가 스타일과 컬러는 하나만 선택할 수 있도록 하고
   // 선택한 스타일과 컬러 하나씩만 저장
-  const [style, setStyle] = useState(undefined);
-  const [color, setColor] = useState(undefined);
+  const [style, setStyle] = useState(false);
+  const [color, setColor] = useState(false);
 
   // 어떤 강도로 할지
   const [intensity, setIntensity] = useState(undefined);
@@ -88,6 +88,8 @@ const Selectstyle = () => {
 
     if (category) {
       try {
+        console.log("style", style);
+        console.log("color", color);
         await axios
           .post("/api/image/select-style", {
             selectedCategory: selectedCategory,
@@ -112,6 +114,7 @@ const Selectstyle = () => {
     setStyle3(false);
     setStyle4(false);
     setStyle5(false);
+    console.log(style);
   }
   function onChangeStyle2(element) {
     setStyle("natural");
@@ -120,6 +123,7 @@ const Selectstyle = () => {
     setStyle3(false);
     setStyle4(false);
     setStyle5(false);
+    console.log(style);
   }
   function onChangeStyle3(element) {
     setStyle("northern_europe");
@@ -128,6 +132,7 @@ const Selectstyle = () => {
     setStyle3(true);
     setStyle4(false);
     setStyle5(false);
+    console.log(style);
   }
   function onChangeStyle4(element) {
     setStyle("modern");
@@ -136,6 +141,7 @@ const Selectstyle = () => {
     setStyle3(false);
     setStyle4(true);
     setStyle5(false);
+    console.log(style);
   }
   function onChangeStyle5(element) {
     setStyle("vintage");
@@ -144,6 +150,7 @@ const Selectstyle = () => {
     setStyle3(false);
     setStyle4(false);
     setStyle5(true);
+    console.log(style);
   }
 
   // 컬러 버튼 관련
